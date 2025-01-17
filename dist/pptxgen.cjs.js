@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-wip @ 2025-01-17T18:50:15.886Z */
+/* PptxGenJS 3.13.0-wip @ 2025-01-17T19:15:33.273Z */
 'use strict';
 
 var JSZip = require('jszip');
@@ -5812,8 +5812,8 @@ function genXmlBulletProperties(textPropsOptions) {
         var indentIncrement = (typeof bullet.indent === "number") ? valToPts(bullet.indent) : marginLeft;
         if (bullet.type) {
             var bulletType = bullet.type.toString().toLowerCase();
-            marL = (textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0)
-                ? (marginLeft + indentIncrement * textPropsOptions.indentLevel)
+            marL = ((typeof textPropsOptions.indentLevel === "number") && (textPropsOptions.indentLevel > 0))
+                ? (marginLeft + (indentIncrement * textPropsOptions.indentLevel))
                 : marginLeft;
             switch (bulletType) {
                 case 'number':
@@ -5830,13 +5830,13 @@ function genXmlBulletProperties(textPropsOptions) {
                     break;
                 case 'bullet':
                     indent = -marL;
-                    paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"-").concat(indent, "\"");
+                    paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
                     strXmlBullet = "<a:buSzPct val=\"100000\"/><a:buChar char=\"".concat(BULLET_TYPES.DEFAULT, "\"/>");
                     break;
                 case 'char':
                     var char = bullet.characterCode ? "&#x".concat(bullet.characterCode, ";") : BULLET_TYPES.DEFAULT;
                     indent = -marL;
-                    paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"-").concat(indent, "\"");
+                    paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
                     strXmlBullet = "<a:buSzPct val=\"100000\"/><a:buChar char=\"".concat(char, "\"/>");
                     break;
                 case 'none':

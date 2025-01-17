@@ -925,23 +925,27 @@ export interface TextBulletProps {
 	 * @since v3.3.0
 	 * @example 'romanLcParenR' // roman numerals lower-case with paranthesis right
 	 */
+
+	marginLeft?: number
+
+
 	numberType?:
-| 'alphaLcParenBoth'
-| 'alphaLcParenR'
-| 'alphaLcPeriod'
-| 'alphaUcParenBoth'
-| 'alphaUcParenR'
-| 'alphaUcPeriod'
-| 'arabicParenBoth'
-| 'arabicParenR'
-| 'arabicPeriod'
-| 'arabicPlain'
-| 'romanLcParenBoth'
-| 'romanLcParenR'
-| 'romanLcPeriod'
-| 'romanUcParenBoth'
-| 'romanUcParenR'
-| 'romanUcPeriod'
+	| 'alphaLcParenBoth'
+	| 'alphaLcParenR'
+	| 'alphaLcPeriod'
+	| 'alphaUcParenBoth'
+	| 'alphaUcParenR'
+	| 'alphaUcPeriod'
+	| 'arabicParenBoth'
+	| 'arabicParenR'
+	| 'arabicPeriod'
+	| 'arabicPlain'
+	| 'romanLcParenBoth'
+	| 'romanLcParenR'
+	| 'romanLcPeriod'
+	| 'romanUcParenBoth'
+	| 'romanUcParenR'
+	| 'romanUcPeriod'
 	/**
 	 * Number bullets start at
 	 * @since v3.3.0

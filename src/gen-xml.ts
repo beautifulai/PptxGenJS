@@ -826,10 +826,9 @@ export function slideObjectRelationsToXml (slide: PresSlide | SlideLayout, defau
 export function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
 	let paragraphPropXml = ''
 	let strXmlBullet = ''
-	let bulletMarL = valToPts(DEF_BULLET_MARGIN)
+	let marL = valToPts(DEF_BULLET_MARGIN)
 	let bullet = textPropsOptions.bullet
-	let marL = 0;
-	let indent = 0;
+	let indent : number
 
 	// NOTE: OOXML uses the unicode character set for Bullets
 	// EX: Unicode Character 'BULLET' (U+2022) ==> '<a:buChar char="&#x2022;"/>'
@@ -837,10 +836,10 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
 	if (typeof bullet === "boolean"){
 		if (bullet) {
 			marL = textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0
-				? bulletMarL + bulletMarL * textPropsOptions.indentLevel
-				: bulletMarL
+				? marL + marL * textPropsOptions.indentLevel
+				: marL
 			indent = -marL;
-			paragraphPropXml += ` marL="${marL}" indent="-${indent}"`
+			paragraphPropXml += ` marL="${marL}" indent="${indent}"`
 			strXmlBullet = `<a:buSzPct val="100000"/><a:buChar char="${BULLET_TYPES.DEFAULT}"/>`
 		} else if (!bullet) {
 			// We only add this when the user explicitly asks for no bullet, otherwise, it can override the master defaults!
@@ -848,25 +847,20 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
 			strXmlBullet = '<a:buNone/>'
 		}
 	} else if (bullet && typeof bullet === 'object') {
-		if (bullet.indent) {
-			bulletMarL = valToPts(bullet.indent)
-		}
+		let marginLeft = (typeof bullet.marginLeft === "number") ? valToPts(bullet.marginLeft) : marL;
+		let indentIncrement = (typeof bullet.indent === "number") ? valToPts(bullet.indent) : marginLeft;
+
 		if (bullet.type) {
 			let bulletType = bullet.type.toString().toLowerCase();
 			marL = (textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0)
-				? (bulletMarL + bulletMarL * textPropsOptions.indentLevel)
-				: bulletMarL
-
+				? (marginLeft + indentIncrement * textPropsOptions.indentLevel)
+				: marginLeft
 
 			switch(bulletType){
 				case 'number':
-					// marL = (textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0)
-					// 	? (bulletMarL + bulletMarL * textPropsOptions.indentLevel)
-					// 	: bulletMarL;
 					// indent = -marL;
-
+					indent = 0;
 					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
-					indent = -marL;
 					let bulletType = bullet.numberType || bullet?.style || 'arabicPeriod'
 					let bulletStartAt = bullet.numberStartAt || bullet.startAt
 					strXmlBullet = `<a:buSzPct val="100000"/><a:buFont typeface="+mj-lt"/><a:buAutoNum type="${bulletType}"`
@@ -887,6 +881,7 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
 					strXmlBullet = `<a:buSzPct val="100000"/><a:buChar char="${char}"/>`
 					break;
 				case 'none':
+					indent = 0;
 					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
 					strXmlBullet = '<a:buNone/>'
 					break;
@@ -900,7 +895,7 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
 				bulletCode = BULLET_TYPES.DEFAULT
 			}
 
-			paragraphPropXml += ` marL="${textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? bulletMarL + bulletMarL * textPropsOptions.indentLevel : bulletMarL}" indent="-${bulletMarL}"`
+			paragraphPropXml += ` marL="${textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? marL + marL * textPropsOptions.indentLevel : marL}" indent="-${marL}"`
 			strXmlBullet = '<a:buSzPct val="100000"/><a:buChar char="' + bulletCode + '"/>'
 		} else if (bullet.code) {
 			// @deprecated `bullet.code` v3.3.0
@@ -912,12 +907,12 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
 				bulletCode = BULLET_TYPES.DEFAULT
 			}
 
-			paragraphPropXml += ` marL="${textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? bulletMarL + bulletMarL * textPropsOptions.indentLevel : bulletMarL
-			}" indent="-${bulletMarL}"`
+			paragraphPropXml += ` marL="${textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? marL + marL * textPropsOptions.indentLevel : marL
+			}" indent="-${marL}"`
 			strXmlBullet = '<a:buSzPct val="100000"/><a:buChar char="' + bulletCode + '"/>'
 		} else {
-			paragraphPropXml += ` marL="${textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? bulletMarL + bulletMarL * textPropsOptions.indentLevel : bulletMarL
-			}" indent="-${bulletMarL}"`
+			paragraphPropXml += ` marL="${textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? marL + marL * textPropsOptions.indentLevel : marL
+			}" indent="-${marL}"`
 			strXmlBullet = `<a:buSzPct val="100000"/><a:buChar char="${BULLET_TYPES.DEFAULT}"/>`
 		}
 	}

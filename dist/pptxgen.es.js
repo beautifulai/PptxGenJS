@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-wip @ 2025-01-17T17:35:03.150Z */
+/* PptxGenJS 3.13.0-wip @ 2025-01-17T18:50:15.890Z */
 import JSZip from 'jszip';
 
 /******************************************************************************
@@ -5781,19 +5781,18 @@ function slideObjectRelationsToXml(slide, defaultRels) {
 function genXmlBulletProperties(textPropsOptions) {
     var paragraphPropXml = '';
     var strXmlBullet = '';
-    var bulletMarL = valToPts(DEF_BULLET_MARGIN);
+    var marL = valToPts(DEF_BULLET_MARGIN);
     var bullet = textPropsOptions.bullet;
-    var marL = 0;
-    var indent = 0;
+    var indent;
     // NOTE: OOXML uses the unicode character set for Bullets
     // EX: Unicode Character 'BULLET' (U+2022) ==> '<a:buChar char="&#x2022;"/>'
     if (typeof bullet === "boolean") {
         if (bullet) {
             marL = textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0
-                ? bulletMarL + bulletMarL * textPropsOptions.indentLevel
-                : bulletMarL;
+                ? marL + marL * textPropsOptions.indentLevel
+                : marL;
             indent = -marL;
-            paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"-").concat(indent, "\"");
+            paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
             strXmlBullet = "<a:buSzPct val=\"100000\"/><a:buChar char=\"".concat(BULLET_TYPES.DEFAULT, "\"/>");
         }
         else if (!bullet) {
@@ -5803,22 +5802,18 @@ function genXmlBulletProperties(textPropsOptions) {
         }
     }
     else if (bullet && typeof bullet === 'object') {
-        if (bullet.indent) {
-            bulletMarL = valToPts(bullet.indent);
-        }
+        var marginLeft = (typeof bullet.marginLeft === "number") ? valToPts(bullet.marginLeft) : marL;
+        var indentIncrement = (typeof bullet.indent === "number") ? valToPts(bullet.indent) : marginLeft;
         if (bullet.type) {
             var bulletType = bullet.type.toString().toLowerCase();
             marL = (textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0)
-                ? (bulletMarL + bulletMarL * textPropsOptions.indentLevel)
-                : bulletMarL;
+                ? (marginLeft + indentIncrement * textPropsOptions.indentLevel)
+                : marginLeft;
             switch (bulletType) {
                 case 'number':
-                    // marL = (textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0)
-                    // 	? (bulletMarL + bulletMarL * textPropsOptions.indentLevel)
-                    // 	: bulletMarL;
                     // indent = -marL;
+                    indent = 0;
                     paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
-                    indent = -marL;
                     var bulletType_1 = bullet.numberType || (bullet === null || bullet === void 0 ? void 0 : bullet.style) || 'arabicPeriod';
                     var bulletStartAt = bullet.numberStartAt || bullet.startAt;
                     strXmlBullet = "<a:buSzPct val=\"100000\"/><a:buFont typeface=\"+mj-lt\"/><a:buAutoNum type=\"".concat(bulletType_1, "\"");
@@ -5839,6 +5834,7 @@ function genXmlBulletProperties(textPropsOptions) {
                     strXmlBullet = "<a:buSzPct val=\"100000\"/><a:buChar char=\"".concat(char, "\"/>");
                     break;
                 case 'none':
+                    indent = 0;
                     paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
                     strXmlBullet = '<a:buNone/>';
                     break;
@@ -5851,7 +5847,7 @@ function genXmlBulletProperties(textPropsOptions) {
                 console.warn('Warning: `bullet.characterCode should be a 4-digit unicode character (ex: 22AB)`!');
                 bulletCode = BULLET_TYPES.DEFAULT;
             }
-            paragraphPropXml += " marL=\"".concat(textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? bulletMarL + bulletMarL * textPropsOptions.indentLevel : bulletMarL, "\" indent=\"-").concat(bulletMarL, "\"");
+            paragraphPropXml += " marL=\"".concat(textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? marL + marL * textPropsOptions.indentLevel : marL, "\" indent=\"-").concat(marL, "\"");
             strXmlBullet = '<a:buSzPct val="100000"/><a:buChar char="' + bulletCode + '"/>';
         }
         else if (bullet.code) {
@@ -5862,11 +5858,11 @@ function genXmlBulletProperties(textPropsOptions) {
                 console.warn('Warning: `bullet.code should be a 4-digit hex code (ex: 22AB)`!');
                 bulletCode = BULLET_TYPES.DEFAULT;
             }
-            paragraphPropXml += " marL=\"".concat(textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? bulletMarL + bulletMarL * textPropsOptions.indentLevel : bulletMarL, "\" indent=\"-").concat(bulletMarL, "\"");
+            paragraphPropXml += " marL=\"".concat(textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? marL + marL * textPropsOptions.indentLevel : marL, "\" indent=\"-").concat(marL, "\"");
             strXmlBullet = '<a:buSzPct val="100000"/><a:buChar char="' + bulletCode + '"/>';
         }
         else {
-            paragraphPropXml += " marL=\"".concat(textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? bulletMarL + bulletMarL * textPropsOptions.indentLevel : bulletMarL, "\" indent=\"-").concat(bulletMarL, "\"");
+            paragraphPropXml += " marL=\"".concat(textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? marL + marL * textPropsOptions.indentLevel : marL, "\" indent=\"-").concat(marL, "\"");
             strXmlBullet = "<a:buSzPct val=\"100000\"/><a:buChar char=\"".concat(BULLET_TYPES.DEFAULT, "\"/>");
         }
     }

@@ -914,21 +914,26 @@ export interface TextBulletProps {
 	 */
 	characterCode?: string
 	/**
+	 * Border color (hex format)
+	 * @example 'FF3399'
+	 */
+	color?: HexColor
+	/**
 	 * Indentation (space between bullet and text) (points)
 	 * @since v3.3.0
 	 * @default 27 // DEF_BULLET_MARGIN
 	 * @example 10 // Indents text 10 points from bullet
 	 */
 	indent?: number
+
+	marginLeft?: number
+
+
 	/**
 	 * Number type
 	 * @since v3.3.0
 	 * @example 'romanLcParenR' // roman numerals lower-case with paranthesis right
 	 */
-
-	marginLeft?: number
-
-
 	numberType?:
 	| 'alphaLcParenBoth'
 	| 'alphaLcParenR'

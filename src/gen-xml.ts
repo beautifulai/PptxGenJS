@@ -847,8 +847,9 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
 			strXmlBullet = '<a:buNone/>'
 		}
 	} else if (bullet && typeof bullet === 'object') {
-		let marginLeft = (typeof bullet.marginLeft === "number") ? valToPts(bullet.marginLeft) : marL;
-		let indentIncrement = (typeof bullet.indent === "number") ? valToPts(bullet.indent) : marginLeft;
+		const color = bullet.color ? `<a:buClr><a:srgbClr val="${this.color}"/></a:buClr>` : ''
+		const marginLeft = (typeof bullet.marginLeft === "number") ? valToPts(bullet.marginLeft) : marL;
+		const indentIncrement = (typeof bullet.indent === "number") ? valToPts(bullet.indent) : marginLeft;
 
 		if (bullet.type) {
 			let bulletType = bullet.type.toString().toLowerCase();
@@ -857,28 +858,27 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
 				: marginLeft
 
 			switch(bulletType){
-				case 'number':
-					// indent = -marL;
-					indent = 0;
-					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
-					let bulletType = bullet.numberType || bullet?.style || 'arabicPeriod'
-					let bulletStartAt = bullet.numberStartAt || bullet.startAt
-					strXmlBullet = `<a:buSzPct val="100000"/><a:buFont typeface="+mj-lt"/><a:buAutoNum type="${bulletType}"`
-					if (bulletStartAt && typeof bulletStartAt === "number") {
-						strXmlBullet += ` startAt="${bulletStartAt}"`
-					}
-					strXmlBullet += `/>`
-					break;
 				case 'bullet':
 					indent = -marL;
 					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
-					strXmlBullet = `<a:buSzPct val="100000"/><a:buChar char="${BULLET_TYPES.DEFAULT}"/>`
+					strXmlBullet = `${color}<a:buSzPct val="100000"/><a:buChar char="${BULLET_TYPES.DEFAULT}"/>`
 					break;
 				case 'char':
 					let char = bullet.characterCode ? `&#x${bullet.characterCode};` : BULLET_TYPES.DEFAULT
 					indent = -marL;
 					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
-					strXmlBullet = `<a:buSzPct val="100000"/><a:buChar char="${char}"/>`
+					strXmlBullet = `${color}<a:buSzPct val="100000"/><a:buChar char="${char}"/>`
+					break;
+				case 'number':
+					indent = 0;
+					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
+					let bulletType = bullet.numberType || bullet?.style || 'arabicPeriod'
+					let bulletStartAt = bullet.numberStartAt || bullet.startAt
+					strXmlBullet = `${color}<a:buSzPct val="100000"/><a:buFont typeface="+mj-lt"/><a:buAutoNum type="${bulletType}"`
+					if (bulletStartAt && typeof bulletStartAt === "number") {
+						strXmlBullet += ` startAt="${bulletStartAt}"`
+					}
+					strXmlBullet += `/>`
 					break;
 				case 'none':
 					indent = 0;

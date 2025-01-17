@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-wip @ 2025-01-17T19:15:33.275Z */
+/* PptxGenJS 3.13.0-wip @ 2025-01-17T19:41:03.573Z */
 import JSZip from 'jszip';
 
 /******************************************************************************
@@ -5802,6 +5802,7 @@ function genXmlBulletProperties(textPropsOptions) {
         }
     }
     else if (bullet && typeof bullet === 'object') {
+        var color = bullet.color ? "<a:buClr><a:srgbClr val=\"".concat(this.color, "\"/></a:buClr>") : '';
         var marginLeft = (typeof bullet.marginLeft === "number") ? valToPts(bullet.marginLeft) : marL;
         var indentIncrement = (typeof bullet.indent === "number") ? valToPts(bullet.indent) : marginLeft;
         if (bullet.type) {
@@ -5810,28 +5811,27 @@ function genXmlBulletProperties(textPropsOptions) {
                 ? (marginLeft + (indentIncrement * textPropsOptions.indentLevel))
                 : marginLeft;
             switch (bulletType) {
-                case 'number':
-                    // indent = -marL;
-                    indent = 0;
-                    paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
-                    var bulletType_1 = bullet.numberType || (bullet === null || bullet === void 0 ? void 0 : bullet.style) || 'arabicPeriod';
-                    var bulletStartAt = bullet.numberStartAt || bullet.startAt;
-                    strXmlBullet = "<a:buSzPct val=\"100000\"/><a:buFont typeface=\"+mj-lt\"/><a:buAutoNum type=\"".concat(bulletType_1, "\"");
-                    if (bulletStartAt && typeof bulletStartAt === "number") {
-                        strXmlBullet += " startAt=\"".concat(bulletStartAt, "\"");
-                    }
-                    strXmlBullet += "/>";
-                    break;
                 case 'bullet':
                     indent = -marL;
                     paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
-                    strXmlBullet = "<a:buSzPct val=\"100000\"/><a:buChar char=\"".concat(BULLET_TYPES.DEFAULT, "\"/>");
+                    strXmlBullet = "".concat(color, "<a:buSzPct val=\"100000\"/><a:buChar char=\"").concat(BULLET_TYPES.DEFAULT, "\"/>");
                     break;
                 case 'char':
                     var char = bullet.characterCode ? "&#x".concat(bullet.characterCode, ";") : BULLET_TYPES.DEFAULT;
                     indent = -marL;
                     paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
-                    strXmlBullet = "<a:buSzPct val=\"100000\"/><a:buChar char=\"".concat(char, "\"/>");
+                    strXmlBullet = "".concat(color, "<a:buSzPct val=\"100000\"/><a:buChar char=\"").concat(char, "\"/>");
+                    break;
+                case 'number':
+                    indent = 0;
+                    paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
+                    var bulletType_1 = bullet.numberType || (bullet === null || bullet === void 0 ? void 0 : bullet.style) || 'arabicPeriod';
+                    var bulletStartAt = bullet.numberStartAt || bullet.startAt;
+                    strXmlBullet = "".concat(color, "<a:buSzPct val=\"100000\"/><a:buFont typeface=\"+mj-lt\"/><a:buAutoNum type=\"").concat(bulletType_1, "\"");
+                    if (bulletStartAt && typeof bulletStartAt === "number") {
+                        strXmlBullet += " startAt=\"".concat(bulletStartAt, "\"");
+                    }
+                    strXmlBullet += "/>";
                     break;
                 case 'none':
                     indent = 0;

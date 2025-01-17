@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-wip @ 2025-01-17T00:09:53.175Z */
+/* PptxGenJS 3.13.0-wip @ 2025-01-17T17:35:03.150Z */
 import JSZip from 'jszip';
 
 /******************************************************************************
@@ -86,7 +86,7 @@ var CRLF = '\r\n'; // AKA: Chr(13) & Chr(10)
 var LAYOUT_IDX_SERIES_BASE = 2147483649;
 var REGEX_HEX_COLOR = /^[0-9a-fA-F]{6}$/;
 var LINEH_MODIFIER = 1.67; // AKA: Golden Ratio Typography
-var DEF_BULLET_MARGIN = 27;
+var DEF_BULLET_MARGIN = 27; // TODO: BAI Patch on old version went from 342900 to 242900
 var DEF_CELL_BORDER = { type: 'solid', color: '666666', pt: 1 };
 var DEF_CELL_MARGIN_IN = [0.05, 0.1, 0.05, 0.1]; // "Normal" margins in PPT-2021 ("Narrow" is `0.05` for all 4)
 var DEF_CHART_BORDER = { type: 'solid', color: '363636', pt: 1 };
@@ -865,7 +865,7 @@ function getNewRelId(target) {
  * Checks shadow options passed by user and performs corrections if needed.
  * @param {ShadowProps} ShadowProps - shadow options
  */
-function correctShadowOptions(ShadowProps) {
+function correctShadowOptions$1(ShadowProps) {
     if (!ShadowProps || typeof ShadowProps !== 'object') {
         // console.warn("`shadow` options must be an object. Ex: `{shadow: {type:'none'}}`")
         return;
@@ -1869,7 +1869,7 @@ function addChartDefinition(target, type, data, opt) {
     correctGridLineOptions(options.catGridLine);
     correctGridLineOptions(options.valGridLine);
     correctGridLineOptions(options.serGridLine);
-    correctShadowOptions(options.shadow);
+    correctShadowOptions$1(options.shadow);
     // C: Options: plotArea
     options.showDataTable = options.showDataTable || !options.showDataTable ? options.showDataTable : false;
     options.showDataTableHorzBorder = options.showDataTableHorzBorder || !options.showDataTableHorzBorder ? options.showDataTableHorzBorder : true;
@@ -2052,7 +2052,7 @@ function addImageDefinition(target, opt) {
         flipH: opt.flipH || false,
         transparency: opt.transparency || 0,
         objectName: objectName,
-        shadow: correctShadowOptions(opt.shadow),
+        shadow: correctShadowOptions$1(opt.shadow),
     };
     // STEP 4: Add this image to this Slide Rels (rId/rels count spans all slides! Count all images to get next rId)
     if (strImgExtn === 'svg') {
@@ -2667,7 +2667,7 @@ function addTextDefinition(target, text, opts, isPlaceholder) {
                 itemOpts._bodyProp.anchor = TEXT_VALIGN.t;
         }
         // STEP 3: ROBUST: Set rational values for some shadow props if needed
-        correctShadowOptions(itemOpts.shadow);
+        correctShadowOptions$1(itemOpts.shadow);
         return itemOpts;
     }
     // STEP 1: Create/Clean object options
@@ -5827,11 +5827,13 @@ function genXmlBulletProperties(textPropsOptions) {
                     }
                     strXmlBullet += "/>";
                     break;
+                case 'bullet':
+                    indent = -marL;
+                    paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"-").concat(indent, "\"");
+                    strXmlBullet = "<a:buSzPct val=\"100000\"/><a:buChar char=\"".concat(BULLET_TYPES.DEFAULT, "\"/>");
+                    break;
                 case 'char':
                     var char = bullet.characterCode ? "&#x".concat(bullet.characterCode, ";") : BULLET_TYPES.DEFAULT;
-                    // marL = textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0
-                    // 	? bulletMarL + bulletMarL * textPropsOptions.indentLevel
-                    // 	: bulletMarL
                     indent = -marL;
                     paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"-").concat(indent, "\"");
                     strXmlBullet = "<a:buSzPct val=\"100000\"/><a:buChar char=\"".concat(char, "\"/>");
@@ -5846,7 +5848,7 @@ function genXmlBulletProperties(textPropsOptions) {
             var bulletCode = "&#x".concat(bullet.characterCode, ";");
             // Check value for hex-ness (s/b 4 char hex)
             if (!/^[0-9A-Fa-f]{4}$/.test(bullet.characterCode)) {
-                console.warn('Warning: `bullet.characterCode should be a 4-digit unicode charatcer (ex: 22AB)`!');
+                console.warn('Warning: `bullet.characterCode should be a 4-digit unicode character (ex: 22AB)`!');
                 bulletCode = BULLET_TYPES.DEFAULT;
             }
             paragraphPropXml += " marL=\"".concat(textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? bulletMarL + bulletMarL * textPropsOptions.indentLevel : bulletMarL, "\" indent=\"-").concat(bulletMarL, "\"");
@@ -6727,6 +6729,80 @@ function makeXmlTableStyles() {
 function makeXmlViewProps() {
     return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>".concat(CRLF, "<p:viewPr xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:p=\"http://schemas.openxmlformats.org/presentationml/2006/main\"><p:normalViewPr horzBarState=\"maximized\"><p:restoredLeft sz=\"15611\"/><p:restoredTop sz=\"94610\"/></p:normalViewPr><p:slideViewPr><p:cSldViewPr snapToGrid=\"0\" snapToObjects=\"1\"><p:cViewPr varScale=\"1\"><p:scale><a:sx n=\"136\" d=\"100\"/><a:sy n=\"136\" d=\"100\"/></p:scale><p:origin x=\"216\" y=\"312\"/></p:cViewPr><p:guideLst/></p:cSldViewPr></p:slideViewPr><p:notesTextViewPr><p:cViewPr><p:scale><a:sx n=\"1\" d=\"1\"/><a:sy n=\"1\" d=\"1\"/></p:scale><p:origin x=\"0\" y=\"0\"/></p:cViewPr></p:notesTextViewPr><p:gridSpacing cx=\"76200\" cy=\"76200\"/></p:viewPr>");
 }
+/**
+ * Checks shadow options passed by user and performs corrections if needed.
+ * @param {ShadowProps} shadowProps - shadow options
+ */
+function correctShadowOptions(shadowProps) {
+    if (!shadowProps || typeof shadowProps !== 'object') {
+        // console.warn("`shadow` options must be an object. Ex: `{shadow: {type:'none'}}`")
+        return;
+    }
+    // OPT: `type`
+    if (shadowProps.type !== 'outer' && shadowProps.type !== 'inner' && shadowProps.type !== 'none') {
+        console.warn('Warning: shadow.type options are `outer`, `inner` or `none`.');
+        shadowProps.type = 'outer';
+    }
+    // OPT: `angle`
+    if (shadowProps.angle) {
+        // A: REALITY-CHECK
+        if (isNaN(Number(shadowProps.angle)) || shadowProps.angle < 0 || shadowProps.angle > 359) {
+            console.warn('Warning: shadow.angle can only be 0-359');
+            shadowProps.angle = 270;
+        }
+        // B: ROBUST: Cast any type of valid arg to int: '12', 12.3, etc. -> 12
+        shadowProps.angle = Math.round(Number(shadowProps.angle));
+    }
+    // OPT: `opacity`
+    if (shadowProps.opacity) {
+        // A: REALITY-CHECK
+        if (isNaN(Number(shadowProps.opacity)) || shadowProps.opacity < 0 || shadowProps.opacity > 1) {
+            console.warn('Warning: shadow.opacity can only be 0-1');
+            shadowProps.opacity = 0.75;
+        }
+        // B: ROBUST: Cast any type of valid arg to int: '12', 12.3, etc. -> 12
+        shadowProps.opacity = Number(shadowProps.opacity);
+    }
+}
+
+var GenXml = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    slideObjectToXml: slideObjectToXml,
+    slideObjectRelationsToXml: slideObjectRelationsToXml,
+    genXmlBulletProperties: genXmlBulletProperties,
+    genXmlParagraphProperties: genXmlParagraphProperties,
+    genXmlTextRunProperties: genXmlTextRunProperties,
+    genXmlTextRun: genXmlTextRun,
+    genXmlBodyProperties: genXmlBodyProperties,
+    genXmlTextBody: genXmlTextBody,
+    genXmlPlaceholder: genXmlPlaceholder,
+    makeXmlContTypes: makeXmlContTypes,
+    makeXmlRootRels: makeXmlRootRels,
+    makeXmlApp: makeXmlApp,
+    makeXmlCore: makeXmlCore,
+    makeXmlPresentationRels: makeXmlPresentationRels,
+    makeXmlSlide: makeXmlSlide,
+    getNotesFromSlide: getNotesFromSlide,
+    makeXmlNotesMaster: makeXmlNotesMaster,
+    makeXmlNotesSlide: makeXmlNotesSlide,
+    makeXmlLayout: makeXmlLayout,
+    makeXmlMaster: makeXmlMaster,
+    makeXmlSlideLayoutRel: makeXmlSlideLayoutRel,
+    makeXmlSlideRel: makeXmlSlideRel,
+    makeXmlNotesSlideRel: makeXmlNotesSlideRel,
+    makeXmlMasterRel: makeXmlMasterRel,
+    makeXmlNotesMasterRel: makeXmlNotesMasterRel,
+    makeXmlTheme: makeXmlTheme,
+    makeXmlPresentation: makeXmlPresentation,
+    makeXmlPresProps: makeXmlPresProps,
+    makeXmlTableStyles: makeXmlTableStyles,
+    makeXmlViewProps: makeXmlViewProps,
+    correctShadowOptions: correctShadowOptions
+});
+
+var Internals = {
+    GenXml: GenXml
+};
 
 /**
  *  :: pptxgen.ts ::
@@ -6759,7 +6835,7 @@ function makeXmlViewProps() {
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-var VERSION = '3.13.0-beta.0-20230416-2140';
+var VERSION = '3.13.0-wip';
 var PptxGenJS = /** @class */ (function () {
     function PptxGenJS() {
         var _this = this;
@@ -7050,6 +7126,16 @@ var PptxGenJS = /** @class */ (function () {
             _slideObjects: [],
         };
     }
+    PptxGenJS.getInternals = function () {
+        return Internals;
+    };
+    Object.defineProperty(PptxGenJS.prototype, "Internals", {
+        get: function () {
+            return Internals;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(PptxGenJS.prototype, "layout", {
         get: function () {
             return this._layout;
@@ -7486,6 +7572,9 @@ var PptxGenJS = /** @class */ (function () {
         // @note `verbose` option is undocumented; used for verbose output of layout process
         genTableToSlides(this, eleId, options, (options === null || options === void 0 ? void 0 : options.masterSlideName) ? this.slideLayouts.filter(function (layout) { return layout._name === options.masterSlideName; })[0] : null);
     };
+    // Export Internals for testing and development purposes
+    // Can be accessed using `PptxGenJS["Internals"]`
+    PptxGenJS.Internals = Internals;
     return PptxGenJS;
 }());
 

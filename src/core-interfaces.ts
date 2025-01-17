@@ -269,82 +269,8 @@ export interface TextBaseProps {
 	 * - pass object options for custom bullet
 	 * @default false
 	 */
-	bullet?:
-	| boolean
-	| {
+	bullet?: boolean | TextBulletProps
 		/**
-		 * Bullet type
-		 * @default bullet
-		 */
-		type?: 'bullet' | 'number'
-		/**
-		 * Bullet character code (unicode)
-		 * @since v3.3.0
-		 * @example '25BA' // 'BLACK RIGHT-POINTING POINTER' (U+25BA)
-		 */
-		characterCode?: string
-		/**
-		 * Indentation (space between bullet and text) (points)
-		 * @since v3.3.0
-		 * @default 27 // DEF_BULLET_MARGIN
-		 * @example 10 // Indents text 10 points from bullet
-		 */
-		indent?: number
-		/**
-		 * Number type
-		 * @since v3.3.0
-		 * @example 'romanLcParenR' // roman numerals lower-case with paranthesis right
-		 */
-		numberType?:
-		| 'alphaLcParenBoth'
-		| 'alphaLcParenR'
-		| 'alphaLcPeriod'
-		| 'alphaUcParenBoth'
-		| 'alphaUcParenR'
-		| 'alphaUcPeriod'
-		| 'arabicParenBoth'
-		| 'arabicParenR'
-		| 'arabicPeriod'
-		| 'arabicPlain'
-		| 'romanLcParenBoth'
-		| 'romanLcParenR'
-		| 'romanLcPeriod'
-		| 'romanUcParenBoth'
-		| 'romanUcParenR'
-		| 'romanUcPeriod'
-		/**
-		 * Number bullets start at
-		 * @since v3.3.0
-		 * @default 1
-		 * @example 10 // numbered bullets start with 10
-		 */
-		numberStartAt?: number
-
-		// DEPRECATED
-
-		/**
-		 * Bullet code (unicode)
-		 * @deprecated v3.3.0 - use `characterCode`
-		 */
-		code?: string
-		/**
-		 * Margin between bullet and text
-		 * @since v3.2.1
-		 * @deplrecated v3.3.0 - use `indent`
-		 */
-		marginPt?: number
-		/**
-		 * Number to start with (only applies to type:number)
-		 * @deprecated v3.3.0 - use `numberStartAt`
-		 */
-		startAt?: number
-		/**
-		 * Number type
-		 * @deprecated v3.3.0 - use `numberType`
-		 */
-		style?: string
-	}
-	/**
 	 * Text color
 	 * - `HexColor` or `ThemeColor`
 	 * - MS-PPT > Format Shape > Text Options > Text Fill & Outline > Text Fill > Color
@@ -973,6 +899,80 @@ export interface TextGlowProps {
 	 * size (points)
 	 */
 	size: number
+}
+
+export interface TextBulletProps {
+	/**
+	 * Bullet type
+	 * @default bullet
+	 */
+	type?: 'bullet' | 'char' | 'number' | 'none'
+	/**
+	 * Bullet character code (unicode)
+	 * @since v3.3.0
+	 * @example '25BA' // 'BLACK RIGHT-POINTING POINTER' (U+25BA)
+	 */
+	characterCode?: string
+	/**
+	 * Indentation (space between bullet and text) (points)
+	 * @since v3.3.0
+	 * @default 27 // DEF_BULLET_MARGIN
+	 * @example 10 // Indents text 10 points from bullet
+	 */
+	indent?: number
+	/**
+	 * Number type
+	 * @since v3.3.0
+	 * @example 'romanLcParenR' // roman numerals lower-case with paranthesis right
+	 */
+	numberType?:
+| 'alphaLcParenBoth'
+| 'alphaLcParenR'
+| 'alphaLcPeriod'
+| 'alphaUcParenBoth'
+| 'alphaUcParenR'
+| 'alphaUcPeriod'
+| 'arabicParenBoth'
+| 'arabicParenR'
+| 'arabicPeriod'
+| 'arabicPlain'
+| 'romanLcParenBoth'
+| 'romanLcParenR'
+| 'romanLcPeriod'
+| 'romanUcParenBoth'
+| 'romanUcParenR'
+| 'romanUcPeriod'
+	/**
+	 * Number bullets start at
+	 * @since v3.3.0
+	 * @default 1
+	 * @example 10 // numbered bullets start with 10
+	 */
+	numberStartAt?: number
+
+	// DEPRECATED
+
+	/**
+	 * Bullet code (unicode)
+	 * @deprecated v3.3.0 - use `characterCode`
+	 */
+	code?: string
+	/**
+	 * Margin between bullet and text
+	 * @since v3.2.1
+	 * @deplrecated v3.3.0 - use `indent`
+	 */
+	marginPt?: number
+	/**
+	 * Number to start with (only applies to type:number)
+	 * @deprecated v3.3.0 - use `numberStartAt`
+	 */
+	startAt?: number
+	/**
+	 * Number type
+	 * @deprecated v3.3.0 - use `numberType`
+	 */
+	style?: string
 }
 
 export interface TextPropsOptions extends PositionProps, DataOrPathProps, TextBaseProps, ObjectNameProps {

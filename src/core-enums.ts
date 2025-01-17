@@ -13,7 +13,7 @@ export const LAYOUT_IDX_SERIES_BASE = 2147483649
 export const REGEX_HEX_COLOR = /^[0-9a-fA-F]{6}$/
 export const LINEH_MODIFIER = 1.67 // AKA: Golden Ratio Typography
 
-export const DEF_BULLET_MARGIN = 27
+export const DEF_BULLET_MARGIN = 27	// TODO: BAI Patch on old version went from 342900 to 242900
 export const DEF_CELL_BORDER: BorderProps = { type: 'solid', color: '666666', pt: 1 }
 export const DEF_CELL_MARGIN_PT: [number, number, number, number] = [3, 3, 3, 3] // TRBL-style // DEPRECATED 3.8.0
 export const DEF_CELL_MARGIN_IN: [number, number, number, number] = [0.05, 0.1, 0.05, 0.1] // "Normal" margins in PPT-2021 ("Narrow" is `0.05` for all 4)

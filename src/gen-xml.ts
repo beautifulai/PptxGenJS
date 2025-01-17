@@ -847,7 +847,7 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
 			strXmlBullet = '<a:buNone/>'
 		}
 	} else if (bullet && typeof bullet === 'object') {
-		const color = bullet.color ? `<a:buClr><a:srgbClr val="${this.color}"/></a:buClr>` : ''
+		const color = bullet.color ? `<a:buClr><a:srgbClr val="${bullet.color}"/></a:buClr>` : ''
 		const marginLeft = (typeof bullet.marginLeft === "number") ? valToPts(bullet.marginLeft) : marL;
 		const indentIncrement = (typeof bullet.indent === "number") ? valToPts(bullet.indent) : marginLeft;
 

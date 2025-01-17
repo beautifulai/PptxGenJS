@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-wip @ 2025-01-17T19:41:03.569Z */
+/* PptxGenJS 3.13.0-wip @ 2025-01-17T19:58:07.093Z */
 'use strict';
 
 var JSZip = require('jszip');
@@ -5808,7 +5808,7 @@ function genXmlBulletProperties(textPropsOptions) {
         }
     }
     else if (bullet && typeof bullet === 'object') {
-        var color = bullet.color ? "<a:buClr><a:srgbClr val=\"".concat(this.color, "\"/></a:buClr>") : '';
+        var color = bullet.color ? "<a:buClr><a:srgbClr val=\"".concat(bullet.color, "\"/></a:buClr>") : '';
         var marginLeft = (typeof bullet.marginLeft === "number") ? valToPts(bullet.marginLeft) : marL;
         var indentIncrement = (typeof bullet.indent === "number") ? valToPts(bullet.indent) : marginLeft;
         if (bullet.type) {

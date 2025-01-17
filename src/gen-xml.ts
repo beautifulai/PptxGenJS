@@ -823,6 +823,109 @@ function slideObjectRelationsToXml (slide: PresSlide | SlideLayout, defaultRels:
 	return strXml
 }
 
+function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
+	let paragraphPropXml = ''
+	let strXmlBullet = ''
+	let bulletMarL = valToPts(DEF_BULLET_MARGIN)
+	let bullet = textPropsOptions.bullet
+	let marL = 0;
+	let indent = 0;
+
+	// NOTE: OOXML uses the unicode character set for Bullets
+	// EX: Unicode Character 'BULLET' (U+2022) ==> '<a:buChar char="&#x2022;"/>'
+
+	if (typeof bullet === "boolean"){
+		if (bullet) {
+			marL = textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0
+				? bulletMarL + bulletMarL * textPropsOptions.indentLevel
+				: bulletMarL
+			indent = -marL;
+			paragraphPropXml += ` marL="${marL}" indent="-${indent}"`
+			strXmlBullet = `<a:buSzPct val="100000"/><a:buChar char="${BULLET_TYPES.DEFAULT}"/>`
+		} else if (!bullet) {
+			// We only add this when the user explicitly asks for no bullet, otherwise, it can override the master defaults!
+			paragraphPropXml += ' indent="0" marL="0"' // FIX: ISSUE#589 - specify zero indent and marL or default will be hanging paragraph
+			strXmlBullet = '<a:buNone/>'
+		}
+	} else if (bullet && typeof bullet === 'object') {
+		if (bullet.indent) {
+			bulletMarL = valToPts(bullet.indent)
+		}
+		if (bullet.type) {
+			let bulletType = bullet.type.toString().toLowerCase();
+			marL = (textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0)
+				? (bulletMarL + bulletMarL * textPropsOptions.indentLevel)
+				: bulletMarL
+
+
+			switch(bulletType){
+				case 'number':
+					// marL = (textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0)
+					// 	? (bulletMarL + bulletMarL * textPropsOptions.indentLevel)
+					// 	: bulletMarL;
+					// indent = -marL;
+
+					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
+					indent = -marL;
+					let bulletType = bullet.numberType || bullet?.style || 'arabicPeriod'
+					let bulletStartAt = bullet.numberStartAt || bullet.startAt
+					strXmlBullet = `<a:buSzPct val="100000"/><a:buFont typeface="+mj-lt"/><a:buAutoNum type="${bulletType}"`
+					if (bulletStartAt && typeof bulletStartAt === "number") {
+						strXmlBullet += ` startAt="${bulletStartAt}"`
+					}
+					strXmlBullet += `/>`
+					break;
+				case 'char':
+					let char = bullet.characterCode ? `&#x${bullet.characterCode};` : BULLET_TYPES.DEFAULT
+					// marL = textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0
+					// 	? bulletMarL + bulletMarL * textPropsOptions.indentLevel
+					// 	: bulletMarL
+					indent = -marL;
+					paragraphPropXml += ` marL="${marL}" indent="-${indent}"`
+					strXmlBullet = `<a:buSzPct val="100000"/><a:buChar char="${char}"/>`
+					break;
+				case 'none':
+					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
+					strXmlBullet = '<a:buNone/>'
+					break;
+			}
+		} else if (bullet.characterCode) {
+			let bulletCode = `&#x${bullet.characterCode};`
+
+			// Check value for hex-ness (s/b 4 char hex)
+			if (!/^[0-9A-Fa-f]{4}$/.test(bullet.characterCode)) {
+				console.warn('Warning: `bullet.characterCode should be a 4-digit unicode charatcer (ex: 22AB)`!')
+				bulletCode = BULLET_TYPES.DEFAULT
+			}
+
+			paragraphPropXml += ` marL="${textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? bulletMarL + bulletMarL * textPropsOptions.indentLevel : bulletMarL
+			}" indent="-${bulletMarL}"`
+			strXmlBullet = '<a:buSzPct val="100000"/><a:buChar char="' + bulletCode + '"/>'
+		} else if (bullet.code) {
+			// @deprecated `bullet.code` v3.3.0
+			let bulletCode = `&#x${bullet.code};`
+
+			// Check value for hex-ness (s/b 4 char hex)
+			if (!/^[0-9A-Fa-f]{4}$/.test(bullet.code)) {
+				console.warn('Warning: `bullet.code should be a 4-digit hex code (ex: 22AB)`!')
+				bulletCode = BULLET_TYPES.DEFAULT
+			}
+
+			paragraphPropXml += ` marL="${textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? bulletMarL + bulletMarL * textPropsOptions.indentLevel : bulletMarL
+			}" indent="-${bulletMarL}"`
+			strXmlBullet = '<a:buSzPct val="100000"/><a:buChar char="' + bulletCode + '"/>'
+		} else {
+			paragraphPropXml += ` marL="${textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? bulletMarL + bulletMarL * textPropsOptions.indentLevel : bulletMarL
+			}" indent="-${bulletMarL}"`
+			strXmlBullet = `<a:buSzPct val="100000"/><a:buChar char="${BULLET_TYPES.DEFAULT}"/>`
+		}
+	}
+	return {
+		paragraphPropXml,
+		strXmlBullet,
+	}
+}
+
 /**
  * Generate XML Paragraph Properties
  * @param {ISlideObject|TextProps} textObj - text object
@@ -835,7 +938,6 @@ function genXmlParagraphProperties (textObj: ISlideObject | TextProps, isDefault
 	let strXmlParaSpc = ''
 	let strXmlTabStops = ''
 	const tag = isDefault ? 'a:lvl1pPr' : 'a:pPr'
-	let bulletMarL = valToPts(DEF_BULLET_MARGIN)
 
 	let paragraphPropXml = `<${tag}${textObj.options.rtlMode ? ' rtl="1" ' : ''}`
 
@@ -882,56 +984,10 @@ function genXmlParagraphProperties (textObj: ISlideObject | TextProps, isDefault
 		}
 
 		// OPTION: bullet
-		// NOTE: OOXML uses the unicode character set for Bullets
-		// EX: Unicode Character 'BULLET' (U+2022) ==> '<a:buChar char="&#x2022;"/>'
-		if (typeof textObj.options.bullet === 'object') {
-			if (textObj?.options?.bullet?.indent) bulletMarL = valToPts(textObj.options.bullet.indent)
-
-			if (textObj.options.bullet.type) {
-				if (textObj.options.bullet.type.toString().toLowerCase() === 'number') {
-					paragraphPropXml += ` marL="${textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL
-					}" indent="-${bulletMarL}"`
-					strXmlBullet = `<a:buSzPct val="100000"/><a:buFont typeface="+mj-lt"/><a:buAutoNum type="${textObj.options.bullet.style || 'arabicPeriod'}" startAt="${textObj.options.bullet.numberStartAt || textObj.options.bullet.startAt || '1'
-					}"/>`
-				}
-			} else if (textObj.options.bullet.characterCode) {
-				let bulletCode = `&#x${textObj.options.bullet.characterCode};`
-
-				// Check value for hex-ness (s/b 4 char hex)
-				if (!/^[0-9A-Fa-f]{4}$/.test(textObj.options.bullet.characterCode)) {
-					console.warn('Warning: `bullet.characterCode should be a 4-digit unicode charatcer (ex: 22AB)`!')
-					bulletCode = BULLET_TYPES.DEFAULT
-				}
-
-				paragraphPropXml += ` marL="${textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL
-				}" indent="-${bulletMarL}"`
-				strXmlBullet = '<a:buSzPct val="100000"/><a:buChar char="' + bulletCode + '"/>'
-			} else if (textObj.options.bullet.code) {
-				// @deprecated `bullet.code` v3.3.0
-				let bulletCode = `&#x${textObj.options.bullet.code};`
-
-				// Check value for hex-ness (s/b 4 char hex)
-				if (!/^[0-9A-Fa-f]{4}$/.test(textObj.options.bullet.code)) {
-					console.warn('Warning: `bullet.code should be a 4-digit hex code (ex: 22AB)`!')
-					bulletCode = BULLET_TYPES.DEFAULT
-				}
-
-				paragraphPropXml += ` marL="${textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL
-				}" indent="-${bulletMarL}"`
-				strXmlBullet = '<a:buSzPct val="100000"/><a:buChar char="' + bulletCode + '"/>'
-			} else {
-				paragraphPropXml += ` marL="${textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL
-				}" indent="-${bulletMarL}"`
-				strXmlBullet = `<a:buSzPct val="100000"/><a:buChar char="${BULLET_TYPES.DEFAULT}"/>`
-			}
-		} else if (textObj.options.bullet) {
-			paragraphPropXml += ` marL="${textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL
-			}" indent="-${bulletMarL}"`
-			strXmlBullet = `<a:buSzPct val="100000"/><a:buChar char="${BULLET_TYPES.DEFAULT}"/>`
-		} else if (!textObj.options.bullet) {
-			// We only add this when the user explicitely asks for no bullet, otherwise, it can override the master defaults!
-			paragraphPropXml += ' indent="0" marL="0"' // FIX: ISSUE#589 - specify zero indent and marL or default will be hanging paragraph
-			strXmlBullet = '<a:buNone/>'
+		if (textObj.options.bullet){
+			let bulletProps = genXmlBulletProperties(textObj.options);
+			paragraphPropXml += bulletProps.paragraphPropXml;
+			strXmlBullet = bulletProps.strXmlBullet
 		}
 
 		// OPTION: tabStops
@@ -1237,7 +1293,7 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 		} else if (arrTexts.length > 0 && textObj.options.bullet && arrTexts.length > 0) {
 			arrLines.push(arrTexts)
 			arrTexts = []
-			textObj.options.breakLine = false // For cases with both `bullet` and `brekaLine` - prevent double lineBreak
+			textObj.options.breakLine = false // For cases with both `bullet` and `breakLine` - prevent double lineBreak
 		}
 
 		// B: Add this text to current line
@@ -1264,6 +1320,7 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 		strSlideXml += '<a:p>'
 		// NOTE: `rtlMode` is like other opts, its propagated up to each text:options, so just check the 1st one
 		let paragraphPropXml = `<a:pPr ${line[0].options?.rtlMode ? ' rtl="1" ' : ''}`
+
 
 		// B: Start paragraph, loop over lines and add text runs
 		line.forEach((textObj, idx) => {
@@ -1299,7 +1356,7 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 			strSlideXml += genXmlTextRun(textObj)
 
 			// E: Flag close fontSize for empty [lineBreak] elements
-			if ((!textObj.text && opts.fontSize) || textObj.options.fontSize) {
+			if (!textObj.text && (opts.fontSize || textObj.options.fontSize)) {
 				reqsClosingFontSize = true
 				opts.fontSize = opts.fontSize || textObj.options.fontSize
 			}
@@ -1321,7 +1378,8 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 		} else if (reqsClosingFontSize) {
 			// Empty [lineBreak] lines should not contain runProp, however, they need to specify fontSize in `endParaRPr`
 			strSlideXml += `<a:endParaRPr lang="${opts.lang || 'en-US'}"` + (opts.fontSize ? ` sz="${Math.round(opts.fontSize * 100)}"` : '') + ' dirty="0"/>'
-		} else {
+		}
+		else {
 			strSlideXml += `<a:endParaRPr lang="${opts.lang || 'en-US'}" dirty="0"/>` // Added 20180101 to address PPT-2007 issues
 		}
 

@@ -883,7 +883,7 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
 					break;
 				case 'none':
 					indent = -indentIncrement;
-					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
+					paragraphPropXml += ` marL="${marL + indent}" indent="${0}"`
 					strXmlBullet = '<a:buNone/>'
 					break;
 			}

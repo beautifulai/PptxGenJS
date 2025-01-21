@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-wip @ 2025-01-21T22:09:57.923Z */
+/* PptxGenJS 3.13.0-wip @ 2025-01-21T22:21:40.948Z */
 import JSZip from 'jszip';
 
 /******************************************************************************
@@ -5836,7 +5836,7 @@ function genXmlBulletProperties(textPropsOptions) {
                     break;
                 case 'none':
                     indent = -indentIncrement;
-                    paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
+                    paragraphPropXml += " marL=\"".concat(marL + indent, "\" indent=\"").concat(0, "\"");
                     strXmlBullet = '<a:buNone/>';
                     break;
             }

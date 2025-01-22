@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-wip @ 2025-01-21T22:21:40.948Z */
+/* PptxGenJS 3.13.0-wip @ 2025-01-22T22:55:22.912Z */
 import JSZip from 'jszip';
 
 /******************************************************************************
@@ -6100,9 +6100,9 @@ function genXmlBodyProperties(slideObject) {
             if (slideObject.options.fit === 'none')
                 bodyProperties += '';
             // NOTE: Shrink does not work automatically - PowerPoint calculates the `fontScale` value dynamically upon resize
-            // else if (slideObject.options.fit === 'shrink') bodyProperties += '<a:normAutofit fontScale="85000" lnSpcReduction="20000"/>' // MS-PPT > Format shape > Text Options: "Shrink text on overflow"
             else if (slideObject.options.fit === 'shrink')
-                bodyProperties += '<a:normAutofit/>';
+                bodyProperties += '<a:normAutofit fontScale="85000" lnSpcReduction="20000"/>'; // MS-PPT > Format shape > Text Options: "Shrink text on overflow"
+            // else if (slideObject.options.fit === 'shrink') bodyProperties += '<a:normAutofit/>'
             else if (slideObject.options.fit === 'resize')
                 bodyProperties += '<a:spAutoFit/>';
         }

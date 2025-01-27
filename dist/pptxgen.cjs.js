@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-wip @ 2025-01-22T22:55:22.909Z */
+/* PptxGenJS 3.13.0-wip @ 2025-01-27T17:33:52.180Z */
 'use strict';
 
 var JSZip = require('jszip');
@@ -5482,6 +5482,7 @@ function slideObjectToXml(slide) {
                     if (slideItemObj.options.line.endArrowType)
                         strSlideXml += "<a:tailEnd type=\"".concat(slideItemObj.options.line.endArrowType, "\"/>");
                     // FUTURE: `endArrowSize` < a: headEnd type = "arrow" w = "lg" len = "lg" /> 'sm' | 'med' | 'lg'(values are 1 - 9, making a 3x3 grid of w / len possibilities)
+                    strSlideXml += '<a:miter lim="800000"/>';
                     strSlideXml += '</a:ln>';
                 }
                 // EFFECTS > SHADOW: REF: @see http://officeopenxml.com/drwSp-effects.php

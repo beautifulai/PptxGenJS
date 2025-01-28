@@ -1269,16 +1269,19 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 		// C: If text string has line-breaks, then create a separate text-object for each (much easier than dealing with split inside a loop below)
 		// NOTE: Filter for trailing lineBreak prevents the creation of an empty textObj as the last item
 		if (itext.text.includes(CRLF) && itext.text.match(/\n$/g) === null) {
-			itext.text.split(CRLF).forEach((line, idx) => {
-				if (idx === 0){
-					// itext.options.softBreakBefore = true;
-					itext.options.paraSpaceBefore = 0
-				}
-				arrTextObjects.push({ text: line, options: itext.options })
-			})
-		} else {
-			arrTextObjects.push(itext)
+			itext.options.softBreakBefore = true;
 		}
+		// 	itext.text.split(CRLF).forEach((line, idx) => {
+		// 		if (idx === 0){
+		// 			// itext.options.softBreakBefore = true;
+		// 			itext.options.paraSpaceBefore = 0
+		// 		}
+		// 		arrTextObjects.push({ text: line, options: itext.options })
+		// 	})
+		// } else {
+		// 	arrTextObjects.push(itext)
+		// }
+		arrTextObjects.push(itext)
 	})
 
 	// STEP 5: Group textObj into lines by checking for lineBreak, bullets, alignment change, etc.

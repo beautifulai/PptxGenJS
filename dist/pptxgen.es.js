@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-wip @ 2025-01-28T21:55:01.694Z */
+/* PptxGenJS 3.13.0-wip @ 2025-01-28T22:01:18.001Z */
 import JSZip from 'jszip';
 
 /******************************************************************************
@@ -6212,17 +6212,19 @@ function genXmlTextBody(slideObj) {
         // C: If text string has line-breaks, then create a separate text-object for each (much easier than dealing with split inside a loop below)
         // NOTE: Filter for trailing lineBreak prevents the creation of an empty textObj as the last item
         if (itext.text.includes(CRLF) && itext.text.match(/\n$/g) === null) {
-            itext.text.split(CRLF).forEach(function (line, idx) {
-                if (idx === 0) {
-                    // itext.options.softBreakBefore = true;
-                    itext.options.paraSpaceBefore = 0;
-                }
-                arrTextObjects.push({ text: line, options: itext.options });
-            });
+            itext.options.softBreakBefore = true;
         }
-        else {
-            arrTextObjects.push(itext);
-        }
+        // 	itext.text.split(CRLF).forEach((line, idx) => {
+        // 		if (idx === 0){
+        // 			// itext.options.softBreakBefore = true;
+        // 			itext.options.paraSpaceBefore = 0
+        // 		}
+        // 		arrTextObjects.push({ text: line, options: itext.options })
+        // 	})
+        // } else {
+        // 	arrTextObjects.push(itext)
+        // }
+        arrTextObjects.push(itext);
     });
     // STEP 5: Group textObj into lines by checking for lineBreak, bullets, alignment change, etc.
     var arrLines = [];

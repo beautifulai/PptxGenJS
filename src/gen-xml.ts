@@ -1114,24 +1114,22 @@ export function genXmlTextRun (textObj: TextProps): string {
 			<a:endParaRPr lang="en-US" dirty="0"/>
 		</a:p>
 	*/
-	// // C: If text string has line-breaks, add a `br` tag
-	// // NOTE: Filter for trailing lineBreak prevents the creation of an empty textObj as the last item
+	// If text string has line-breaks, split sequential runs with a `<a:br/>` tag for separation
 	let textRuns = []
 	let xmlTextRun= ""
 	if (textObj.text && typeof textObj.text === 'string') {
 		textObj.text.split(CRLF).forEach(line => {
 			textRuns.push(line)
 		})
-	} else {
-		textRuns.push(textObj.text)
-	}
-	textRuns.forEach((line, idx) => {
-		if (idx > 0){
-			xmlTextRun += `<a:br/>`
-		}
-		xmlTextRun+= `<a:r>${genXmlTextRunProperties(textObj.options, false)}<a:t>${encodeXmlEntities(textObj.text)}</a:t></a:r>`
 
-	})
+		textRuns.forEach((line, idx) => {
+			if (idx > 0){
+				xmlTextRun += `<a:br/>`
+			}
+			xmlTextRun+= `<a:r>${genXmlTextRunProperties(textObj.options, false)}<a:t>${encodeXmlEntities(line)}</a:t></a:r>`
+
+		})
+	}
 
 	// Return paragraph with text run
 	return xmlTextRun

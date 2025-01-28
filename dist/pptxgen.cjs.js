@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-wip @ 2025-01-28T23:18:46.150Z */
+/* PptxGenJS 3.13.0-wip @ 2025-01-28T23:27:46.004Z */
 'use strict';
 
 var JSZip = require('jszip');
@@ -6065,24 +6065,20 @@ function genXmlTextRun(textObj) {
             <a:endParaRPr lang="en-US" dirty="0"/>
         </a:p>
     */
-    // // C: If text string has line-breaks, add a `br` tag
-    // // NOTE: Filter for trailing lineBreak prevents the creation of an empty textObj as the last item
+    // If text string has line-breaks, split sequential runs with a `<a:br/>` tag for separation
     var textRuns = [];
     var xmlTextRun = "";
     if (textObj.text && typeof textObj.text === 'string') {
         textObj.text.split(CRLF).forEach(function (line) {
             textRuns.push(line);
         });
+        textRuns.forEach(function (line, idx) {
+            if (idx > 0) {
+                xmlTextRun += "<a:br/>";
+            }
+            xmlTextRun += "<a:r>".concat(genXmlTextRunProperties(textObj.options, false), "<a:t>").concat(encodeXmlEntities(line), "</a:t></a:r>");
+        });
     }
-    else {
-        textRuns.push(textObj.text);
-    }
-    textRuns.forEach(function (line, idx) {
-        if (idx > 0) {
-            xmlTextRun += "<a:br/>";
-        }
-        xmlTextRun += "<a:r>".concat(genXmlTextRunProperties(textObj.options, false), "<a:t>").concat(encodeXmlEntities(textObj.text), "</a:t></a:r>");
-    });
     // Return paragraph with text run
     return xmlTextRun;
 }

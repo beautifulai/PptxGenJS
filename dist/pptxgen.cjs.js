@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-wip @ 2025-01-28T22:01:17.998Z */
+/* PptxGenJS 3.13.0-wip @ 2025-01-28T22:15:36.532Z */
 'use strict';
 
 var JSZip = require('jszip');
@@ -6217,9 +6217,9 @@ function genXmlTextBody(slideObj) {
         }
         // C: If text string has line-breaks, then create a separate text-object for each (much easier than dealing with split inside a loop below)
         // NOTE: Filter for trailing lineBreak prevents the creation of an empty textObj as the last item
-        if (itext.text.includes(CRLF) && itext.text.match(/\n$/g) === null) {
-            itext.options.softBreakBefore = true;
-        }
+        // if (itext.text.includes(CRLF) && itext.text.match(/\n$/g) === null) {
+        // 	itext.options.softBreakBefore = true;
+        // }
         // 	itext.text.split(CRLF).forEach((line, idx) => {
         // 		if (idx === 0){
         // 			// itext.options.softBreakBefore = true;
@@ -6248,6 +6248,15 @@ function genXmlTextBody(slideObj) {
             arrLines.push(arrTexts);
             arrTexts = [];
             textObj.options.breakLine = false; // For cases with both `bullet` and `breakLine` - prevent double lineBreak
+        }
+        else if (textObj.text.includes(CRLF) && textObj.text.match(/\n$/g) === null) {
+            textObj.text.split(CRLF).forEach(function (line, idx) {
+                if (idx > 0) {
+                    textObj.options.softBreakBefore = true;
+                    // itext.options.paraSpaceBefore = 0
+                }
+                arrLines.push([{ text: line, options: textObj.options }]);
+            });
         }
         // B: Add this text to current line
         arrTexts.push(textObj);

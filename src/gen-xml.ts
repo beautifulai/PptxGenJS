@@ -1114,9 +1114,27 @@ export function genXmlTextRun (textObj: TextProps): string {
 			<a:endParaRPr lang="en-US" dirty="0"/>
 		</a:p>
 	*/
+	// // C: If text string has line-breaks, add a `br` tag
+	// // NOTE: Filter for trailing lineBreak prevents the creation of an empty textObj as the last item
+	let textRuns = []
+	let xmlTextRun= ""
+	if (textObj.text && typeof textObj.text === 'string') {
+		textObj.text.split(CRLF).forEach(line => {
+			textRuns.push(line)
+		})
+	} else {
+		textRuns.push(textObj.text)
+	}
+	textRuns.forEach((line, idx) => {
+		if (idx > 0){
+			xmlTextRun += `<a:br/>`
+		}
+		xmlTextRun+= `<a:r>${genXmlTextRunProperties(textObj.options, false)}<a:t>${encodeXmlEntities(textObj.text)}</a:t></a:r>`
+
+	})
 
 	// Return paragraph with text run
-	return textObj.text ? `<a:r>${genXmlTextRunProperties(textObj.options, false)}<a:t>${encodeXmlEntities(textObj.text)}</a:t></a:r>` : ''
+	return xmlTextRun
 }
 
 /**
@@ -1262,32 +1280,16 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 		// B: Cast to text-object and fix line-breaks (if needed)
 		if (typeof itext.text === 'string' || typeof itext.text === 'number') {
 			// 1: Convert "\n" or any variation into CRLF
-			// itext.text = itext.text.toString();
 			itext.text = itext.text.toString().replace(/\r*\n/g, CRLF)
 		}
 
-		// C: If text string has line-breaks, then create a separate text-object for each (much easier than dealing with split inside a loop below)
-		// NOTE: Filter for trailing lineBreak prevents the creation of an empty textObj as the last item
-		// if (itext.text.includes(CRLF) && itext.text.match(/\n$/g) === null) {
-		// 	itext.options.softBreakBefore = true;
-		// }
-		// 	itext.text.split(CRLF).forEach((line, idx) => {
-		// 		if (idx === 0){
-		// 			// itext.options.softBreakBefore = true;
-		// 			itext.options.paraSpaceBefore = 0
-		// 		}
-		// 		arrTextObjects.push({ text: line, options: itext.options })
-		// 	})
-		// } else {
-		// 	arrTextObjects.push(itext)
-		// }
 		arrTextObjects.push(itext)
+
 	})
 
 	// STEP 5: Group textObj into lines by checking for lineBreak, bullets, alignment change, etc.
 	const arrLines: TextProps[][] = []
 	let arrTexts: TextProps[] = []
-	let textAlreadySplit = false;
 	arrTextObjects.forEach((textObj, idx) => {
 		// A: Align or Bullet trigger new line
 		if (arrTexts.length > 0 && (textObj.options.align || opts.align)) {
@@ -1300,34 +1302,22 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 			arrLines.push(arrTexts)
 			arrTexts = []
 			textObj.options.breakLine = false // For cases with both `bullet` and `breakLine` - prevent double lineBreak
-		} if (textObj.text.includes(CRLF) && textObj.text.match(/\n$/g) === null) {
-			textAlreadySplit = true;
-			arrLines[0] = [];
-			textObj.text.split(CRLF).forEach((line, idx) => {
-					if (idx > 0){
-						textObj.options.softBreakBefore = true;
-						// itext.options.paraSpaceBefore = 0
-					}
-					arrLines[0].push({ text: line, options: textObj.options })
-				})
 		}
 
 		// B: Add this text to current line
 		arrTexts.push(textObj)
 
-		if (!textAlreadySplit){
-			// C: BreakLine begins new line **after** adding current text
-			if (arrTexts.length > 0 && textObj.options.breakLine) {
-				// Avoid starting a para right as loop is exhausted
-				if (idx + 1 < arrTextObjects.length) {
-					arrLines.push(arrTexts)
-					arrTexts = []
-				}
+		// C: BreakLine begins new line **after** adding current text
+		if (arrTexts.length > 0 && textObj.options.breakLine) {
+			// Avoid starting a para right as loop is exhausted
+			if (idx + 1 < arrTextObjects.length) {
+				arrLines.push(arrTexts)
+				arrTexts = []
 			}
-
-			// D: Flush buffer
-			if (idx + 1 === arrTextObjects.length) arrLines.push(arrTexts)
 		}
+
+		// D: Flush buffer
+		if (idx + 1 === arrTextObjects.length) arrLines.push(arrTexts)
 	})
 
 	// STEP 6: Loop over each line and create paragraph props, text run, etc.

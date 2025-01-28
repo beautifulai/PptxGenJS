@@ -1087,36 +1087,10 @@ export function genXmlTextRunProperties (opts: ObjectOptions | TextPropsOptions,
  * @return {string} XML string
  */
 export function genXmlTextRun (textObj: TextProps): string {
-	// NOTE: Dont create full rPr runProps for empty [lineBreak] runs
-	// Why? The size of the lineBreak wont match (eg: below it will be 18px instead of the correct 36px)
-	// Do this:
-	/*
-		<a:p>
-			<a:pPr algn="r"/>
-			<a:endParaRPr lang="en-US" sz="3600" dirty="0"/>
-		</a:p>
-	*/
-	// NOT this:
-	/*
-		<a:p>
-			<a:pPr algn="r"/>
-			<a:r>
-				<a:rPr lang="en-US" sz="3600" dirty="0">
-					<a:solidFill>
-						<a:schemeClr val="accent5"/>
-					</a:solidFill>
-					<a:latin typeface="Times" pitchFamily="34" charset="0"/>
-					<a:ea typeface="Times" pitchFamily="34" charset="-122"/>
-					<a:cs typeface="Times" pitchFamily="34" charset="-120"/>
-				</a:rPr>
-				<a:t></a:t>
-			</a:r>
-			<a:endParaRPr lang="en-US" dirty="0"/>
-		</a:p>
-	*/
 	// If text string has line-breaks, split sequential runs with a `<a:br/>` tag for separation
 	let textRuns = []
 	let xmlTextRun= ""
+	let xmlProperties = genXmlTextRunProperties(textObj.options, false)
 	if (textObj.text && typeof textObj.text === 'string') {
 		textObj.text.split(CRLF).forEach(line => {
 			textRuns.push(line)
@@ -1124,9 +1098,11 @@ export function genXmlTextRun (textObj: TextProps): string {
 
 		textRuns.forEach((line, idx) => {
 			if (idx > 0){
-				xmlTextRun += `<a:br/>`
+				xmlTextRun += `<a:br>${xmlProperties}</a:br>`
 			}
-			xmlTextRun+= `<a:r>${genXmlTextRunProperties(textObj.options, false)}<a:t>${encodeXmlEntities(line)}</a:t></a:r>`
+			if (line.length > 0){
+				xmlTextRun+= `<a:r>${xmlProperties}<a:t>${encodeXmlEntities(line)}</a:t></a:r>`
+			}
 
 		})
 	}

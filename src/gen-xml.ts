@@ -1262,6 +1262,7 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 		// B: Cast to text-object and fix line-breaks (if needed)
 		if (typeof itext.text === 'string' || typeof itext.text === 'number') {
 			// 1: Convert "\n" or any variation into CRLF
+			// itext.text = itext.text.toString();
 			itext.text = itext.text.toString().replace(/\r*\n/g, CRLF)
 		}
 
@@ -1269,7 +1270,14 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 		// NOTE: Filter for trailing lineBreak prevents the creation of an empty textObj as the last item
 		if (itext.text.includes(CRLF) && itext.text.match(/\n$/g) === null) {
 			itext.text.split(CRLF).forEach(line => {
-				itext.options.breakLine = true
+				if (arrTextObjects.length > 1){
+					itext.options.softBreakBefore = true;
+					// itext.options.paraSpaceBefore = 0
+					// itext.options.paraSpaceAfter = 0
+				}
+
+				// itext.options.breakLine = true
+
 				arrTextObjects.push({ text: line, options: itext.options })
 			})
 		} else {

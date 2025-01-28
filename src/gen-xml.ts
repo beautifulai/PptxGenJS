@@ -1270,10 +1270,9 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 		// NOTE: Filter for trailing lineBreak prevents the creation of an empty textObj as the last item
 		if (itext.text.includes(CRLF) && itext.text.match(/\n$/g) === null) {
 			itext.text.split(CRLF).forEach(line => {
-				if (arrTextObjects.length > 1){
+				if (arrTextObjects.length > 0){
 					itext.options.softBreakBefore = true;
-					// itext.options.paraSpaceBefore = 0
-					// itext.options.paraSpaceAfter = 0
+					itext.options.paraSpaceBefore = 0
 				}
 
 				// itext.options.breakLine = true

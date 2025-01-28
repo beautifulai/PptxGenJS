@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-wip @ 2025-01-28T21:32:36.771Z */
+/* PptxGenJS 3.13.0-wip @ 2025-01-28T21:40:44.529Z */
 import JSZip from 'jszip';
 
 /******************************************************************************
@@ -6213,10 +6213,9 @@ function genXmlTextBody(slideObj) {
         // NOTE: Filter for trailing lineBreak prevents the creation of an empty textObj as the last item
         if (itext.text.includes(CRLF) && itext.text.match(/\n$/g) === null) {
             itext.text.split(CRLF).forEach(function (line) {
-                if (arrTextObjects.length > 1) {
+                if (arrTextObjects.length > 0) {
                     itext.options.softBreakBefore = true;
-                    // itext.options.paraSpaceBefore = 0
-                    // itext.options.paraSpaceAfter = 0
+                    itext.options.paraSpaceBefore = 0;
                 }
                 // itext.options.breakLine = true
                 arrTextObjects.push({ text: line, options: itext.options });

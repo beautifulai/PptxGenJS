@@ -1287,6 +1287,7 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 	// STEP 5: Group textObj into lines by checking for lineBreak, bullets, alignment change, etc.
 	const arrLines: TextProps[][] = []
 	let arrTexts: TextProps[] = []
+	let textAlreadySplit = false;
 	arrTextObjects.forEach((textObj, idx) => {
 		// A: Align or Bullet trigger new line
 		if (arrTexts.length > 0 && (textObj.options.align || opts.align)) {
@@ -1299,7 +1300,8 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 			arrLines.push(arrTexts)
 			arrTexts = []
 			textObj.options.breakLine = false // For cases with both `bullet` and `breakLine` - prevent double lineBreak
-		} else if (textObj.text.includes(CRLF) && textObj.text.match(/\n$/g) === null) {
+		} if (textObj.text.includes(CRLF) && textObj.text.match(/\n$/g) === null) {
+			textAlreadySplit = true;
 			textObj.text.split(CRLF).forEach((line, idx) => {
 					if (idx > 0){
 						textObj.options.softBreakBefore = true;
@@ -1312,17 +1314,19 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 		// B: Add this text to current line
 		arrTexts.push(textObj)
 
-		// C: BreakLine begins new line **after** adding current text
-		if (arrTexts.length > 0 && textObj.options.breakLine) {
-			// Avoid starting a para right as loop is exhausted
-			if (idx + 1 < arrTextObjects.length) {
-				arrLines.push(arrTexts)
-				arrTexts = []
+		if (!textAlreadySplit){
+			// C: BreakLine begins new line **after** adding current text
+			if (arrTexts.length > 0 && textObj.options.breakLine) {
+				// Avoid starting a para right as loop is exhausted
+				if (idx + 1 < arrTextObjects.length) {
+					arrLines.push(arrTexts)
+					arrTexts = []
+				}
 			}
-		}
 
-		// D: Flush buffer
-		if (idx + 1 === arrTextObjects.length) arrLines.push(arrTexts)
+			// D: Flush buffer
+			if (idx + 1 === arrTextObjects.length) arrLines.push(arrTexts)
+		}
 	})
 
 	// STEP 6: Loop over each line and create paragraph props, text run, etc.

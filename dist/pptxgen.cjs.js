@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-wip @ 2025-01-28T22:15:36.532Z */
+/* PptxGenJS 3.13.0-wip @ 2025-01-28T22:25:08.547Z */
 'use strict';
 
 var JSZip = require('jszip');
@@ -6235,6 +6235,7 @@ function genXmlTextBody(slideObj) {
     // STEP 5: Group textObj into lines by checking for lineBreak, bullets, alignment change, etc.
     var arrLines = [];
     var arrTexts = [];
+    var textAlreadySplit = false;
     arrTextObjects.forEach(function (textObj, idx) {
         // A: Align or Bullet trigger new line
         if (arrTexts.length > 0 && (textObj.options.align || opts.align)) {
@@ -6249,7 +6250,8 @@ function genXmlTextBody(slideObj) {
             arrTexts = [];
             textObj.options.breakLine = false; // For cases with both `bullet` and `breakLine` - prevent double lineBreak
         }
-        else if (textObj.text.includes(CRLF) && textObj.text.match(/\n$/g) === null) {
+        if (textObj.text.includes(CRLF) && textObj.text.match(/\n$/g) === null) {
+            textAlreadySplit = true;
             textObj.text.split(CRLF).forEach(function (line, idx) {
                 if (idx > 0) {
                     textObj.options.softBreakBefore = true;
@@ -6260,17 +6262,19 @@ function genXmlTextBody(slideObj) {
         }
         // B: Add this text to current line
         arrTexts.push(textObj);
-        // C: BreakLine begins new line **after** adding current text
-        if (arrTexts.length > 0 && textObj.options.breakLine) {
-            // Avoid starting a para right as loop is exhausted
-            if (idx + 1 < arrTextObjects.length) {
-                arrLines.push(arrTexts);
-                arrTexts = [];
+        if (!textAlreadySplit) {
+            // C: BreakLine begins new line **after** adding current text
+            if (arrTexts.length > 0 && textObj.options.breakLine) {
+                // Avoid starting a para right as loop is exhausted
+                if (idx + 1 < arrTextObjects.length) {
+                    arrLines.push(arrTexts);
+                    arrTexts = [];
+                }
             }
+            // D: Flush buffer
+            if (idx + 1 === arrTextObjects.length)
+                arrLines.push(arrTexts);
         }
-        // D: Flush buffer
-        if (idx + 1 === arrTextObjects.length)
-            arrLines.push(arrTexts);
     });
     // STEP 6: Loop over each line and create paragraph props, text run, etc.
     arrLines.forEach(function (line) {

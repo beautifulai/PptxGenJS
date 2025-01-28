@@ -1302,12 +1302,13 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 			textObj.options.breakLine = false // For cases with both `bullet` and `breakLine` - prevent double lineBreak
 		} if (textObj.text.includes(CRLF) && textObj.text.match(/\n$/g) === null) {
 			textAlreadySplit = true;
+			arrLines[0] = [];
 			textObj.text.split(CRLF).forEach((line, idx) => {
 					if (idx > 0){
 						textObj.options.softBreakBefore = true;
 						// itext.options.paraSpaceBefore = 0
 					}
-					arrLines.push([{ text: line, options: textObj.options }])
+					arrLines[0].push({ text: line, options: textObj.options })
 				})
 		}
 

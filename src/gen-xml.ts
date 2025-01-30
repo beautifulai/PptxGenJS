@@ -512,6 +512,7 @@ export function slideObjectToXml (slide: PresSlide | SlideLayout): string {
 					if (slideItemObj.options.line.beginArrowType) strSlideXml += `<a:headEnd type="${slideItemObj.options.line.beginArrowType}"/>`
 					if (slideItemObj.options.line.endArrowType) strSlideXml += `<a:tailEnd type="${slideItemObj.options.line.endArrowType}"/>`
 					// FUTURE: `endArrowSize` < a: headEnd type = "arrow" w = "lg" len = "lg" /> 'sm' | 'med' | 'lg'(values are 1 - 9, making a 3x3 grid of w / len possibilities)
+					strSlideXml += '<a:miter lim="800000"/>';
 					strSlideXml += '</a:ln>'
 				}
 

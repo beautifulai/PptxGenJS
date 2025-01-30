@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-beta.0 @ 2023-05-17T03:15:58.384Z */
+/* PptxGenJS 3.13.0-bai.0 @ 2025-01-30T04:49:23.464Z */
 'use strict';
 
 var JSZip = require('jszip');
@@ -871,7 +871,7 @@ function getNewRelId(target) {
  * Checks shadow options passed by user and performs corrections if needed.
  * @param {ShadowProps} ShadowProps - shadow options
  */
-function correctShadowOptions(ShadowProps) {
+function correctShadowOptions$1(ShadowProps) {
     if (!ShadowProps || typeof ShadowProps !== 'object') {
         // console.warn("`shadow` options must be an object. Ex: `{shadow: {type:'none'}}`")
         return;
@@ -1875,7 +1875,7 @@ function addChartDefinition(target, type, data, opt) {
     correctGridLineOptions(options.catGridLine);
     correctGridLineOptions(options.valGridLine);
     correctGridLineOptions(options.serGridLine);
-    correctShadowOptions(options.shadow);
+    correctShadowOptions$1(options.shadow);
     // C: Options: plotArea
     options.showDataTable = options.showDataTable || !options.showDataTable ? options.showDataTable : false;
     options.showDataTableHorzBorder = options.showDataTableHorzBorder || !options.showDataTableHorzBorder ? options.showDataTableHorzBorder : true;
@@ -2058,7 +2058,7 @@ function addImageDefinition(target, opt) {
         flipH: opt.flipH || false,
         transparency: opt.transparency || 0,
         objectName: objectName,
-        shadow: correctShadowOptions(opt.shadow),
+        shadow: correctShadowOptions$1(opt.shadow),
     };
     // STEP 4: Add this image to this Slide Rels (rId/rels count spans all slides! Count all images to get next rId)
     if (strImgExtn === 'svg') {
@@ -2673,7 +2673,7 @@ function addTextDefinition(target, text, opts, isPlaceholder) {
                 itemOpts._bodyProp.anchor = TEXT_VALIGN.t;
         }
         // STEP 3: ROBUST: Set rational values for some shadow props if needed
-        correctShadowOptions(itemOpts.shadow);
+        correctShadowOptions$1(itemOpts.shadow);
         return itemOpts;
     }
     // STEP 1: Create/Clean object options
@@ -5482,6 +5482,7 @@ function slideObjectToXml(slide) {
                     if (slideItemObj.options.line.endArrowType)
                         strSlideXml += "<a:tailEnd type=\"".concat(slideItemObj.options.line.endArrowType, "\"/>");
                     // FUTURE: `endArrowSize` < a: headEnd type = "arrow" w = "lg" len = "lg" /> 'sm' | 'med' | 'lg'(values are 1 - 9, making a 3x3 grid of w / len possibilities)
+                    strSlideXml += '<a:miter lim="800000"/>';
                     strSlideXml += '</a:ln>';
                 }
                 // EFFECTS > SHADOW: REF: @see http://officeopenxml.com/drwSp-effects.php
@@ -5784,6 +5785,100 @@ function slideObjectRelationsToXml(slide, defaultRels) {
     strXml += '</Relationships>';
     return strXml;
 }
+function genXmlBulletProperties(textPropsOptions) {
+    var paragraphPropXml = '';
+    var strXmlBullet = '';
+    var defaultMarL = valToPts(DEF_BULLET_MARGIN);
+    var bullet = textPropsOptions.bullet;
+    var indent;
+    // NOTE: OOXML uses the unicode character set for Bullets
+    // EX: Unicode Character 'BULLET' (U+2022) ==> '<a:buChar char="&#x2022;"/>'
+    if (typeof bullet === "boolean") {
+        if (bullet) {
+            defaultMarL = textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0
+                ? defaultMarL + defaultMarL * textPropsOptions.indentLevel
+                : defaultMarL;
+            indent = -defaultMarL;
+            paragraphPropXml += " marL=\"".concat(defaultMarL, "\" indent=\"").concat(indent, "\"");
+            strXmlBullet = "<a:buSzPct val=\"100000\"/><a:buChar char=\"".concat(BULLET_TYPES.DEFAULT, "\"/>");
+        }
+        else if (!bullet) {
+            // We only add this when the user explicitly asks for no bullet, otherwise, it can override the master defaults!
+            paragraphPropXml += ' indent="0" marL="0"'; // FIX: ISSUE#589 - specify zero indent and marL or default will be hanging paragraph
+            strXmlBullet = '<a:buNone/>';
+        }
+    }
+    else if (bullet && typeof bullet === 'object') {
+        var color = bullet.color ? "<a:buClr><a:srgbClr val=\"".concat(bullet.color, "\"/></a:buClr>") : '';
+        var marginLeft = (typeof bullet.marginLeft === "number") ? valToPts(bullet.marginLeft) : defaultMarL;
+        var indentIncrement = (typeof bullet.indent === "number") ? valToPts(bullet.indent) : marginLeft;
+        if (bullet.type) {
+            var bulletType = bullet.type.toString().toLowerCase();
+            var marL = ((typeof textPropsOptions.indentLevel === "number") && (textPropsOptions.indentLevel > 0))
+                ? (marginLeft + (indentIncrement * textPropsOptions.indentLevel))
+                : marginLeft;
+            switch (bulletType) {
+                case 'bullet':
+                    indent = -indentIncrement;
+                    paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
+                    strXmlBullet = "".concat(color, "<a:buSzPct val=\"100000\"/><a:buChar char=\"").concat(BULLET_TYPES.DEFAULT, "\"/>");
+                    break;
+                case 'char':
+                    var char = bullet.characterCode ? "&#x".concat(bullet.characterCode, ";") : BULLET_TYPES.DEFAULT;
+                    indent = -indentIncrement;
+                    paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
+                    strXmlBullet = "".concat(color, "<a:buSzPct val=\"100000\"/><a:buChar char=\"").concat(char, "\"/>");
+                    break;
+                case 'number':
+                    // indent = 0;
+                    indent = -indentIncrement;
+                    paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
+                    var bulletType_1 = bullet.numberType || (bullet === null || bullet === void 0 ? void 0 : bullet.style) || 'arabicPeriod';
+                    var bulletStartAt = bullet.numberStartAt || bullet.startAt;
+                    strXmlBullet = "".concat(color, "<a:buSzPct val=\"100000\"/><a:buFont typeface=\"+mj-lt\"/><a:buAutoNum type=\"").concat(bulletType_1, "\"");
+                    if (bulletStartAt && typeof bulletStartAt === "number") {
+                        strXmlBullet += " startAt=\"".concat(bulletStartAt, "\"");
+                    }
+                    strXmlBullet += "/>";
+                    break;
+                case 'none':
+                    indent = -indentIncrement;
+                    paragraphPropXml += " marL=\"".concat(marL + indent, "\" indent=\"").concat(0, "\"");
+                    strXmlBullet = '<a:buNone/>';
+                    break;
+            }
+        }
+        else if (bullet.characterCode) {
+            var bulletCode = "&#x".concat(bullet.characterCode, ";");
+            // Check value for hex-ness (s/b 4 char hex)
+            if (!/^[0-9A-Fa-f]{4}$/.test(bullet.characterCode)) {
+                console.warn('Warning: `bullet.characterCode should be a 4-digit unicode character (ex: 22AB)`!');
+                bulletCode = BULLET_TYPES.DEFAULT;
+            }
+            paragraphPropXml += " marL=\"".concat(textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? defaultMarL + defaultMarL * textPropsOptions.indentLevel : defaultMarL, "\" indent=\"-").concat(defaultMarL, "\"");
+            strXmlBullet = '<a:buSzPct val="100000"/><a:buChar char="' + bulletCode + '"/>';
+        }
+        else if (bullet.code) {
+            // @deprecated `bullet.code` v3.3.0
+            var bulletCode = "&#x".concat(bullet.code, ";");
+            // Check value for hex-ness (s/b 4 char hex)
+            if (!/^[0-9A-Fa-f]{4}$/.test(bullet.code)) {
+                console.warn('Warning: `bullet.code should be a 4-digit hex code (ex: 22AB)`!');
+                bulletCode = BULLET_TYPES.DEFAULT;
+            }
+            paragraphPropXml += " marL=\"".concat(textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? defaultMarL + defaultMarL * textPropsOptions.indentLevel : defaultMarL, "\" indent=\"-").concat(defaultMarL, "\"");
+            strXmlBullet = '<a:buSzPct val="100000"/><a:buChar char="' + bulletCode + '"/>';
+        }
+        else {
+            paragraphPropXml += " marL=\"".concat(textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0 ? defaultMarL + defaultMarL * textPropsOptions.indentLevel : defaultMarL, "\" indent=\"-").concat(defaultMarL, "\"");
+            strXmlBullet = "<a:buSzPct val=\"100000\"/><a:buChar char=\"".concat(BULLET_TYPES.DEFAULT, "\"/>");
+        }
+    }
+    return {
+        paragraphPropXml: paragraphPropXml,
+        strXmlBullet: strXmlBullet,
+    };
+}
 /**
  * Generate XML Paragraph Properties
  * @param {ISlideObject|TextProps} textObj - text object
@@ -5791,13 +5886,11 @@ function slideObjectRelationsToXml(slide, defaultRels) {
  * @return {string} XML
  */
 function genXmlParagraphProperties(textObj, isDefault) {
-    var _a, _b;
     var strXmlBullet = '';
     var strXmlLnSpc = '';
     var strXmlParaSpc = '';
     var strXmlTabStops = '';
     var tag = isDefault ? 'a:lvl1pPr' : 'a:pPr';
-    var bulletMarL = valToPts(DEF_BULLET_MARGIN);
     var paragraphPropXml = "<".concat(tag).concat(textObj.options.rtlMode ? ' rtl="1" ' : '');
     // A: Build paragraphProperties
     {
@@ -5839,51 +5932,10 @@ function genXmlParagraphProperties(textObj, isDefault) {
             strXmlParaSpc += "<a:spcAft><a:spcPts val=\"".concat(Math.round(textObj.options.paraSpaceAfter * 100), "\"/></a:spcAft>");
         }
         // OPTION: bullet
-        // NOTE: OOXML uses the unicode character set for Bullets
-        // EX: Unicode Character 'BULLET' (U+2022) ==> '<a:buChar char="&#x2022;"/>'
-        if (typeof textObj.options.bullet === 'object') {
-            if ((_b = (_a = textObj === null || textObj === void 0 ? void 0 : textObj.options) === null || _a === void 0 ? void 0 : _a.bullet) === null || _b === void 0 ? void 0 : _b.indent)
-                bulletMarL = valToPts(textObj.options.bullet.indent);
-            if (textObj.options.bullet.type) {
-                if (textObj.options.bullet.type.toString().toLowerCase() === 'number') {
-                    paragraphPropXml += " marL=\"".concat(textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL, "\" indent=\"-").concat(bulletMarL, "\"");
-                    strXmlBullet = "<a:buSzPct val=\"100000\"/><a:buFont typeface=\"+mj-lt\"/><a:buAutoNum type=\"".concat(textObj.options.bullet.style || 'arabicPeriod', "\" startAt=\"").concat(textObj.options.bullet.numberStartAt || textObj.options.bullet.startAt || '1', "\"/>");
-                }
-            }
-            else if (textObj.options.bullet.characterCode) {
-                var bulletCode = "&#x".concat(textObj.options.bullet.characterCode, ";");
-                // Check value for hex-ness (s/b 4 char hex)
-                if (!/^[0-9A-Fa-f]{4}$/.test(textObj.options.bullet.characterCode)) {
-                    console.warn('Warning: `bullet.characterCode should be a 4-digit unicode charatcer (ex: 22AB)`!');
-                    bulletCode = BULLET_TYPES.DEFAULT;
-                }
-                paragraphPropXml += " marL=\"".concat(textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL, "\" indent=\"-").concat(bulletMarL, "\"");
-                strXmlBullet = '<a:buSzPct val="100000"/><a:buChar char="' + bulletCode + '"/>';
-            }
-            else if (textObj.options.bullet.code) {
-                // @deprecated `bullet.code` v3.3.0
-                var bulletCode = "&#x".concat(textObj.options.bullet.code, ";");
-                // Check value for hex-ness (s/b 4 char hex)
-                if (!/^[0-9A-Fa-f]{4}$/.test(textObj.options.bullet.code)) {
-                    console.warn('Warning: `bullet.code should be a 4-digit hex code (ex: 22AB)`!');
-                    bulletCode = BULLET_TYPES.DEFAULT;
-                }
-                paragraphPropXml += " marL=\"".concat(textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL, "\" indent=\"-").concat(bulletMarL, "\"");
-                strXmlBullet = '<a:buSzPct val="100000"/><a:buChar char="' + bulletCode + '"/>';
-            }
-            else {
-                paragraphPropXml += " marL=\"".concat(textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL, "\" indent=\"-").concat(bulletMarL, "\"");
-                strXmlBullet = "<a:buSzPct val=\"100000\"/><a:buChar char=\"".concat(BULLET_TYPES.DEFAULT, "\"/>");
-            }
-        }
-        else if (textObj.options.bullet) {
-            paragraphPropXml += " marL=\"".concat(textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL, "\" indent=\"-").concat(bulletMarL, "\"");
-            strXmlBullet = "<a:buSzPct val=\"100000\"/><a:buChar char=\"".concat(BULLET_TYPES.DEFAULT, "\"/>");
-        }
-        else if (!textObj.options.bullet) {
-            // We only add this when the user explicitely asks for no bullet, otherwise, it can override the master defaults!
-            paragraphPropXml += ' indent="0" marL="0"'; // FIX: ISSUE#589 - specify zero indent and marL or default will be hanging paragraph
-            strXmlBullet = '<a:buNone/>';
+        if (textObj.options.bullet) {
+            var bulletProps = genXmlBulletProperties(textObj.options);
+            paragraphPropXml += bulletProps.paragraphPropXml;
+            strXmlBullet = bulletProps.strXmlBullet;
         }
         // OPTION: tabStops
         if (textObj.options.tabStops && Array.isArray(textObj.options.tabStops)) {
@@ -5986,35 +6038,25 @@ function genXmlTextRunProperties(opts, isDefault) {
  * @return {string} XML string
  */
 function genXmlTextRun(textObj) {
-    // NOTE: Dont create full rPr runProps for empty [lineBreak] runs
-    // Why? The size of the lineBreak wont match (eg: below it will be 18px instead of the correct 36px)
-    // Do this:
-    /*
-        <a:p>
-            <a:pPr algn="r"/>
-            <a:endParaRPr lang="en-US" sz="3600" dirty="0"/>
-        </a:p>
-    */
-    // NOT this:
-    /*
-        <a:p>
-            <a:pPr algn="r"/>
-            <a:r>
-                <a:rPr lang="en-US" sz="3600" dirty="0">
-                    <a:solidFill>
-                        <a:schemeClr val="accent5"/>
-                    </a:solidFill>
-                    <a:latin typeface="Times" pitchFamily="34" charset="0"/>
-                    <a:ea typeface="Times" pitchFamily="34" charset="-122"/>
-                    <a:cs typeface="Times" pitchFamily="34" charset="-120"/>
-                </a:rPr>
-                <a:t></a:t>
-            </a:r>
-            <a:endParaRPr lang="en-US" dirty="0"/>
-        </a:p>
-    */
+    // If text string has line-breaks, split sequential runs with a `<a:br/>` tag for separation
+    var textRuns = [];
+    var xmlTextRun = "";
+    var xmlProperties = genXmlTextRunProperties(textObj.options, false);
+    if (textObj.text && typeof textObj.text === 'string') {
+        textObj.text.split(CRLF).forEach(function (line) {
+            textRuns.push(line);
+        });
+        textRuns.forEach(function (line, idx) {
+            if (idx > 0) {
+                xmlTextRun += "<a:br>".concat(xmlProperties, "</a:br>");
+            }
+            if (line.length > 0) {
+                xmlTextRun += "<a:r>".concat(xmlProperties, "<a:t>").concat(encodeXmlEntities(line), "</a:t></a:r>");
+            }
+        });
+    }
     // Return paragraph with text run
-    return textObj.text ? "<a:r>".concat(genXmlTextRunProperties(textObj.options, false), "<a:t>").concat(encodeXmlEntities(textObj.text), "</a:t></a:r>") : '';
+    return xmlTextRun;
 }
 /**
  * Builds `<a:bodyPr></a:bodyPr>` tag for "genXmlTextBody()"
@@ -6055,9 +6097,9 @@ function genXmlBodyProperties(slideObject) {
             if (slideObject.options.fit === 'none')
                 bodyProperties += '';
             // NOTE: Shrink does not work automatically - PowerPoint calculates the `fontScale` value dynamically upon resize
-            // else if (slideObject.options.fit === 'shrink') bodyProperties += '<a:normAutofit fontScale="85000" lnSpcReduction="20000"/>' // MS-PPT > Format shape > Text Options: "Shrink text on overflow"
             else if (slideObject.options.fit === 'shrink')
-                bodyProperties += '<a:normAutofit/>';
+                bodyProperties += '<a:normAutofit fontScale="85000" lnSpcReduction="20000"/>'; // MS-PPT > Format shape > Text Options: "Shrink text on overflow"
+            // else if (slideObject.options.fit === 'shrink') bodyProperties += '<a:normAutofit/>'
             else if (slideObject.options.fit === 'resize')
                 bodyProperties += '<a:spAutoFit/>';
         }
@@ -6084,8 +6126,8 @@ function genXmlBodyProperties(slideObject) {
 /**
  * Generate the XML for text and its options (bold, bullet, etc) including text runs (word-level formatting)
  * @param {ISlideObject|TableCell} slideObj - slideObj or tableCell
- * @note PPT text lines [lines followed by line-breaks] are created using <p>-aragraph's
- * @note Bullets are a paragragh-level formatting device
+ * @note PPT text lines [lines followed by line-breaks] separated by <br> tags
+ * @note Bullets are a paragraph-level formatting device
  * @template
  *    <p:txBody>
  *        <a:bodyPr wrap="square" rtlCol="0">
@@ -6162,17 +6204,7 @@ function genXmlTextBody(slideObj) {
             // 1: Convert "\n" or any variation into CRLF
             itext.text = itext.text.toString().replace(/\r*\n/g, CRLF);
         }
-        // C: If text string has line-breaks, then create a separate text-object for each (much easier than dealing with split inside a loop below)
-        // NOTE: Filter for trailing lineBreak prevents the creation of an empty textObj as the last item
-        if (itext.text.includes(CRLF) && itext.text.match(/\n$/g) === null) {
-            itext.text.split(CRLF).forEach(function (line) {
-                itext.options.breakLine = true;
-                arrTextObjects.push({ text: line, options: itext.options });
-            });
-        }
-        else {
-            arrTextObjects.push(itext);
-        }
+        arrTextObjects.push(itext);
     });
     // STEP 5: Group textObj into lines by checking for lineBreak, bullets, alignment change, etc.
     var arrLines = [];
@@ -6189,7 +6221,7 @@ function genXmlTextBody(slideObj) {
         else if (arrTexts.length > 0 && textObj.options.bullet && arrTexts.length > 0) {
             arrLines.push(arrTexts);
             arrTexts = [];
-            textObj.options.breakLine = false; // For cases with both `bullet` and `brekaLine` - prevent double lineBreak
+            textObj.options.breakLine = false; // For cases with both `bullet` and `breakLine` - prevent double lineBreak
         }
         // B: Add this text to current line
         arrTexts.push(textObj);
@@ -6247,7 +6279,7 @@ function genXmlTextBody(slideObj) {
             // D: Add formatted textrun
             strSlideXml += genXmlTextRun(textObj);
             // E: Flag close fontSize for empty [lineBreak] elements
-            if ((!textObj.text && opts.fontSize) || textObj.options.fontSize) {
+            if (!textObj.text && (opts.fontSize || textObj.options.fontSize)) {
                 reqsClosingFontSize = true;
                 opts.fontSize = opts.fontSize || textObj.options.fontSize;
             }
@@ -6681,6 +6713,80 @@ function makeXmlTableStyles() {
 function makeXmlViewProps() {
     return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>".concat(CRLF, "<p:viewPr xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:p=\"http://schemas.openxmlformats.org/presentationml/2006/main\"><p:normalViewPr horzBarState=\"maximized\"><p:restoredLeft sz=\"15611\"/><p:restoredTop sz=\"94610\"/></p:normalViewPr><p:slideViewPr><p:cSldViewPr snapToGrid=\"0\" snapToObjects=\"1\"><p:cViewPr varScale=\"1\"><p:scale><a:sx n=\"136\" d=\"100\"/><a:sy n=\"136\" d=\"100\"/></p:scale><p:origin x=\"216\" y=\"312\"/></p:cViewPr><p:guideLst/></p:cSldViewPr></p:slideViewPr><p:notesTextViewPr><p:cViewPr><p:scale><a:sx n=\"1\" d=\"1\"/><a:sy n=\"1\" d=\"1\"/></p:scale><p:origin x=\"0\" y=\"0\"/></p:cViewPr></p:notesTextViewPr><p:gridSpacing cx=\"76200\" cy=\"76200\"/></p:viewPr>");
 }
+/**
+ * Checks shadow options passed by user and performs corrections if needed.
+ * @param {ShadowProps} shadowProps - shadow options
+ */
+function correctShadowOptions(shadowProps) {
+    if (!shadowProps || typeof shadowProps !== 'object') {
+        // console.warn("`shadow` options must be an object. Ex: `{shadow: {type:'none'}}`")
+        return;
+    }
+    // OPT: `type`
+    if (shadowProps.type !== 'outer' && shadowProps.type !== 'inner' && shadowProps.type !== 'none') {
+        console.warn('Warning: shadow.type options are `outer`, `inner` or `none`.');
+        shadowProps.type = 'outer';
+    }
+    // OPT: `angle`
+    if (shadowProps.angle) {
+        // A: REALITY-CHECK
+        if (isNaN(Number(shadowProps.angle)) || shadowProps.angle < 0 || shadowProps.angle > 359) {
+            console.warn('Warning: shadow.angle can only be 0-359');
+            shadowProps.angle = 270;
+        }
+        // B: ROBUST: Cast any type of valid arg to int: '12', 12.3, etc. -> 12
+        shadowProps.angle = Math.round(Number(shadowProps.angle));
+    }
+    // OPT: `opacity`
+    if (shadowProps.opacity) {
+        // A: REALITY-CHECK
+        if (isNaN(Number(shadowProps.opacity)) || shadowProps.opacity < 0 || shadowProps.opacity > 1) {
+            console.warn('Warning: shadow.opacity can only be 0-1');
+            shadowProps.opacity = 0.75;
+        }
+        // B: ROBUST: Cast any type of valid arg to int: '12', 12.3, etc. -> 12
+        shadowProps.opacity = Number(shadowProps.opacity);
+    }
+}
+
+var GenXml = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    slideObjectToXml: slideObjectToXml,
+    slideObjectRelationsToXml: slideObjectRelationsToXml,
+    genXmlBulletProperties: genXmlBulletProperties,
+    genXmlParagraphProperties: genXmlParagraphProperties,
+    genXmlTextRunProperties: genXmlTextRunProperties,
+    genXmlTextRun: genXmlTextRun,
+    genXmlBodyProperties: genXmlBodyProperties,
+    genXmlTextBody: genXmlTextBody,
+    genXmlPlaceholder: genXmlPlaceholder,
+    makeXmlContTypes: makeXmlContTypes,
+    makeXmlRootRels: makeXmlRootRels,
+    makeXmlApp: makeXmlApp,
+    makeXmlCore: makeXmlCore,
+    makeXmlPresentationRels: makeXmlPresentationRels,
+    makeXmlSlide: makeXmlSlide,
+    getNotesFromSlide: getNotesFromSlide,
+    makeXmlNotesMaster: makeXmlNotesMaster,
+    makeXmlNotesSlide: makeXmlNotesSlide,
+    makeXmlLayout: makeXmlLayout,
+    makeXmlMaster: makeXmlMaster,
+    makeXmlSlideLayoutRel: makeXmlSlideLayoutRel,
+    makeXmlSlideRel: makeXmlSlideRel,
+    makeXmlNotesSlideRel: makeXmlNotesSlideRel,
+    makeXmlMasterRel: makeXmlMasterRel,
+    makeXmlNotesMasterRel: makeXmlNotesMasterRel,
+    makeXmlTheme: makeXmlTheme,
+    makeXmlPresentation: makeXmlPresentation,
+    makeXmlPresProps: makeXmlPresProps,
+    makeXmlTableStyles: makeXmlTableStyles,
+    makeXmlViewProps: makeXmlViewProps,
+    correctShadowOptions: correctShadowOptions
+});
+
+var Internals = {
+    GenXml: GenXml
+};
 
 /**
  *  :: pptxgen.ts ::
@@ -6713,7 +6819,7 @@ function makeXmlViewProps() {
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-var VERSION = '3.13.0-beta.0-20230416-2140';
+var VERSION = '3.13.0-bai.0';
 var PptxGenJS = /** @class */ (function () {
     function PptxGenJS() {
         var _this = this;
@@ -7004,6 +7110,16 @@ var PptxGenJS = /** @class */ (function () {
             _slideObjects: [],
         };
     }
+    PptxGenJS.getInternals = function () {
+        return Internals;
+    };
+    Object.defineProperty(PptxGenJS.prototype, "Internals", {
+        get: function () {
+            return Internals;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(PptxGenJS.prototype, "layout", {
         get: function () {
             return this._layout;
@@ -7440,6 +7556,9 @@ var PptxGenJS = /** @class */ (function () {
         // @note `verbose` option is undocumented; used for verbose output of layout process
         genTableToSlides(this, eleId, options, (options === null || options === void 0 ? void 0 : options.masterSlideName) ? this.slideLayouts.filter(function (layout) { return layout._name === options.masterSlideName; })[0] : null);
     };
+    // Export Internals for testing and development purposes
+    // Can be accessed using `PptxGenJS["Internals"]`
+    PptxGenJS.Internals = Internals;
     return PptxGenJS;
 }());
 

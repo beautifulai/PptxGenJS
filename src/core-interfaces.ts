@@ -914,6 +914,11 @@ export interface TextBulletProps {
 	 */
 	characterCode?: string
 	/**
+	 * Border color (hex format)
+	 * @example 'FF3399'
+	 */
+	color?: HexColor
+	/**
 	 * Indentation (space between bullet and text) (points)
 	 * @since v3.3.0
 	 * @default 27 // DEF_BULLET_MARGIN
@@ -921,9 +926,13 @@ export interface TextBulletProps {
 	 */
 	indent?: number
 	/**
+	 * MarginLeft - Sets the left margin (points)
+	 */
+	marginLeft?: number
+	/**
 	 * Number type
 	 * @since v3.3.0
-	 * @example 'romanLcParenR' // roman numerals lower-case with paranthesis right
+	 * @example 'romanLcParenR' // roman numerals lower-case with parenthesis right
 	 */
 	numberType?:
 | 'alphaLcParenBoth'

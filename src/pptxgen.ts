@@ -97,12 +97,24 @@ import * as genObj from './gen-objects'
 import * as genMedia from './gen-media'
 import * as genTable from './gen-tables'
 import * as genXml from './gen-xml'
+import { Internals } from './internals'
 
 const VERSION = '3.13.0-beta.0-20230416-2140'
 
 export default class PptxGenJS implements IPresentationProps {
-	// Property getters/setters
+	// Export Internals for testing and development purposes
+	// Can be accessed using `PptxGenJS["Internals"]`
+	public static Internals: typeof Internals = Internals
 
+	public static getInternals () {
+		return Internals
+	}
+
+	public get Internals () {
+		return Internals
+	}
+
+	// Property getters/setters
 	/**
 	 * Presentation layout name
 	 * Standard layouts:

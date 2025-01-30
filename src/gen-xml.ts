@@ -82,7 +82,7 @@ const ImageSizingXml = {
  * @param {PresSlide|SlideLayout} slideObject - slide object created within createSlideObject
  * @return {string} XML string with <p:cSld> as the root
  */
-function slideObjectToXml (slide: PresSlide | SlideLayout): string {
+export function slideObjectToXml (slide: PresSlide | SlideLayout): string {
 	let strSlideXml: string = slide._name ? '<p:cSld name="' + slide._name + '">' : '<p:cSld>'
 	let intTableNum = 1
 
@@ -765,7 +765,7 @@ function slideObjectToXml (slide: PresSlide | SlideLayout): string {
  * @param {{ target: string; type: string }[]} defaultRels - array of default relations
  * @return {string} XML
  */
-function slideObjectRelationsToXml (slide: PresSlide | SlideLayout, defaultRels: Array<{ target: string, type: string }>): string {
+export function slideObjectRelationsToXml (slide: PresSlide | SlideLayout, defaultRels: Array<{ target: string, type: string }>): string {
 	let lastRid = 0 // stores maximum rId used for dynamic relations
 	let strXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' + CRLF + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
 
@@ -824,7 +824,7 @@ function slideObjectRelationsToXml (slide: PresSlide | SlideLayout, defaultRels:
 	return strXml
 }
 
-function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
+export function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
 	let paragraphPropXml = ''
 	let strXmlBullet = ''
 	let defaultMarL = valToPts(DEF_BULLET_MARGIN)
@@ -930,7 +930,7 @@ function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
  * @param {boolean} isDefault - array of default relations
  * @return {string} XML
  */
-function genXmlParagraphProperties (textObj: ISlideObject | TextProps, isDefault: boolean): string {
+export function genXmlParagraphProperties (textObj: ISlideObject | TextProps, isDefault: boolean): string {
 	let strXmlBullet = ''
 	let strXmlLnSpc = ''
 	let strXmlParaSpc = ''
@@ -1010,7 +1010,7 @@ function genXmlParagraphProperties (textObj: ISlideObject | TextProps, isDefault
  * @param {boolean} isDefault - whether these are the default text run properties
  * @return {string} XML
  */
-function genXmlTextRunProperties (opts: ObjectOptions | TextPropsOptions, isDefault: boolean): string {
+export function genXmlTextRunProperties (opts: ObjectOptions | TextPropsOptions, isDefault: boolean): string {
 	let runProps = ''
 	const runPropsTag = isDefault ? 'a:defRPr' : 'a:rPr'
 
@@ -1086,7 +1086,7 @@ function genXmlTextRunProperties (opts: ObjectOptions | TextPropsOptions, isDefa
  * @param {TextProps} textObj - Text object
  * @return {string} XML string
  */
-function genXmlTextRun (textObj: TextProps): string {
+export function genXmlTextRun (textObj: TextProps): string {
 
 	// If text string has line-breaks, split sequential runs with a `<a:br/>` tag for separation
 	let textRuns = []
@@ -1116,7 +1116,7 @@ function genXmlTextRun (textObj: TextProps): string {
  * @param {ISlideObject | TableCell} slideObject - various options
  * @return {string} XML string
  */
-function genXmlBodyProperties (slideObject: ISlideObject | TableCell): string {
+export function genXmlBodyProperties (slideObject: ISlideObject | TableCell): string {
 	let bodyProperties = '<a:bodyPr'
 
 	if (slideObject && slideObject._type === SLIDE_OBJECT_TYPES.text && slideObject.options._bodyProp) {

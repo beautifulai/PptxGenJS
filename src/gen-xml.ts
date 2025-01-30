@@ -1087,36 +1087,28 @@ function genXmlTextRunProperties (opts: ObjectOptions | TextPropsOptions, isDefa
  * @return {string} XML string
  */
 function genXmlTextRun (textObj: TextProps): string {
-	// NOTE: Dont create full rPr runProps for empty [lineBreak] runs
-	// Why? The size of the lineBreak wont match (eg: below it will be 18px instead of the correct 36px)
-	// Do this:
-	/*
-		<a:p>
-			<a:pPr algn="r"/>
-			<a:endParaRPr lang="en-US" sz="3600" dirty="0"/>
-		</a:p>
-	*/
-	// NOT this:
-	/*
-		<a:p>
-			<a:pPr algn="r"/>
-			<a:r>
-				<a:rPr lang="en-US" sz="3600" dirty="0">
-					<a:solidFill>
-						<a:schemeClr val="accent5"/>
-					</a:solidFill>
-					<a:latin typeface="Times" pitchFamily="34" charset="0"/>
-					<a:ea typeface="Times" pitchFamily="34" charset="-122"/>
-					<a:cs typeface="Times" pitchFamily="34" charset="-120"/>
-				</a:rPr>
-				<a:t></a:t>
-			</a:r>
-			<a:endParaRPr lang="en-US" dirty="0"/>
-		</a:p>
-	*/
+
+	// If text string has line-breaks, split sequential runs with a `<a:br/>` tag for separation
+	let textRuns = []
+	let xmlTextRun= ""
+	let xmlProperties = genXmlTextRunProperties(textObj.options, false)
+	if (textObj.text && typeof textObj.text === 'string') {
+		textObj.text.split(CRLF).forEach(line => {
+			textRuns.push(line)
+		})
+
+		textRuns.forEach((line, idx) => {
+			if (idx > 0){
+				xmlTextRun += `<a:br>${xmlProperties}</a:br>`
+			}
+			if (line.length > 0){
+				xmlTextRun+= `<a:r>${xmlProperties}<a:t>${encodeXmlEntities(line)}</a:t></a:r>`
+			}
+		})
+	}
 
 	// Return paragraph with text run
-	return textObj.text ? `<a:r>${genXmlTextRunProperties(textObj.options, false)}<a:t>${encodeXmlEntities(textObj.text)}</a:t></a:r>` : ''
+	return xmlTextRun
 }
 
 /**
@@ -1186,8 +1178,8 @@ function genXmlBodyProperties (slideObject: ISlideObject | TableCell): string {
 /**
  * Generate the XML for text and its options (bold, bullet, etc) including text runs (word-level formatting)
  * @param {ISlideObject|TableCell} slideObj - slideObj or tableCell
- * @note PPT text lines [lines followed by line-breaks] are created using <p>-aragraph's
- * @note Bullets are a paragragh-level formatting device
+ * @note PPT text lines [lines followed by line-breaks] separated by <br> tags
+ * @note Bullets are a paragraph-level formatting device
  * @template
  *    <p:txBody>
  *        <a:bodyPr wrap="square" rtlCol="0">
@@ -1265,16 +1257,7 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 			itext.text = itext.text.toString().replace(/\r*\n/g, CRLF)
 		}
 
-		// C: If text string has line-breaks, then create a separate text-object for each (much easier than dealing with split inside a loop below)
-		// NOTE: Filter for trailing lineBreak prevents the creation of an empty textObj as the last item
-		if (itext.text.includes(CRLF) && itext.text.match(/\n$/g) === null) {
-			itext.text.split(CRLF).forEach(line => {
-				itext.options.breakLine = true
-				arrTextObjects.push({ text: line, options: itext.options })
-			})
-		} else {
-			arrTextObjects.push(itext)
-		}
+		arrTextObjects.push(itext)
 	})
 
 	// STEP 5: Group textObj into lines by checking for lineBreak, bullets, alignment change, etc.
@@ -1353,7 +1336,7 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 			strSlideXml += genXmlTextRun(textObj)
 
 			// E: Flag close fontSize for empty [lineBreak] elements
-			if ((!textObj.text && opts.fontSize) || textObj.options.fontSize) {
+			if (!textObj.text && (opts.fontSize || textObj.options.fontSize)) {
 				reqsClosingFontSize = true
 				opts.fontSize = opts.fontSize || textObj.options.fontSize
 			}

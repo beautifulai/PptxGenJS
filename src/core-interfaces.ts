@@ -919,6 +919,10 @@ export interface TextBulletProps {
 	 */
 	color?: HexColor
 	/**
+	 * Bullet image
+	 */
+	img?: DataOrPathProps
+	/**
 	 * Indentation (space between bullet and text) (points)
 	 * @since v3.3.0
 	 * @default 27 // DEF_BULLET_MARGIN

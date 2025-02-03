@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-bai.0 @ 2025-01-30T04:49:23.464Z */
+/* PptxGenJS 3.13.0-bai.0 @ 2025-02-03T14:06:35.774Z */
 'use strict';
 
 var JSZip = require('jszip');
@@ -1979,9 +1979,9 @@ function addChartDefinition(target, type, data, opt) {
 }
 /**
  * Adds an image object to a slide definition.
- * This method can be called with only two args (opt, target) - this is supposed to be the only way in future.
- * @param {ImageProps} `opt` - object containing `path`/`data`, `x`, `y`, etc.
+ * This method can be called with only two args (target, opt) - this is supposed to be the only way in future.
  * @param {PresSlide} `target` - slide that the image should be added to (if not specified as the 2nd arg)
+ * @param {ImageProps} `opt` - object containing `path`/`data`, `x`, `y`, etc.
  * @note: Remote images (eg: "http://whatev.com/blah"/from web and/or remote server arent supported yet - we'd need to create an <img>, load it, then send to canvas
  * @see: https://stackoverflow.com/questions/164181/how-to-fetch-a-remote-image-to-display-in-a-canvas)
  */
@@ -2118,6 +2118,7 @@ function addImageDefinition(target, opt) {
     }
     // STEP 6: Add object to slide
     target._slideObjects.push(newObject);
+    return newObject;
 }
 /**
  * Adds a media object to a slide definition.
@@ -5333,7 +5334,7 @@ function slideObjectToXml(slide) {
                         }
                         // FUTURE: Cell NOWRAP property (textwrap: add to a:tcPr (horzOverflow="overflow" or whatever options exist)
                         // 4: Set CELL content and properties ==================================
-                        strXml += "<a:tc".concat(cellSpanAttrStr, ">").concat(genXmlTextBody(cell), "<a:tcPr").concat(cellMarginXml).concat(cellValign).concat(cellTextDir, ">");
+                        strXml += "<a:tc".concat(cellSpanAttrStr, ">").concat(genXmlTextBody(cell, slide), "<a:tcPr").concat(cellMarginXml).concat(cellValign).concat(cellTextDir, ">");
                         // strXml += `<a:tc${cellColspan}${cellRowspan}>${genXmlTextBody(cell)}<a:tcPr${cellMarginXml}${cellValign}${cellTextDir}>`
                         // FIXME: 20200525: ^^^
                         // <a:tcPr marL="38100" marR="38100" marT="38100" marB="38100" vert="vert270">
@@ -5513,7 +5514,7 @@ function slideObjectToXml(slide) {
                 // B: Close shape Properties
                 strSlideXml += '</p:spPr>';
                 // C: Add formatted text (text body "bodyPr")
-                strSlideXml += genXmlTextBody(slideItemObj);
+                strSlideXml += genXmlTextBody(slideItemObj, slide);
                 // LAST: Close SHAPE =======================================================
                 strSlideXml += '</p:sp>';
                 break;
@@ -5785,7 +5786,7 @@ function slideObjectRelationsToXml(slide, defaultRels) {
     strXml += '</Relationships>';
     return strXml;
 }
-function genXmlBulletProperties(textPropsOptions) {
+function genXmlBulletProperties(textPropsOptions, slide) {
     var paragraphPropXml = '';
     var strXmlBullet = '';
     var defaultMarL = valToPts(DEF_BULLET_MARGIN);
@@ -5822,6 +5823,12 @@ function genXmlBulletProperties(textPropsOptions) {
                     indent = -indentIncrement;
                     paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
                     strXmlBullet = "".concat(color, "<a:buSzPct val=\"100000\"/><a:buChar char=\"").concat(BULLET_TYPES.DEFAULT, "\"/>");
+                    break;
+                case 'img':
+                    var img = addImageDefinition(slide, bullet.img);
+                    indent = -indentIncrement;
+                    paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
+                    strXmlBullet = "<a:buBlip><a:blib r:embed=\"rId".concat(img.imageRid, "\"/></a:buBlip>");
                     break;
                 case 'char':
                     var char = bullet.characterCode ? "&#x".concat(bullet.characterCode, ";") : BULLET_TYPES.DEFAULT;
@@ -5882,10 +5889,11 @@ function genXmlBulletProperties(textPropsOptions) {
 /**
  * Generate XML Paragraph Properties
  * @param {ISlideObject|TextProps} textObj - text object
+ * @param slide - parent slide
  * @param {boolean} isDefault - array of default relations
  * @return {string} XML
  */
-function genXmlParagraphProperties(textObj, isDefault) {
+function genXmlParagraphProperties(textObj, slide, isDefault) {
     var strXmlBullet = '';
     var strXmlLnSpc = '';
     var strXmlParaSpc = '';
@@ -5933,7 +5941,7 @@ function genXmlParagraphProperties(textObj, isDefault) {
         }
         // OPTION: bullet
         if (textObj.options.bullet) {
-            var bulletProps = genXmlBulletProperties(textObj.options);
+            var bulletProps = genXmlBulletProperties(textObj.options, slide);
             paragraphPropXml += bulletProps.paragraphPropXml;
             strXmlBullet = bulletProps.strXmlBullet;
         }
@@ -6145,7 +6153,7 @@ function genXmlBodyProperties(slideObject) {
  *    </p:txBody>
  * @returns XML containing the param object's text and formatting
  */
-function genXmlTextBody(slideObj) {
+function genXmlTextBody(slideObj, slide) {
     var opts = slideObj.options || {};
     var tmpTextObjects = [];
     var arrTextObjects = [];
@@ -6164,7 +6172,7 @@ function genXmlTextBody(slideObj) {
         if (opts.h === 0 && opts.line && opts.align)
             strSlideXml += '<a:lstStyle><a:lvl1pPr algn="l"/></a:lstStyle>';
         else if (slideObj._type === 'placeholder')
-            strSlideXml += "<a:lstStyle>".concat(genXmlParagraphProperties(slideObj, true), "</a:lstStyle>");
+            strSlideXml += "<a:lstStyle>".concat(genXmlParagraphProperties(slideObj, slide, true), "</a:lstStyle>");
         else
             strSlideXml += '<a:lstStyle/>';
     }
@@ -6260,7 +6268,7 @@ function genXmlTextBody(slideObj) {
             textObj.options.indentLevel = textObj.options.indentLevel || opts.indentLevel;
             textObj.options.paraSpaceBefore = textObj.options.paraSpaceBefore || opts.paraSpaceBefore;
             textObj.options.paraSpaceAfter = textObj.options.paraSpaceAfter || opts.paraSpaceAfter;
-            paragraphPropXml = genXmlParagraphProperties(textObj, false);
+            paragraphPropXml = genXmlParagraphProperties(textObj, slide, false);
             strSlideXml += paragraphPropXml.replace('<a:pPr></a:pPr>', ''); // IMPORTANT: Empty "pPr" blocks will generate needs-repair/corrupt msg
             // C: Inherit any main options (color, fontSize, etc.)
             // NOTE: We only pass the text.options to genXmlTextRun (not the Slide.options),

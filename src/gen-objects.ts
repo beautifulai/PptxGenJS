@@ -370,13 +370,13 @@ export function addChartDefinition (target: PresSlide, type: CHART_NAME | IChart
 
 /**
  * Adds an image object to a slide definition.
- * This method can be called with only two args (opt, target) - this is supposed to be the only way in future.
- * @param {ImageProps} `opt` - object containing `path`/`data`, `x`, `y`, etc.
+ * This method can be called with only two args (target, opt) - this is supposed to be the only way in future.
  * @param {PresSlide} `target` - slide that the image should be added to (if not specified as the 2nd arg)
+ * @param {ImageProps} `opt` - object containing `path`/`data`, `x`, `y`, etc.
  * @note: Remote images (eg: "http://whatev.com/blah"/from web and/or remote server arent supported yet - we'd need to create an <img>, load it, then send to canvas
  * @see: https://stackoverflow.com/questions/164181/how-to-fetch-a-remote-image-to-display-in-a-canvas)
  */
-export function addImageDefinition (target: PresSlide, opt: ImageProps): void {
+export function addImageDefinition (target: PresSlide, opt: ImageProps) {
 	const newObject: ISlideObject = {
 		_type: null,
 		text: null,
@@ -516,6 +516,7 @@ export function addImageDefinition (target: PresSlide, opt: ImageProps): void {
 
 	// STEP 6: Add object to slide
 	target._slideObjects.push(newObject)
+	return newObject
 }
 
 /**

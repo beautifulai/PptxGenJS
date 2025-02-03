@@ -872,7 +872,7 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions, slid
 					const imageObj = addImageDefinition(slide as PresSlide, bullet.image)
 					indent = -indentIncrement
 					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
-					strXmlBullet = `<a:buBlip><a:blib r:embed="rId${imageObj.imageRid}"/></a:buBlip>`
+					strXmlBullet = `<a:buBlip><a:blip r:embed="rId${imageObj.imageRid}"/></a:buBlip>`
 					break
 				case 'char':
 					const char = bullet.characterCode ? `&#x${bullet.characterCode};` : BULLET_TYPES.DEFAULT

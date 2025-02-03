@@ -386,16 +386,16 @@ export function addImageDefinition (target: PresSlide, opt: ImageProps) {
 		hyperlink: null,
 	}
 	// FIRST: Set vars for this image (object param replaces positional args in 1.1.0)
-	const intPosX = opt.x || 0
-	const intPosY = opt.y || 0
-	const intWidth = opt.w || 0
-	const intHeight = opt.h || 0
-	const sizing = opt.sizing || null
-	const objHyperlink = opt.hyperlink || ''
-	const strImageData = opt.data || ''
-	const strImagePath = opt.path || ''
+	const intPosX = opt?.x || 0
+	const intPosY = opt?.y || 0
+	const intWidth = opt?.w || 0
+	const intHeight = opt?.h || 0
+	const sizing = opt?.sizing || null
+	const objHyperlink = opt?.hyperlink || ''
+	const strImageData = opt?.data || ''
+	const strImagePath = opt?.path || ''
 	let imageRelId = getNewRelId(target)
-	const objectName = opt.objectName ? encodeXmlEntities(opt.objectName) : `Image ${target._slideObjects.filter(obj => obj._type === SLIDE_OBJECT_TYPES.image).length}`
+	const objectName = opt?.objectName ? encodeXmlEntities(opt?.objectName) : `Image ${target._slideObjects.filter(obj => obj._type === SLIDE_OBJECT_TYPES.image).length}`
 
 	// REALITY-CHECK:
 	if (!strImagePath && !strImageData) {

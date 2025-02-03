@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-bai.0 @ 2025-02-03T16:58:55.660Z */
+/* PptxGenJS 3.13.0-bai.0 @ 2025-02-03T22:15:36.490Z */
 import JSZip from 'jszip';
 
 /******************************************************************************
@@ -1989,16 +1989,16 @@ function addImageDefinition(target, opt) {
         hyperlink: null,
     };
     // FIRST: Set vars for this image (object param replaces positional args in 1.1.0)
-    var intPosX = opt.x || 0;
-    var intPosY = opt.y || 0;
-    var intWidth = opt.w || 0;
-    var intHeight = opt.h || 0;
-    var sizing = opt.sizing || null;
-    var objHyperlink = opt.hyperlink || '';
-    var strImageData = opt.data || '';
-    var strImagePath = opt.path || '';
+    var intPosX = (opt === null || opt === void 0 ? void 0 : opt.x) || 0;
+    var intPosY = (opt === null || opt === void 0 ? void 0 : opt.y) || 0;
+    var intWidth = (opt === null || opt === void 0 ? void 0 : opt.w) || 0;
+    var intHeight = (opt === null || opt === void 0 ? void 0 : opt.h) || 0;
+    var sizing = (opt === null || opt === void 0 ? void 0 : opt.sizing) || null;
+    var objHyperlink = (opt === null || opt === void 0 ? void 0 : opt.hyperlink) || '';
+    var strImageData = (opt === null || opt === void 0 ? void 0 : opt.data) || '';
+    var strImagePath = (opt === null || opt === void 0 ? void 0 : opt.path) || '';
     var imageRelId = getNewRelId(target);
-    var objectName = opt.objectName ? encodeXmlEntities(opt.objectName) : "Image ".concat(target._slideObjects.filter(function (obj) { return obj._type === SLIDE_OBJECT_TYPES.image; }).length);
+    var objectName = (opt === null || opt === void 0 ? void 0 : opt.objectName) ? encodeXmlEntities(opt === null || opt === void 0 ? void 0 : opt.objectName) : "Image ".concat(target._slideObjects.filter(function (obj) { return obj._type === SLIDE_OBJECT_TYPES.image; }).length);
     // REALITY-CHECK:
     if (!strImagePath && !strImageData) {
         console.error('ERROR: addImage() requires either \'data\' or \'path\' parameter!');
@@ -5822,7 +5822,7 @@ function genXmlBulletProperties(textPropsOptions, slide) {
                     var imageObj = addImageDefinition(slide, bullet.image);
                     indent = -indentIncrement;
                     paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
-                    strXmlBullet = "<a:buBlip><a:blib r:embed=\"rId".concat(imageObj.imageRid, "\"/></a:buBlip>");
+                    strXmlBullet = "<a:buBlip><a:blip r:embed=\"rId".concat(imageObj.imageRid, "\"/></a:buBlip>");
                     break;
                 case 'char':
                     var char = bullet.characterCode ? "&#x".concat(bullet.characterCode, ";") : BULLET_TYPES.DEFAULT;

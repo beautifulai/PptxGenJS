@@ -906,7 +906,7 @@ export interface TextBulletProps {
 	 * Bullet type
 	 * @default bullet
 	 */
-	type?: 'bullet' | 'char' | 'number' | 'none'
+	type?: 'bullet' | 'char' | 'image' | 'number' | 'none'
 	/**
 	 * Bullet character code (unicode)
 	 * @since v3.3.0
@@ -921,7 +921,7 @@ export interface TextBulletProps {
 	/**
 	 * Bullet image
 	 */
-	img?: DataOrPathProps
+	image?: DataOrPathProps
 	/**
 	 * Indentation (space between bullet and text) (points)
 	 * @since v3.3.0

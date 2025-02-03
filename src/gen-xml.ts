@@ -516,7 +516,7 @@ export function slideObjectToXml (slide: PresSlide | SlideLayout): string {
 					if (slideItemObj.options.line.beginArrowType) strSlideXml += `<a:headEnd type="${slideItemObj.options.line.beginArrowType}"/>`
 					if (slideItemObj.options.line.endArrowType) strSlideXml += `<a:tailEnd type="${slideItemObj.options.line.endArrowType}"/>`
 					// FUTURE: `endArrowSize` < a: headEnd type = "arrow" w = "lg" len = "lg" /> 'sm' | 'med' | 'lg'(values are 1 - 9, making a 3x3 grid of w / len possibilities)
-					strSlideXml += '<a:miter lim="800000"/>';
+					strSlideXml += '<a:miter lim="800000"/>'
 					strSlideXml += '</a:ln>'
 				}
 
@@ -832,18 +832,18 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions, slid
 	let paragraphPropXml = ''
 	let strXmlBullet = ''
 	let defaultMarL = valToPts(DEF_BULLET_MARGIN)
-	let bullet = textPropsOptions.bullet
+	const bullet = textPropsOptions.bullet
 	let indent: number
 
 	// NOTE: OOXML uses the unicode character set for Bullets
 	// EX: Unicode Character 'BULLET' (U+2022) ==> '<a:buChar char="&#x2022;"/>'
 
-	if (typeof bullet === "boolean"){
+	if (typeof bullet === 'boolean') {
 		if (bullet) {
 			defaultMarL = textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0
 				? defaultMarL + defaultMarL * textPropsOptions.indentLevel
 				: defaultMarL
-			indent = -defaultMarL;
+			indent = -defaultMarL
 			paragraphPropXml += ` marL="${defaultMarL}" indent="${indent}"`
 			strXmlBullet = `<a:buSzPct val="100000"/><a:buChar char="${BULLET_TYPES.DEFAULT}"/>`
 		} else if (!bullet) {
@@ -853,50 +853,50 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions, slid
 		}
 	} else if (bullet && typeof bullet === 'object') {
 		const color = bullet.color ? `<a:buClr><a:srgbClr val="${bullet.color}"/></a:buClr>` : ''
-		const marginLeft = (typeof bullet.marginLeft === "number") ? valToPts(bullet.marginLeft) : defaultMarL;
-		const indentIncrement = (typeof bullet.indent === "number") ? valToPts(bullet.indent) : marginLeft;
+		const marginLeft = (typeof bullet.marginLeft === 'number') ? valToPts(bullet.marginLeft) : defaultMarL
+		const indentIncrement = (typeof bullet.indent === 'number') ? valToPts(bullet.indent) : marginLeft
 
 		if (bullet.type) {
-			let bulletType = bullet.type.toString().toLowerCase();
-			let marL = ((typeof textPropsOptions.indentLevel === "number") && (textPropsOptions.indentLevel > 0))
+			const bulletType = bullet.type.toString().toLowerCase()
+			const marL = ((typeof textPropsOptions.indentLevel === 'number') && (textPropsOptions.indentLevel > 0))
 				? (marginLeft + (indentIncrement * textPropsOptions.indentLevel))
 				: marginLeft
 
-			switch(bulletType){
+			switch (bulletType) {
 				case 'bullet':
-					indent = -indentIncrement;
+					indent = -indentIncrement
 					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
 					strXmlBullet = `${color}<a:buSzPct val="100000"/><a:buChar char="${BULLET_TYPES.DEFAULT}"/>`
-					break;
-				case 'img':
-					let img = addImageDefinition(slide as PresSlide, bullet.img);
-					indent = -indentIncrement;
+					break
+				case 'image':
+					const imageObj = addImageDefinition(slide as PresSlide, bullet.image)
+					indent = -indentIncrement
 					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
-					strXmlBullet = `<a:buBlip><a:blib r:embed="rId${img.imageRid}"/></a:buBlip>`
-					break;
+					strXmlBullet = `<a:buBlip><a:blib r:embed="rId${imageObj.imageRid}"/></a:buBlip>`
+					break
 				case 'char':
-					let char = bullet.characterCode ? `&#x${bullet.characterCode};` : BULLET_TYPES.DEFAULT
-					indent = -indentIncrement;
+					const char = bullet.characterCode ? `&#x${bullet.characterCode};` : BULLET_TYPES.DEFAULT
+					indent = -indentIncrement
 					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
 					strXmlBullet = `${color}<a:buSzPct val="100000"/><a:buChar char="${char}"/>`
-					break;
+					break
 				case 'number':
 					// indent = 0;
-					indent = -indentIncrement;
+					indent = -indentIncrement
 					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
-					let bulletType = bullet.numberType || bullet?.style || 'arabicPeriod'
-					let bulletStartAt = bullet.numberStartAt || bullet.startAt
+					const bulletType = bullet.numberType || bullet?.style || 'arabicPeriod'
+					const bulletStartAt = bullet.numberStartAt || bullet.startAt
 					strXmlBullet = `${color}<a:buSzPct val="100000"/><a:buFont typeface="+mj-lt"/><a:buAutoNum type="${bulletType}"`
-					if (bulletStartAt && typeof bulletStartAt === "number") {
+					if (bulletStartAt && typeof bulletStartAt === 'number') {
 						strXmlBullet += ` startAt="${bulletStartAt}"`
 					}
-					strXmlBullet += `/>`
-					break;
+					strXmlBullet += '/>'
+					break
 				case 'none':
-					indent = -indentIncrement;
+					indent = -indentIncrement
 					paragraphPropXml += ` marL="${marL + indent}" indent="${0}"`
 					strXmlBullet = '<a:buNone/>'
-					break;
+					break
 			}
 		} else if (bullet.characterCode) {
 			let bulletCode = `&#x${bullet.characterCode};`
@@ -993,9 +993,9 @@ export function genXmlParagraphProperties (textObj: ISlideObject | TextProps, sl
 		}
 
 		// OPTION: bullet
-		if (textObj.options.bullet){
-			let bulletProps = genXmlBulletProperties(textObj.options, slide);
-			paragraphPropXml += bulletProps.paragraphPropXml;
+		if (textObj.options.bullet) {
+			const bulletProps = genXmlBulletProperties(textObj.options, slide)
+			paragraphPropXml += bulletProps.paragraphPropXml
 			strXmlBullet = bulletProps.strXmlBullet
 		}
 
@@ -1098,22 +1098,21 @@ export function genXmlTextRunProperties (opts: ObjectOptions | TextPropsOptions,
  * @return {string} XML string
  */
 export function genXmlTextRun (textObj: TextProps): string {
-
 	// If text string has line-breaks, split sequential runs with a `<a:br/>` tag for separation
-	let textRuns = []
-	let xmlTextRun= ""
-	let xmlProperties = genXmlTextRunProperties(textObj.options, false)
+	const textRuns = []
+	let xmlTextRun = ''
+	const xmlProperties = genXmlTextRunProperties(textObj.options, false)
 	if (textObj.text && typeof textObj.text === 'string') {
 		textObj.text.split(CRLF).forEach(line => {
 			textRuns.push(line)
 		})
 
 		textRuns.forEach((line, idx) => {
-			if (idx > 0){
+			if (idx > 0) {
 				xmlTextRun += `<a:br>${xmlProperties}</a:br>`
 			}
-			if (line.length > 0){
-				xmlTextRun+= `<a:r>${xmlProperties}<a:t>${encodeXmlEntities(line)}</a:t></a:r>`
+			if (line.length > 0) {
+				xmlTextRun += `<a:r>${xmlProperties}<a:t>${encodeXmlEntities(line)}</a:t></a:r>`
 			}
 		})
 	}

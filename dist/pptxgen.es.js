@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-bai.0 @ 2025-02-03T14:06:35.777Z */
+/* PptxGenJS 3.13.0-bai.0 @ 2025-02-03T16:58:55.660Z */
 import JSZip from 'jszip';
 
 /******************************************************************************
@@ -5788,7 +5788,7 @@ function genXmlBulletProperties(textPropsOptions, slide) {
     var indent;
     // NOTE: OOXML uses the unicode character set for Bullets
     // EX: Unicode Character 'BULLET' (U+2022) ==> '<a:buChar char="&#x2022;"/>'
-    if (typeof bullet === "boolean") {
+    if (typeof bullet === 'boolean') {
         if (bullet) {
             defaultMarL = textPropsOptions.indentLevel && textPropsOptions.indentLevel > 0
                 ? defaultMarL + defaultMarL * textPropsOptions.indentLevel
@@ -5805,11 +5805,11 @@ function genXmlBulletProperties(textPropsOptions, slide) {
     }
     else if (bullet && typeof bullet === 'object') {
         var color = bullet.color ? "<a:buClr><a:srgbClr val=\"".concat(bullet.color, "\"/></a:buClr>") : '';
-        var marginLeft = (typeof bullet.marginLeft === "number") ? valToPts(bullet.marginLeft) : defaultMarL;
-        var indentIncrement = (typeof bullet.indent === "number") ? valToPts(bullet.indent) : marginLeft;
+        var marginLeft = (typeof bullet.marginLeft === 'number') ? valToPts(bullet.marginLeft) : defaultMarL;
+        var indentIncrement = (typeof bullet.indent === 'number') ? valToPts(bullet.indent) : marginLeft;
         if (bullet.type) {
             var bulletType = bullet.type.toString().toLowerCase();
-            var marL = ((typeof textPropsOptions.indentLevel === "number") && (textPropsOptions.indentLevel > 0))
+            var marL = ((typeof textPropsOptions.indentLevel === 'number') && (textPropsOptions.indentLevel > 0))
                 ? (marginLeft + (indentIncrement * textPropsOptions.indentLevel))
                 : marginLeft;
             switch (bulletType) {
@@ -5818,11 +5818,11 @@ function genXmlBulletProperties(textPropsOptions, slide) {
                     paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
                     strXmlBullet = "".concat(color, "<a:buSzPct val=\"100000\"/><a:buChar char=\"").concat(BULLET_TYPES.DEFAULT, "\"/>");
                     break;
-                case 'img':
-                    var img = addImageDefinition(slide, bullet.img);
+                case 'image':
+                    var imageObj = addImageDefinition(slide, bullet.image);
                     indent = -indentIncrement;
                     paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
-                    strXmlBullet = "<a:buBlip><a:blib r:embed=\"rId".concat(img.imageRid, "\"/></a:buBlip>");
+                    strXmlBullet = "<a:buBlip><a:blib r:embed=\"rId".concat(imageObj.imageRid, "\"/></a:buBlip>");
                     break;
                 case 'char':
                     var char = bullet.characterCode ? "&#x".concat(bullet.characterCode, ";") : BULLET_TYPES.DEFAULT;
@@ -5837,10 +5837,10 @@ function genXmlBulletProperties(textPropsOptions, slide) {
                     var bulletType_1 = bullet.numberType || (bullet === null || bullet === void 0 ? void 0 : bullet.style) || 'arabicPeriod';
                     var bulletStartAt = bullet.numberStartAt || bullet.startAt;
                     strXmlBullet = "".concat(color, "<a:buSzPct val=\"100000\"/><a:buFont typeface=\"+mj-lt\"/><a:buAutoNum type=\"").concat(bulletType_1, "\"");
-                    if (bulletStartAt && typeof bulletStartAt === "number") {
+                    if (bulletStartAt && typeof bulletStartAt === 'number') {
                         strXmlBullet += " startAt=\"".concat(bulletStartAt, "\"");
                     }
-                    strXmlBullet += "/>";
+                    strXmlBullet += '/>';
                     break;
                 case 'none':
                     indent = -indentIncrement;
@@ -6042,7 +6042,7 @@ function genXmlTextRunProperties(opts, isDefault) {
 function genXmlTextRun(textObj) {
     // If text string has line-breaks, split sequential runs with a `<a:br/>` tag for separation
     var textRuns = [];
-    var xmlTextRun = "";
+    var xmlTextRun = '';
     var xmlProperties = genXmlTextRunProperties(textObj.options, false);
     if (textObj.text && typeof textObj.text === 'string') {
         textObj.text.split(CRLF).forEach(function (line) {

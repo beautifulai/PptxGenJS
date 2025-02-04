@@ -900,7 +900,7 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
 					indent = -indentIncrement;
 					paragraphPropXml += ` marL="${marL + indent}" indent="${0}"`
 					strXmlBullet = '<a:buNone/>'
-					break
+					break;
 			}
 		} else if (bullet.characterCode) {
 			let bulletCode = `&#x${bullet.characterCode};`
@@ -996,9 +996,9 @@ export function genXmlParagraphProperties (textObj: ISlideObject | TextProps, is
 		}
 
 		// OPTION: bullet
-		if (textObj.options.bullet) {
-			const bulletProps = genXmlBulletProperties(textObj.options)
-			paragraphPropXml += bulletProps.paragraphPropXml
+		if (textObj.options.bullet){
+			let bulletProps = genXmlBulletProperties(textObj.options);
+			paragraphPropXml += bulletProps.paragraphPropXml;
 			strXmlBullet = bulletProps.strXmlBullet
 		}
 

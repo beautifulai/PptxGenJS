@@ -22,11 +22,11 @@ export function getSmartParseNumber (size: Coord, xyDir: 'X' | 'Y', layout: Pres
 
 	// CASE 1: Number in inches
 	// Assume any number less than 100 is inches
-	if (typeof size === 'number' && size < 100) return inch2Emu(size)
+	if (typeof size === 'number' && Math.abs(size) < 100) return inch2Emu(size)
 
 	// CASE 2: Number is already converted to something other than inches
 	// Assume any number greater than 100 sure isnt inches! Just return it (assume value is EMU already).
-	if (typeof size === 'number' && size >= 100) return size
+	if (typeof size === 'number' && Math.abs(size) >= 100) return size
 
 	// CASE 3: Percentage (ex: '50%')
 	if (typeof size === 'string' && size.includes('%')) {

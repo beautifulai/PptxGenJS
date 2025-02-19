@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-bai.0 @ 2025-01-30T04:49:23.464Z */
+/* PptxGenJS 3.13.0-bai.0 @ 2025-02-19T18:55:30.059Z */
 'use strict';
 
 var JSZip = require('jszip');
@@ -681,11 +681,11 @@ function getSmartParseNumber(size, xyDir, layout) {
         size = Number(size);
     // CASE 1: Number in inches
     // Assume any number less than 100 is inches
-    if (typeof size === 'number' && size < 100)
+    if (typeof size === 'number' && Math.abs(size) < 100)
         return inch2Emu(size);
     // CASE 2: Number is already converted to something other than inches
     // Assume any number greater than 100 sure isnt inches! Just return it (assume value is EMU already).
-    if (typeof size === 'number' && size >= 100)
+    if (typeof size === 'number' && Math.abs(size) >= 100)
         return size;
     // CASE 3: Percentage (ex: '50%')
     if (typeof size === 'string' && size.includes('%')) {
@@ -5072,6 +5072,150 @@ var ImageSizingXml = {
         return "<a:srcRect l=\"".concat(lPerc, "\" r=\"").concat(rPerc, "\" t=\"").concat(tPerc, "\" b=\"").concat(bPerc, "\"/><a:stretch/>");
     },
 };
+function textObjectToXml(slideItemObj, idx, slide, placeholderObj, x, y, cx, cy, locationAttr) {
+    var _a, _b, _c, _d;
+    var strXml = '';
+    // Lines can have zero cy, but text should not
+    if (!slideItemObj.options.line && cy === 0)
+        cy = EMU * 0.3;
+    // Margin/Padding/Inset for textboxes
+    if (!slideItemObj.options._bodyProp)
+        slideItemObj.options._bodyProp = {};
+    if (slideItemObj.options.margin && Array.isArray(slideItemObj.options.margin)) {
+        slideItemObj.options._bodyProp.lIns = valToPts(slideItemObj.options.margin[0] || 0);
+        slideItemObj.options._bodyProp.rIns = valToPts(slideItemObj.options.margin[1] || 0);
+        slideItemObj.options._bodyProp.bIns = valToPts(slideItemObj.options.margin[2] || 0);
+        slideItemObj.options._bodyProp.tIns = valToPts(slideItemObj.options.margin[3] || 0);
+    }
+    else if (typeof slideItemObj.options.margin === 'number') {
+        slideItemObj.options._bodyProp.lIns = valToPts(slideItemObj.options.margin);
+        slideItemObj.options._bodyProp.rIns = valToPts(slideItemObj.options.margin);
+        slideItemObj.options._bodyProp.bIns = valToPts(slideItemObj.options.margin);
+        slideItemObj.options._bodyProp.tIns = valToPts(slideItemObj.options.margin);
+    }
+    // A: Start SHAPE =======================================================
+    strXml += '<p:sp>';
+    // B: The addition of the "txBox" attribute is the sole determiner of if an object is a shape or textbox
+    strXml += "<p:nvSpPr><p:cNvPr id=\"".concat(idx + 2, "\" name=\"").concat(slideItemObj.options.objectName, "\">");
+    // <Hyperlink>
+    if ((_a = slideItemObj.options.hyperlink) === null || _a === void 0 ? void 0 : _a.url) {
+        strXml += "<a:hlinkClick r:id=\"rId".concat(slideItemObj.options.hyperlink._rId, "\" tooltip=\"").concat(slideItemObj.options.hyperlink.tooltip ? encodeXmlEntities(slideItemObj.options.hyperlink.tooltip) : '', "\"/>");
+    }
+    if ((_b = slideItemObj.options.hyperlink) === null || _b === void 0 ? void 0 : _b.slide) {
+        strXml += "<a:hlinkClick r:id=\"rId".concat(slideItemObj.options.hyperlink._rId, "\" tooltip=\"").concat(slideItemObj.options.hyperlink.tooltip ? encodeXmlEntities(slideItemObj.options.hyperlink.tooltip) : '', "\" action=\"ppaction://hlinksldjump\"/>");
+    }
+    // </Hyperlink>
+    strXml += '</p:cNvPr>';
+    strXml += '<p:cNvSpPr' + (((_c = slideItemObj.options) === null || _c === void 0 ? void 0 : _c.isTextBox) ? ' txBox="1"/>' : '/>');
+    strXml += "<p:nvPr>".concat(slideItemObj._type === 'placeholder' ? genXmlPlaceholder(slideItemObj) : genXmlPlaceholder(placeholderObj), "</p:nvPr>");
+    strXml += '</p:nvSpPr><p:spPr>';
+    strXml += "<a:xfrm".concat(locationAttr, ">");
+    strXml += "<a:off x=\"".concat(x, "\" y=\"").concat(y, "\"/>");
+    strXml += "<a:ext cx=\"".concat(cx, "\" cy=\"").concat(cy, "\"/></a:xfrm>");
+    if (slideItemObj.shape === 'custGeom') {
+        strXml += '<a:custGeom><a:avLst />';
+        strXml += '<a:gdLst>';
+        strXml += '</a:gdLst>';
+        strXml += '<a:ahLst />';
+        strXml += '<a:cxnLst>';
+        strXml += '</a:cxnLst>';
+        strXml += '<a:rect l="l" t="t" r="r" b="b" />';
+        strXml += '<a:pathLst>';
+        strXml += "<a:path w=\"".concat(cx, "\" h=\"").concat(cy, "\">");
+        (_d = slideItemObj.options.points) === null || _d === void 0 ? void 0 : _d.forEach(function (point, i) {
+            if ('curve' in point) {
+                switch (point.curve.type) {
+                    case 'arc':
+                        strXml += "<a:arcTo hR=\"".concat(getSmartParseNumber(point.curve.hR, 'Y', slide._presLayout), "\" wR=\"").concat(getSmartParseNumber(point.curve.wR, 'X', slide._presLayout), "\" stAng=\"").concat(convertRotationDegrees(point.curve.stAng), "\" swAng=\"").concat(convertRotationDegrees(point.curve.swAng), "\" />");
+                        break;
+                    case 'cubic':
+                        strXml += "<a:cubicBezTo>\n\t\t\t\t\t\t\t\t\t<a:pt x=\"".concat(getSmartParseNumber(point.curve.x1, 'X', slide._presLayout), "\" y=\"").concat(getSmartParseNumber(point.curve.y1, 'Y', slide._presLayout), "\" />\n\t\t\t\t\t\t\t\t\t<a:pt x=\"").concat(getSmartParseNumber(point.curve.x2, 'X', slide._presLayout), "\" y=\"").concat(getSmartParseNumber(point.curve.y2, 'Y', slide._presLayout), "\" />\n\t\t\t\t\t\t\t\t\t<a:pt x=\"").concat(getSmartParseNumber(point.x, 'X', slide._presLayout), "\" y=\"").concat(getSmartParseNumber(point.y, 'Y', slide._presLayout), "\" />\n\t\t\t\t\t\t\t\t\t</a:cubicBezTo>");
+                        break;
+                    case 'quadratic':
+                        strXml += "<a:quadBezTo>\n\t\t\t\t\t\t\t\t\t<a:pt x=\"".concat(getSmartParseNumber(point.curve.x1, 'X', slide._presLayout), "\" y=\"").concat(getSmartParseNumber(point.curve.y1, 'Y', slide._presLayout), "\" />\n\t\t\t\t\t\t\t\t\t<a:pt x=\"").concat(getSmartParseNumber(point.x, 'X', slide._presLayout), "\" y=\"").concat(getSmartParseNumber(point.y, 'Y', slide._presLayout), "\" />\n\t\t\t\t\t\t\t\t\t</a:quadBezTo>");
+                        break;
+                }
+            }
+            else if ('close' in point) {
+                strXml += '<a:close />';
+            }
+            else if (point.moveTo || i === 0) {
+                strXml += "<a:moveTo><a:pt x=\"".concat(getSmartParseNumber(point.x, 'X', slide._presLayout), "\" y=\"").concat(getSmartParseNumber(point.y, 'Y', slide._presLayout), "\" /></a:moveTo>");
+            }
+            else {
+                strXml += "<a:lnTo><a:pt x=\"".concat(getSmartParseNumber(point.x, 'X', slide._presLayout), "\" y=\"").concat(getSmartParseNumber(point.y, 'Y', slide._presLayout), "\" /></a:lnTo>");
+            }
+        });
+        strXml += '</a:path>';
+        strXml += '</a:pathLst>';
+        strXml += '</a:custGeom>';
+    }
+    else {
+        strXml += '<a:prstGeom prst="' + slideItemObj.shape + '"><a:avLst>';
+        if (slideItemObj.options.rectRadius) {
+            strXml += "<a:gd name=\"adj\" fmla=\"val ".concat(Math.round((slideItemObj.options.rectRadius * EMU * 100000) / Math.min(cx, cy)), "\"/>");
+        }
+        else if (slideItemObj.options.angleRange) {
+            for (var i = 0; i < 2; i++) {
+                var angle = slideItemObj.options.angleRange[i];
+                strXml += "<a:gd name=\"adj".concat(i + 1, "\" fmla=\"val ").concat(convertRotationDegrees(angle), "\" />");
+            }
+            if (slideItemObj.options.arcThicknessRatio) {
+                strXml += "<a:gd name=\"adj3\" fmla=\"val ".concat(Math.round(slideItemObj.options.arcThicknessRatio * 50000), "\" />");
+            }
+        }
+        strXml += '</a:avLst></a:prstGeom>';
+    }
+    // Option: FILL
+    strXml += slideItemObj.options.fill ? genXmlColorSelection(slideItemObj.options.fill) : '<a:noFill/>';
+    // shape Type: LINE: line color
+    if (slideItemObj.options.line) {
+        strXml += slideItemObj.options.line.width ? "<a:ln w=\"".concat(valToPts(slideItemObj.options.line.width), "\">") : '<a:ln>';
+        if (slideItemObj.options.line.color)
+            strXml += genXmlColorSelection(slideItemObj.options.line);
+        if (slideItemObj.options.line.dashType)
+            strXml += "<a:prstDash val=\"".concat(slideItemObj.options.line.dashType, "\"/>");
+        if (slideItemObj.options.line.beginArrowType)
+            strXml += "<a:headEnd type=\"".concat(slideItemObj.options.line.beginArrowType, "\"/>");
+        if (slideItemObj.options.line.endArrowType)
+            strXml += "<a:tailEnd type=\"".concat(slideItemObj.options.line.endArrowType, "\"/>");
+        // FUTURE: `endArrowSize` < a: headEnd type = "arrow" w = "lg" len = "lg" /> 'sm' | 'med' | 'lg'(values are 1 - 9, making a 3x3 grid of w / len possibilities)
+        strXml += '<a:miter lim="800000"/>';
+        strXml += '</a:ln>';
+    }
+    // EFFECTS > SHADOW: REF: @see http://officeopenxml.com/drwSp-effects.php
+    if (slideItemObj.options.shadow && slideItemObj.options.shadow.type !== 'none') {
+        slideItemObj.options.shadow.type = slideItemObj.options.shadow.type || 'outer';
+        slideItemObj.options.shadow.blur = valToPts(slideItemObj.options.shadow.blur || 8);
+        slideItemObj.options.shadow.offset = valToPts(slideItemObj.options.shadow.offset || 4);
+        slideItemObj.options.shadow.angle = Math.round((slideItemObj.options.shadow.angle || 270) * 60000);
+        slideItemObj.options.shadow.opacity = Math.round((slideItemObj.options.shadow.opacity || 0.75) * 100000);
+        slideItemObj.options.shadow.color = slideItemObj.options.shadow.color || DEF_TEXT_SHADOW.color;
+        strXml += '<a:effectLst>';
+        strXml += " <a:".concat(slideItemObj.options.shadow.type, "Shdw ").concat(slideItemObj.options.shadow.type === 'outer' ? 'sx="100000" sy="100000" kx="0" ky="0" algn="bl" rotWithShape="0"' : '', " blurRad=\"").concat(slideItemObj.options.shadow.blur, "\" dist=\"").concat(slideItemObj.options.shadow.offset, "\" dir=\"").concat(slideItemObj.options.shadow.angle, "\">");
+        strXml += " <a:srgbClr val=\"".concat(slideItemObj.options.shadow.color, "\">");
+        strXml += " <a:alpha val=\"".concat(slideItemObj.options.shadow.opacity, "\"/></a:srgbClr>");
+        strXml += ' </a:outerShdw>';
+        strXml += '</a:effectLst>';
+    }
+    /* TODO: FUTURE: Text wrapping (copied from MS-PPTX export)
+        // Commented out b/c i'm not even sure this works - current code produces text that wraps in shapes and textboxes, so...
+        if ( slideItemObj.options.textWrap ) {
+            strSlideXml += '<a:extLst>'
+                        + '<a:ext uri="{C572A759-6A51-4108-AA02-DFA0A04FC94B}">'
+                        + '<ma14:wrappingTextBoxFlag xmlns:ma14="http://schemas.microsoft.com/office/mac/drawingml/2011/main" val="1"/>'
+                        + '</a:ext>'
+                        + '</a:extLst>';
+        }
+    */
+    // B: Close shape Properties
+    strXml += '</p:spPr>';
+    // C: Add formatted text (text body "bodyPr")
+    strXml += genXmlTextBody(slideItemObj);
+    // LAST: Close SHAPE =======================================================
+    strXml += '</p:sp>';
+    return strXml;
+}
 /**
  * Transforms a slide or slideLayout to resulting XML string - Creates `ppt/slide*.xml`
  * @param {PresSlide|SlideLayout} slideObject - slide object created within createSlideObject
@@ -5099,7 +5243,7 @@ function slideObjectToXml(slide) {
     strSlideXml += '<a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr>';
     // STEP 3: Loop over all Slide.data objects and add them to this slide
     slide._slideObjects.forEach(function (slideItemObj, idx) {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
+        var _a, _b, _c, _d;
         var x = 0;
         var y = 0;
         var cx = getSmartParseNumber('75%', 'X', slide._presLayout);
@@ -5377,154 +5521,16 @@ function slideObjectToXml(slide) {
                 break;
             case SLIDE_OBJECT_TYPES.text:
             case SLIDE_OBJECT_TYPES.placeholder:
-                // Lines can have zero cy, but text should not
-                if (!slideItemObj.options.line && cy === 0)
-                    cy = EMU * 0.3;
-                // Margin/Padding/Inset for textboxes
-                if (!slideItemObj.options._bodyProp)
-                    slideItemObj.options._bodyProp = {};
-                if (slideItemObj.options.margin && Array.isArray(slideItemObj.options.margin)) {
-                    slideItemObj.options._bodyProp.lIns = valToPts(slideItemObj.options.margin[0] || 0);
-                    slideItemObj.options._bodyProp.rIns = valToPts(slideItemObj.options.margin[1] || 0);
-                    slideItemObj.options._bodyProp.bIns = valToPts(slideItemObj.options.margin[2] || 0);
-                    slideItemObj.options._bodyProp.tIns = valToPts(slideItemObj.options.margin[3] || 0);
-                }
-                else if (typeof slideItemObj.options.margin === 'number') {
-                    slideItemObj.options._bodyProp.lIns = valToPts(slideItemObj.options.margin);
-                    slideItemObj.options._bodyProp.rIns = valToPts(slideItemObj.options.margin);
-                    slideItemObj.options._bodyProp.bIns = valToPts(slideItemObj.options.margin);
-                    slideItemObj.options._bodyProp.tIns = valToPts(slideItemObj.options.margin);
-                }
-                // A: Start SHAPE =======================================================
-                strSlideXml += '<p:sp>';
-                // B: The addition of the "txBox" attribute is the sole determiner of if an object is a shape or textbox
-                strSlideXml += "<p:nvSpPr><p:cNvPr id=\"".concat(idx + 2, "\" name=\"").concat(slideItemObj.options.objectName, "\">");
-                // <Hyperlink>
-                if ((_c = slideItemObj.options.hyperlink) === null || _c === void 0 ? void 0 : _c.url) {
-                    strSlideXml += "<a:hlinkClick r:id=\"rId".concat(slideItemObj.options.hyperlink._rId, "\" tooltip=\"").concat(slideItemObj.options.hyperlink.tooltip ? encodeXmlEntities(slideItemObj.options.hyperlink.tooltip) : '', "\"/>");
-                }
-                if ((_d = slideItemObj.options.hyperlink) === null || _d === void 0 ? void 0 : _d.slide) {
-                    strSlideXml += "<a:hlinkClick r:id=\"rId".concat(slideItemObj.options.hyperlink._rId, "\" tooltip=\"").concat(slideItemObj.options.hyperlink.tooltip ? encodeXmlEntities(slideItemObj.options.hyperlink.tooltip) : '', "\" action=\"ppaction://hlinksldjump\"/>");
-                }
-                // </Hyperlink>
-                strSlideXml += '</p:cNvPr>';
-                strSlideXml += '<p:cNvSpPr' + (((_e = slideItemObj.options) === null || _e === void 0 ? void 0 : _e.isTextBox) ? ' txBox="1"/>' : '/>');
-                strSlideXml += "<p:nvPr>".concat(slideItemObj._type === 'placeholder' ? genXmlPlaceholder(slideItemObj) : genXmlPlaceholder(placeholderObj), "</p:nvPr>");
-                strSlideXml += '</p:nvSpPr><p:spPr>';
-                strSlideXml += "<a:xfrm".concat(locationAttr, ">");
-                strSlideXml += "<a:off x=\"".concat(x, "\" y=\"").concat(y, "\"/>");
-                strSlideXml += "<a:ext cx=\"".concat(cx, "\" cy=\"").concat(cy, "\"/></a:xfrm>");
-                if (slideItemObj.shape === 'custGeom') {
-                    strSlideXml += '<a:custGeom><a:avLst />';
-                    strSlideXml += '<a:gdLst>';
-                    strSlideXml += '</a:gdLst>';
-                    strSlideXml += '<a:ahLst />';
-                    strSlideXml += '<a:cxnLst>';
-                    strSlideXml += '</a:cxnLst>';
-                    strSlideXml += '<a:rect l="l" t="t" r="r" b="b" />';
-                    strSlideXml += '<a:pathLst>';
-                    strSlideXml += "<a:path w=\"".concat(cx, "\" h=\"").concat(cy, "\">");
-                    (_f = slideItemObj.options.points) === null || _f === void 0 ? void 0 : _f.forEach(function (point, i) {
-                        if ('curve' in point) {
-                            switch (point.curve.type) {
-                                case 'arc':
-                                    strSlideXml += "<a:arcTo hR=\"".concat(getSmartParseNumber(point.curve.hR, 'Y', slide._presLayout), "\" wR=\"").concat(getSmartParseNumber(point.curve.wR, 'X', slide._presLayout), "\" stAng=\"").concat(convertRotationDegrees(point.curve.stAng), "\" swAng=\"").concat(convertRotationDegrees(point.curve.swAng), "\" />");
-                                    break;
-                                case 'cubic':
-                                    strSlideXml += "<a:cubicBezTo>\n\t\t\t\t\t\t\t\t\t<a:pt x=\"".concat(getSmartParseNumber(point.curve.x1, 'X', slide._presLayout), "\" y=\"").concat(getSmartParseNumber(point.curve.y1, 'Y', slide._presLayout), "\" />\n\t\t\t\t\t\t\t\t\t<a:pt x=\"").concat(getSmartParseNumber(point.curve.x2, 'X', slide._presLayout), "\" y=\"").concat(getSmartParseNumber(point.curve.y2, 'Y', slide._presLayout), "\" />\n\t\t\t\t\t\t\t\t\t<a:pt x=\"").concat(getSmartParseNumber(point.x, 'X', slide._presLayout), "\" y=\"").concat(getSmartParseNumber(point.y, 'Y', slide._presLayout), "\" />\n\t\t\t\t\t\t\t\t\t</a:cubicBezTo>");
-                                    break;
-                                case 'quadratic':
-                                    strSlideXml += "<a:quadBezTo>\n\t\t\t\t\t\t\t\t\t<a:pt x=\"".concat(getSmartParseNumber(point.curve.x1, 'X', slide._presLayout), "\" y=\"").concat(getSmartParseNumber(point.curve.y1, 'Y', slide._presLayout), "\" />\n\t\t\t\t\t\t\t\t\t<a:pt x=\"").concat(getSmartParseNumber(point.x, 'X', slide._presLayout), "\" y=\"").concat(getSmartParseNumber(point.y, 'Y', slide._presLayout), "\" />\n\t\t\t\t\t\t\t\t\t</a:quadBezTo>");
-                                    break;
-                            }
-                        }
-                        else if ('close' in point) {
-                            strSlideXml += '<a:close />';
-                        }
-                        else if (point.moveTo || i === 0) {
-                            strSlideXml += "<a:moveTo><a:pt x=\"".concat(getSmartParseNumber(point.x, 'X', slide._presLayout), "\" y=\"").concat(getSmartParseNumber(point.y, 'Y', slide._presLayout), "\" /></a:moveTo>");
-                        }
-                        else {
-                            strSlideXml += "<a:lnTo><a:pt x=\"".concat(getSmartParseNumber(point.x, 'X', slide._presLayout), "\" y=\"").concat(getSmartParseNumber(point.y, 'Y', slide._presLayout), "\" /></a:lnTo>");
-                        }
-                    });
-                    strSlideXml += '</a:path>';
-                    strSlideXml += '</a:pathLst>';
-                    strSlideXml += '</a:custGeom>';
-                }
-                else {
-                    strSlideXml += '<a:prstGeom prst="' + slideItemObj.shape + '"><a:avLst>';
-                    if (slideItemObj.options.rectRadius) {
-                        strSlideXml += "<a:gd name=\"adj\" fmla=\"val ".concat(Math.round((slideItemObj.options.rectRadius * EMU * 100000) / Math.min(cx, cy)), "\"/>");
-                    }
-                    else if (slideItemObj.options.angleRange) {
-                        for (var i = 0; i < 2; i++) {
-                            var angle = slideItemObj.options.angleRange[i];
-                            strSlideXml += "<a:gd name=\"adj".concat(i + 1, "\" fmla=\"val ").concat(convertRotationDegrees(angle), "\" />");
-                        }
-                        if (slideItemObj.options.arcThicknessRatio) {
-                            strSlideXml += "<a:gd name=\"adj3\" fmla=\"val ".concat(Math.round(slideItemObj.options.arcThicknessRatio * 50000), "\" />");
-                        }
-                    }
-                    strSlideXml += '</a:avLst></a:prstGeom>';
-                }
-                // Option: FILL
-                strSlideXml += slideItemObj.options.fill ? genXmlColorSelection(slideItemObj.options.fill) : '<a:noFill/>';
-                // shape Type: LINE: line color
-                if (slideItemObj.options.line) {
-                    strSlideXml += slideItemObj.options.line.width ? "<a:ln w=\"".concat(valToPts(slideItemObj.options.line.width), "\">") : '<a:ln>';
-                    if (slideItemObj.options.line.color)
-                        strSlideXml += genXmlColorSelection(slideItemObj.options.line);
-                    if (slideItemObj.options.line.dashType)
-                        strSlideXml += "<a:prstDash val=\"".concat(slideItemObj.options.line.dashType, "\"/>");
-                    if (slideItemObj.options.line.beginArrowType)
-                        strSlideXml += "<a:headEnd type=\"".concat(slideItemObj.options.line.beginArrowType, "\"/>");
-                    if (slideItemObj.options.line.endArrowType)
-                        strSlideXml += "<a:tailEnd type=\"".concat(slideItemObj.options.line.endArrowType, "\"/>");
-                    // FUTURE: `endArrowSize` < a: headEnd type = "arrow" w = "lg" len = "lg" /> 'sm' | 'med' | 'lg'(values are 1 - 9, making a 3x3 grid of w / len possibilities)
-                    strSlideXml += '<a:miter lim="800000"/>';
-                    strSlideXml += '</a:ln>';
-                }
-                // EFFECTS > SHADOW: REF: @see http://officeopenxml.com/drwSp-effects.php
-                if (slideItemObj.options.shadow && slideItemObj.options.shadow.type !== 'none') {
-                    slideItemObj.options.shadow.type = slideItemObj.options.shadow.type || 'outer';
-                    slideItemObj.options.shadow.blur = valToPts(slideItemObj.options.shadow.blur || 8);
-                    slideItemObj.options.shadow.offset = valToPts(slideItemObj.options.shadow.offset || 4);
-                    slideItemObj.options.shadow.angle = Math.round((slideItemObj.options.shadow.angle || 270) * 60000);
-                    slideItemObj.options.shadow.opacity = Math.round((slideItemObj.options.shadow.opacity || 0.75) * 100000);
-                    slideItemObj.options.shadow.color = slideItemObj.options.shadow.color || DEF_TEXT_SHADOW.color;
-                    strSlideXml += '<a:effectLst>';
-                    strSlideXml += " <a:".concat(slideItemObj.options.shadow.type, "Shdw ").concat(slideItemObj.options.shadow.type === 'outer' ? 'sx="100000" sy="100000" kx="0" ky="0" algn="bl" rotWithShape="0"' : '', " blurRad=\"").concat(slideItemObj.options.shadow.blur, "\" dist=\"").concat(slideItemObj.options.shadow.offset, "\" dir=\"").concat(slideItemObj.options.shadow.angle, "\">");
-                    strSlideXml += " <a:srgbClr val=\"".concat(slideItemObj.options.shadow.color, "\">");
-                    strSlideXml += " <a:alpha val=\"".concat(slideItemObj.options.shadow.opacity, "\"/></a:srgbClr>");
-                    strSlideXml += ' </a:outerShdw>';
-                    strSlideXml += '</a:effectLst>';
-                }
-                /* TODO: FUTURE: Text wrapping (copied from MS-PPTX export)
-                    // Commented out b/c i'm not even sure this works - current code produces text that wraps in shapes and textboxes, so...
-                    if ( slideItemObj.options.textWrap ) {
-                        strSlideXml += '<a:extLst>'
-                                    + '<a:ext uri="{C572A759-6A51-4108-AA02-DFA0A04FC94B}">'
-                                    + '<ma14:wrappingTextBoxFlag xmlns:ma14="http://schemas.microsoft.com/office/mac/drawingml/2011/main" val="1"/>'
-                                    + '</a:ext>'
-                                    + '</a:extLst>';
-                    }
-                */
-                // B: Close shape Properties
-                strSlideXml += '</p:spPr>';
-                // C: Add formatted text (text body "bodyPr")
-                strSlideXml += genXmlTextBody(slideItemObj);
-                // LAST: Close SHAPE =======================================================
-                strSlideXml += '</p:sp>';
+                strSlideXml += textObjectToXml(slideItemObj, idx, slide, placeholderObj, x, y, cx, cy, locationAttr);
                 break;
             case SLIDE_OBJECT_TYPES.image:
                 strSlideXml += '<p:pic>';
                 strSlideXml += '  <p:nvPicPr>';
                 strSlideXml += "<p:cNvPr id=\"".concat(idx + 2, "\" name=\"").concat(slideItemObj.options.objectName, "\" descr=\"").concat(encodeXmlEntities(slideItemObj.options.altText || slideItemObj.image), "\">");
-                if ((_g = slideItemObj.hyperlink) === null || _g === void 0 ? void 0 : _g.url) {
+                if ((_c = slideItemObj.hyperlink) === null || _c === void 0 ? void 0 : _c.url) {
                     strSlideXml += "<a:hlinkClick r:id=\"rId".concat(slideItemObj.hyperlink._rId, "\" tooltip=\"").concat(slideItemObj.hyperlink.tooltip ? encodeXmlEntities(slideItemObj.hyperlink.tooltip) : '', "\"/>");
                 }
-                if ((_h = slideItemObj.hyperlink) === null || _h === void 0 ? void 0 : _h.slide) {
+                if ((_d = slideItemObj.hyperlink) === null || _d === void 0 ? void 0 : _d.slide) {
                     strSlideXml += "<a:hlinkClick r:id=\"rId".concat(slideItemObj.hyperlink._rId, "\" tooltip=\"").concat(slideItemObj.hyperlink.tooltip ? encodeXmlEntities(slideItemObj.hyperlink.tooltip) : '', "\" action=\"ppaction://hlinksldjump\"/>");
                 }
                 strSlideXml += '    </p:cNvPr>';
@@ -6751,6 +6757,7 @@ function correctShadowOptions(shadowProps) {
 
 var GenXml = /*#__PURE__*/Object.freeze({
     __proto__: null,
+    textObjectToXml: textObjectToXml,
     slideObjectToXml: slideObjectToXml,
     slideObjectRelationsToXml: slideObjectRelationsToXml,
     genXmlBulletProperties: genXmlBulletProperties,

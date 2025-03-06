@@ -4,6 +4,7 @@
 	"private": true,
 	"homepage": "https://gitbrent.github.io/PptxGenJS/demo/react/",
 	"dependencies": {
+		"@babel/traverse": "^7.23.2",
 		"@testing-library/jest-dom": "^5.16.1",
 		"@testing-library/react": "^11.2.7",
 		"@testing-library/user-event": "^12.8.3",

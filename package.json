@@ -70,11 +70,11 @@
   "overrides": {
     "braces": "^3.0.3",
     "micromatch": "^4.0.8",
-		"postcss": "^8.4.31",
+    "postcss": "^8.4.31",
     "semver@<5.7.2": "^5.7.2",
-		"semver@>=6.0.0 <6.3.1": "^6.3.1",
+    "semver@>=6.0.0 <6.3.1": "^6.3.1",
     "semver@>=7.0.0 <7.5.2": "^7.5.2"
-	},
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gitbrent/PptxGenJS.git"

@@ -397,6 +397,11 @@ export interface ThemeProps {
 	 * @default 'Calibri'
 	 */
 	bodyFontFace?: string
+	/**
+	 * Hyperlink color
+	 * @example '0563C1'
+	 */
+	hyperlinkColor?: string
 }
 
 // image / media ==================================================================================

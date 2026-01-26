@@ -9,6 +9,8 @@ node_modules/
 npm-debug.log
 src/bld
 demo
+.idea/
+
 
 ### docusaurus
 .docusaurus

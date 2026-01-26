@@ -164,7 +164,7 @@ async function createSvgPngPreview (rel: ISlideRelMedia): Promise<string> {
  * TODO: Should return a Promise
  */
 function getSizeFromImage (inImgUrl: string): { width: number, height: number } {
-	const sizeOf = typeof require !== 'undefined' ? require('sizeof') : null // NodeJS
+	const sizeOf = typeof require !== 'undefined' ? require('image-size') : null // NodeJS
 
 	if (sizeOf) {
 		try {

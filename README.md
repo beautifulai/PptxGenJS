@@ -62,12 +62,12 @@ This library creates Open Office XML (OOXML) Presentations which are compatible 
 ## Simple and Powerful
 
 - The absolute easiest PowerPoint library to use
-- Learn as you code will full typescript definitions included
+- Learn as you code with full TypeScript definitions included
 - Tons of demo code comes included (over 75 slides of features)
 
 ## Export Your Way
 
-- Exports files direct to client browsers with proper MIME-type
+- Exports files directly to client browsers with proper MIME-type
 - Other export formats available: base64, blob, stream, etc.
 - Presentation compression options and more
 
@@ -234,7 +234,7 @@ React: [react-pptx](https://github.com/wyozi/react-pptx) - thanks to [Joonas](ht
 
 # Issues / Suggestions
 
-Please file issues or suggestions on the [issues page on github](https://github.com/gitbrent/PptxGenJS/issues/new), or even better, [submit a pull request](https://github.com/gitbrent/PptxGenJS/pulls). Feedback is always welcome!
+Please file issues or suggestions on the [issues page on GitHub](https://github.com/gitbrent/PptxGenJS/issues/new), or even better, [submit a pull request](https://github.com/gitbrent/PptxGenJS/pulls). Feedback is always welcome!
 
 When reporting issues, please include a code snippet or a link demonstrating the problem.
 Here is a small [jsFiddle](https://jsfiddle.net/gitbrent/L1uctxm0/) that is already configured and uses the latest PptxGenJS code.

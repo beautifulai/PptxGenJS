@@ -42,6 +42,7 @@ import {
 	inch2Emu,
 	valToPts,
 } from './gen-utils'
+import utils from './utils'
 
 const ImageSizingXml = {
 	cover: function (imgSize: { w: number, h: number }, boxDim: { w: number, h: number, x: number, y: number }) {
@@ -247,7 +248,7 @@ export function textObjectToXml (slideItemObj: ISlideObject,
 	strXml += '</p:spPr>'
 
 	// C: Add formatted text (text body "bodyPr")
-	strXml += genXmlTextBody(slideItemObj)
+	strXml += genXmlTextBody(slideItemObj, slide)
 
 	// LAST: Close SHAPE =======================================================
 	strXml += '</p:sp>'
@@ -514,7 +515,7 @@ export function slideObjectToXml (slide: PresSlide | SlideLayout): string {
 						// FUTURE: Cell NOWRAP property (textwrap: add to a:tcPr (horzOverflow="overflow" or whatever options exist)
 
 						// 4: Set CELL content and properties ==================================
-						strXml += `<a:tc${cellSpanAttrStr}>${genXmlTextBody(cell)}<a:tcPr${cellMarginXml}${cellValign}${cellTextDir}>`
+						strXml += `<a:tc${cellSpanAttrStr}>${genXmlTextBody(cell, slide)}<a:tcPr${cellMarginXml}${cellValign}${cellTextDir}>`
 						// strXml += `<a:tc${cellColspan}${cellRowspan}>${genXmlTextBody(cell)}<a:tcPr${cellMarginXml}${cellValign}${cellTextDir}>`
 						// FIXME: 20200525: ^^^
 						// <a:tcPr marL="38100" marR="38100" marT="38100" marB="38100" vert="vert270">
@@ -838,7 +839,7 @@ export function slideObjectRelationsToXml (slide: PresSlide | SlideLayout, defau
 	return strXml
 }
 
-export function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
+export function genXmlBulletProperties (textPropsOptions: TextPropsOptions, slide: PresSlide | SlideLayout) {
 	let paragraphPropXml = ''
 	let strXmlBullet = ''
 	let defaultMarL = valToPts(DEF_BULLET_MARGIN)
@@ -872,6 +873,7 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
 				? (marginLeft + (indentIncrement * textPropsOptions.indentLevel))
 				: marginLeft
 
+			let rId: number;
 			switch(bulletType){
 				case 'bullet':
 					indent = -indentIncrement;
@@ -883,6 +885,12 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
 					indent = -indentIncrement;
 					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
 					strXmlBullet = `${color}<a:buSzPct val="100000"/><a:buChar char="${char}"/>`
+					break;
+				case 'checkbox':
+					indent = -indentIncrement
+					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
+					rId = utils.image.addImageRels((slide as PresSlide), { data: bullet.icon})
+					strXmlBullet = `<a:buSzPct val="120000"/><a:buBlip><a:blip r:embed="rId${rId}"/></a:buBlip>`
 					break;
 				case 'number':
 					// indent = 0;
@@ -898,7 +906,7 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
 					break;
 				case 'none':
 					indent = -indentIncrement;
-					paragraphPropXml += ` marL="${marL + indent}" indent="${0}"`
+					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
 					strXmlBullet = '<a:buNone/>'
 					break;
 			}
@@ -942,9 +950,10 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions) {
  * Generate XML Paragraph Properties
  * @param {ISlideObject|TextProps} textObj - text object
  * @param {boolean} isDefault - array of default relations
+ * @param slide
  * @return {string} XML
  */
-export function genXmlParagraphProperties (textObj: ISlideObject | TextProps, isDefault: boolean): string {
+export function genXmlParagraphProperties (textObj: ISlideObject | TextProps, isDefault: boolean, slide: PresSlide | SlideLayout): string {
 	let strXmlBullet = ''
 	let strXmlLnSpc = ''
 	let strXmlParaSpc = ''
@@ -997,7 +1006,7 @@ export function genXmlParagraphProperties (textObj: ISlideObject | TextProps, is
 
 		// OPTION: bullet
 		if (textObj.options.bullet){
-			let bulletProps = genXmlBulletProperties(textObj.options);
+			let bulletProps = genXmlBulletProperties(textObj.options, slide);
 			paragraphPropXml += bulletProps.paragraphPropXml;
 			strXmlBullet = bulletProps.strXmlBullet
 		}
@@ -1101,7 +1110,6 @@ export function genXmlTextRunProperties (opts: ObjectOptions | TextPropsOptions,
  * @return {string} XML string
  */
 export function genXmlTextRun (textObj: TextProps): string {
-
 	// If text string has line-breaks, split sequential runs with a `<a:br/>` tag for separation
 	let textRuns = []
 	let xmlTextRun= ""
@@ -1192,6 +1200,7 @@ export function genXmlBodyProperties (slideObject: ISlideObject | TableCell): st
 /**
  * Generate the XML for text and its options (bold, bullet, etc) including text runs (word-level formatting)
  * @param {ISlideObject|TableCell} slideObj - slideObj or tableCell
+ * @param {PresSlide | SlideLayout} slide
  * @note PPT text lines [lines followed by line-breaks] separated by <br> tags
  * @note Bullets are a paragraph-level formatting device
  * @template
@@ -1211,7 +1220,7 @@ export function genXmlBodyProperties (slideObject: ISlideObject | TableCell): st
  *    </p:txBody>
  * @returns XML containing the param object's text and formatting
  */
-export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
+export function genXmlTextBody (slideObj: ISlideObject | TableCell, slide: PresSlide | SlideLayout): string {
 	const opts: ObjectOptions = slideObj.options || {}
 	let tmpTextObjects: TextProps[] = []
 	const arrTextObjects: TextProps[] = []
@@ -1231,7 +1240,7 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 		// NOTE: shape type 'LINE' has different text align needs (a lstStyle.lvl1pPr between bodyPr and p)
 		// FIXME: LINE horiz-align doesnt work (text is always to the left inside line) (FYI: the PPT code diff is substantial!)
 		if (opts.h === 0 && opts.line && opts.align) strSlideXml += '<a:lstStyle><a:lvl1pPr algn="l"/></a:lstStyle>'
-		else if (slideObj._type === 'placeholder') strSlideXml += `<a:lstStyle>${genXmlParagraphProperties(slideObj, true)}</a:lstStyle>`
+		else if (slideObj._type === 'placeholder') strSlideXml += `<a:lstStyle>${genXmlParagraphProperties(slideObj, true, slide)}</a:lstStyle>`
 		else strSlideXml += '<a:lstStyle/>'
 	}
 
@@ -1333,7 +1342,7 @@ export function genXmlTextBody (slideObj: ISlideObject | TableCell): string {
 			textObj.options.indentLevel = textObj.options.indentLevel || opts.indentLevel
 			textObj.options.paraSpaceBefore = textObj.options.paraSpaceBefore || opts.paraSpaceBefore
 			textObj.options.paraSpaceAfter = textObj.options.paraSpaceAfter || opts.paraSpaceAfter
-			paragraphPropXml = genXmlParagraphProperties(textObj, false)
+			paragraphPropXml = genXmlParagraphProperties(textObj, false, slide)
 
 			strSlideXml += paragraphPropXml.replace('<a:pPr></a:pPr>', '') // IMPORTANT: Empty "pPr" blocks will generate needs-repair/corrupt msg
 			// C: Inherit any main options (color, fontSize, etc.)

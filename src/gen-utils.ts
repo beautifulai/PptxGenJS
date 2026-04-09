@@ -223,6 +223,27 @@ export function getNewRelId (target: PresSlide): number {
 }
 
 /**
+ * Generate a short hash string from input data (for deduplicating base64 images)
+ * Uses djb2 algorithm - fast, deterministic, and produces reasonably distributed values
+ * @param {string} str - input string to hash
+ * @returns {string} 8-character hex hash
+ */
+export function hashImageData (str: string): string {
+	let hash1 = 5381
+	let hash2 = 52711
+
+	for (let i = 0; i < str.length; i++) {
+		const char = str.charCodeAt(i)
+		hash1 = ((hash1 << 5) + hash1) ^ char
+		hash2 = ((hash2 << 5) + hash2) ^ char
+	}
+
+	// Combine both hashes and convert to unsigned 32-bit, then to hex
+	const combined = (hash1 >>> 0) ^ (hash2 >>> 0)
+	return combined.toString(16).padStart(8, '0')
+}
+
+/**
  * Checks shadow options passed by user and performs corrections if needed.
  * @param {ShadowProps} ShadowProps - shadow options
  */

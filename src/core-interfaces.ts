@@ -911,7 +911,7 @@ export interface TextBulletProps {
 	 * Bullet type
 	 * @default bullet
 	 */
-	type?: 'bullet' | 'char' | 'number' | 'none'
+	type?: 'bullet' | 'char' | 'checkbox' | 'number' | 'none'
 	/**
 	 * Bullet character code (unicode)
 	 * @since v3.3.0
@@ -923,6 +923,11 @@ export interface TextBulletProps {
 	 * @example 'FF3399'
 	 */
 	color?: HexColor
+	/**
+	 * Bullet icon image as base64-encoded string
+	 * (also used for checkbox bullets)
+	 */
+	icon?: string
 	/**
 	 * Indentation (space between bullet and text) (points)
 	 * @since v3.3.0

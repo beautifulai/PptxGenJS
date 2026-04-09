@@ -46,6 +46,7 @@ import {
 	TextProps,
 	TextPropsOptions,
 } from './core-interfaces'
+import utils from "./utils"
 import { getSlidesForTableRows } from './gen-tables'
 import { encodeXmlEntities, getNewRelId, getSmartParseNumber, inch2Emu, valToPts, correctShadowOptions } from './gen-utils'
 
@@ -394,45 +395,16 @@ export function addImageDefinition (target: PresSlide, opt: ImageProps): void {
 	const objHyperlink = opt.hyperlink || ''
 	const strImageData = opt.data || ''
 	const strImagePath = opt.path || ''
-	let imageRelId = getNewRelId(target)
 	const objectName = opt.objectName ? encodeXmlEntities(opt.objectName) : `Image ${target._slideObjects.filter(obj => obj._type === SLIDE_OBJECT_TYPES.image).length}`
 
 	// REALITY-CHECK:
-	if (!strImagePath && !strImageData) {
-		console.error('ERROR: addImage() requires either \'data\' or \'path\' parameter!')
-		return null
-	} else if (strImagePath && typeof strImagePath !== 'string') {
-		console.error(`ERROR: addImage() 'path' should be a string, ex: {path:'/img/sample.png'} - you sent ${String(strImagePath)}`)
-		return null
-	} else if (strImageData && typeof strImageData !== 'string') {
-		console.error(`ERROR: addImage() 'data' should be a string, ex: {data:'image/png;base64,NMP[...]'} - you sent ${String(strImageData)}`)
-		return null
-	} else if (strImageData && typeof strImageData === 'string' && !strImageData.toLowerCase().includes('base64,')) {
-		console.error('ERROR: Image `data` value lacks a base64 header! Ex: \'image/png;base64,NMP[...]\')')
-		return null
+	if (!utils.image.checkImageProps(opt)){
+		return null;
 	}
 
-	// STEP 1: Set extension
-	// NOTE: Split to address URLs with params (eg: `path/brent.jpg?someParam=true`)
-	let strImgExtn = (
-		strImagePath
-			.substring(strImagePath.lastIndexOf('/') + 1)
-			.split('?')[0]
-			.split('.')
-			.pop()
-			.split('#')[0] || 'png'
-	).toLowerCase()
-
-	// However, pre-encoded images can be whatever mime-type they want (and good for them!)
-	if (strImageData && /image\/(\w+);/.exec(strImageData) && /image\/(\w+);/.exec(strImageData).length > 0) {
-		strImgExtn = /image\/(\w+);/.exec(strImageData)[1]
-	} else if (strImageData?.toLowerCase().includes('image/svg+xml')) {
-		strImgExtn = 'svg'
-	}
-
-	// STEP 2: Set type/path
+	const imageHash = utils.image.hashImageData(strImageData || strImagePath);
 	newObject._type = SLIDE_OBJECT_TYPES.image
-	newObject.image = strImagePath || 'preencoded.png'
+	newObject.image = strImagePath || `${imageHash}.png`
 
 	// STEP 3: Set image properties & options
 	// FIXME: Measure actual image when no intWidth/intHeight params passed
@@ -456,45 +428,8 @@ export function addImageDefinition (target: PresSlide, opt: ImageProps): void {
 	}
 
 	// STEP 4: Add this image to this Slide Rels (rId/rels count spans all slides! Count all images to get next rId)
-	if (strImgExtn === 'svg') {
-		// SVG files consume *TWO* rId's: (a png version and the svg image)
-		// <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image1.png"/>
-		// <Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image2.svg"/>
-		target._relsMedia.push({
-			path: strImagePath || strImageData + 'png',
-			type: 'image/png',
-			extn: 'png',
-			data: strImageData || '',
-			rId: imageRelId,
-			Target: `../media/image-${target._slideNum}-${target._relsMedia.length + 1}.png`,
-			isSvgPng: true,
-			svgSize: { w: getSmartParseNumber(newObject.options.w, 'X', target._presLayout), h: getSmartParseNumber(newObject.options.h, 'Y', target._presLayout) },
-		})
-		newObject.imageRid = imageRelId
-		target._relsMedia.push({
-			path: strImagePath || strImageData,
-			type: 'image/svg+xml',
-			extn: strImgExtn,
-			data: strImageData || '',
-			rId: imageRelId + 1,
-			Target: `../media/image-${target._slideNum}-${target._relsMedia.length + 1}.${strImgExtn}`,
-		})
-		newObject.imageRid = imageRelId + 1
-	} else {
-		// PERF: Duplicate media should reuse existing `Target` value and not create an additional copy
-		const dupeItem = target._relsMedia.filter(item => item.path && item.path === strImagePath && item.type === 'image/' + strImgExtn && !item.isDuplicate)[0]
-
-		target._relsMedia.push({
-			path: strImagePath || 'preencoded.' + strImgExtn,
-			type: 'image/' + strImgExtn,
-			extn: strImgExtn,
-			data: strImageData || '',
-			rId: imageRelId,
-			isDuplicate: !!(dupeItem?.Target),
-			Target: dupeItem?.Target ? dupeItem.Target : `../media/image-${target._slideNum}-${target._relsMedia.length + 1}.${strImgExtn}`,
-		})
-		newObject.imageRid = imageRelId
-	}
+	let imageRelId = utils.image.addImageRels(target, opt);
+	newObject.imageRid = imageRelId
 
 	// STEP 5: Hyperlink support
 	if (typeof objHyperlink === 'object') {
@@ -897,8 +832,8 @@ export function addTableDefinition (
 	// STEP 4: Convert units to EMU now (we use different logic in makeSlide->table - smartCalc is not used)
 	if (opt.x && opt.x < 20) opt.x = inch2Emu(opt.x)
 	if (opt.y && opt.y < 20) opt.y = inch2Emu(opt.y)
-	if (opt.w && opt.w < 20) opt.w = inch2Emu(opt.w)
-	if (opt.h && opt.h < 20) opt.h = inch2Emu(opt.h)
+	if (opt.w && (opt as any).w < 20) opt.w = inch2Emu(opt.w)
+	if (opt.h && (opt as any).h < 20) opt.h = inch2Emu(opt.h)
 
 	// STEP 5: Loop over cells: transform each to ITableCell; check to see whether to unset `autoPage` while here
 	arrRows.forEach(row => {

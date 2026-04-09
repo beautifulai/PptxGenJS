@@ -31,7 +31,5 @@ module.exports = {
 		"no-lone-blocks": 0,
 		"no-tabs": ["error", { allowIndentationTabs: true }],
 		indent: ["error", "tab", { "SwitchCase": 1, "ImportDeclaration": 1 }],
-		quotes: ["error", "single"],
-		semi: ["error", "never"],
 	},
 };

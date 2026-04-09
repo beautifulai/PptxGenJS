@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-bai.1 @ 2025-12-09T03:04:44.165Z */
+/* PptxGenJS 3.13.0-bai.2 @ 2026-04-09T23:06:09.070Z */
 import JSZip from 'jszip';
 
 /******************************************************************************
@@ -905,6 +905,157 @@ function correctShadowOptions$1(ShadowProps) {
     }
     return ShadowProps;
 }
+
+/**
+ * Validates image props
+ * @param props
+ * @returns {boolean}
+ */
+function checkImageProps(props) {
+    var strImageData = props.data || '';
+    var strImagePath = props.path || '';
+    if (!strImagePath && !strImageData) {
+        console.error('ERROR: addImage() requires either \'data\' or \'path\' parameter!');
+        return false;
+    }
+    else if (strImagePath && typeof strImagePath !== 'string') {
+        console.error("ERROR: addImage() 'path' should be a string, ex: {path:'/img/sample.png'} - you sent ".concat(String(strImagePath)));
+        return false;
+    }
+    else if (strImageData && typeof strImageData !== 'string') {
+        console.error("ERROR: addImage() 'data' should be a string, ex: {data:'image/png;base64,NMP[...]'} - you sent ".concat(String(strImageData)));
+        return false;
+    }
+    else if (strImageData && typeof strImageData === 'string' && !strImageData.toLowerCase().includes('base64,')) {
+        console.error('ERROR: Image `data` value lacks a base64 header! Ex: \'image/png;base64,NMP[...]\')');
+        return false;
+    }
+    return true;
+}
+/**
+ * Generate a short hash string from input data (for deduplicating base64 images)
+ * Uses djb2 algorithm - fast, deterministic, and produces reasonably distributed values
+ * @param {string} str - input string to hash
+ * @returns {string} 8-character hex hash
+ */
+function hashImageData(str) {
+    var hash1 = 5381;
+    var hash2 = 52711;
+    for (var i = 0; i < str.length; i++) {
+        var char = str.charCodeAt(i);
+        hash1 = ((hash1 << 5) + hash1) ^ char;
+        hash2 = ((hash2 << 5) + hash2) ^ char;
+    }
+    // Combine both hashes and convert to unsigned 32-bit, then to hex
+    var combined = (hash1 >>> 0) ^ (hash2 >>> 0);
+    return combined.toString(16).padStart(8, '0');
+}
+/**
+ * @returns {string}
+ */
+function imageExtension(props) {
+    var strImageData = props.data || '';
+    var strImagePath = props.path || '';
+    // NOTE: Split to address URLs with params (eg: `path/brent.jpg?someParam=true`)
+    var strImgExtn = (strImagePath
+        .substring(strImagePath.lastIndexOf('/') + 1)
+        .split('?')[0]
+        .split('.')
+        .pop()
+        .split('#')[0] || 'png').toLowerCase();
+    // However, pre-encoded images can be whatever mime-type they want (and good for them!)
+    if (strImageData && /image\/(\w+);/.exec(strImageData) && /image\/(\w+);/.exec(strImageData).length > 0) {
+        strImgExtn = /image\/(\w+);/.exec(strImageData)[1];
+    }
+    else if (strImageData === null || strImageData === void 0 ? void 0 : strImageData.toLowerCase().includes('image/svg+xml')) {
+        strImgExtn = 'svg';
+    }
+    return strImgExtn;
+}
+function imageRelTarget(props) {
+    var imageHash = (props.data && typeof props.data === 'string' && props.data.length > 0)
+        ? hashImageData(props.data)
+        : hashImageData(props.path || '');
+    return "../media/image-".concat(imageHash);
+}
+/**
+ * If the image already exists, return the existing relationship so that we can avoid duplication
+ * @param target
+ * @param props
+ * @returns { ISlideRelMedia }
+ */
+function existingImageRel(target, props) {
+    var strImgExtn = imageExtension(props);
+    var imageTarget = "".concat(imageRelTarget(props), ".").concat(strImgExtn);
+    return target._relsMedia.find(function (item) { return item.Target === imageTarget; });
+}
+/**
+ * Adds the image relationships to the slide media rels folder
+ * @returns {number} rId that is used to link the image on the slide to the image in the media folder
+ */
+function addImageRels(target, props) {
+    var strImageData = props.data || '';
+    var strImagePath = props.path || '';
+    var strImgExtn = imageExtension(props);
+    var existingRel = existingImageRel(target, props);
+    if (existingRel) {
+        return existingRel.rId;
+    }
+    else {
+        var imageRelId = getNewRelId(target);
+        // STEP 4: Add this image to this Slide Rels (rId/rels count spans all slides! Count all images to get next rId)
+        if (strImgExtn === 'svg') {
+            // SVG files consume *TWO* rId's: (a png version and the svg image)
+            // <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image1.png"/>
+            // <Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image2.svg"/>
+            target._relsMedia.push({
+                path: strImagePath || strImageData + 'png',
+                type: 'image/png',
+                extn: 'png',
+                data: strImageData || '',
+                rId: imageRelId,
+                Target: "".concat(imageRelTarget(props), ".png"),
+                isSvgPng: true,
+                svgSize: {
+                    w: getSmartParseNumber(props.w || 1, 'X', target._presLayout),
+                    h: getSmartParseNumber(props.h || 1, 'Y', target._presLayout)
+                },
+            });
+            imageRelId = imageRelId + 1;
+            target._relsMedia.push({
+                path: strImagePath || strImageData,
+                type: 'image/svg+xml',
+                extn: strImgExtn,
+                data: strImageData || '',
+                rId: imageRelId,
+                Target: "".concat(imageRelTarget(props), ".").concat(strImgExtn),
+            });
+        }
+        else {
+            var dupeItem = target._relsMedia.filter(function (item) {
+                return item.path && item.path === strImagePath && item.type === 'image/' + strImgExtn
+                    && !item.isDuplicate;
+            })[0];
+            target._relsMedia.push({
+                path: strImagePath || 'preencoded.' + strImgExtn,
+                type: 'image/' + strImgExtn,
+                extn: strImgExtn,
+                data: strImageData || '',
+                rId: imageRelId,
+                isDuplicate: !!(dupeItem === null || dupeItem === void 0 ? void 0 : dupeItem.Target),
+                Target: "".concat(imageRelTarget(props), ".").concat(strImgExtn),
+            });
+        }
+        return imageRelId;
+    }
+}
+var image = {
+    addImageRels: addImageRels,
+    checkImageProps: checkImageProps,
+    hashImageData: hashImageData
+};
+
+var utils = { image: image };
 
 /**
  * PptxGenJS: Table Generation
@@ -1997,43 +2148,14 @@ function addImageDefinition(target, opt) {
     var objHyperlink = opt.hyperlink || '';
     var strImageData = opt.data || '';
     var strImagePath = opt.path || '';
-    var imageRelId = getNewRelId(target);
     var objectName = opt.objectName ? encodeXmlEntities(opt.objectName) : "Image ".concat(target._slideObjects.filter(function (obj) { return obj._type === SLIDE_OBJECT_TYPES.image; }).length);
     // REALITY-CHECK:
-    if (!strImagePath && !strImageData) {
-        console.error('ERROR: addImage() requires either \'data\' or \'path\' parameter!');
+    if (!utils.image.checkImageProps(opt)) {
         return null;
     }
-    else if (strImagePath && typeof strImagePath !== 'string') {
-        console.error("ERROR: addImage() 'path' should be a string, ex: {path:'/img/sample.png'} - you sent ".concat(String(strImagePath)));
-        return null;
-    }
-    else if (strImageData && typeof strImageData !== 'string') {
-        console.error("ERROR: addImage() 'data' should be a string, ex: {data:'image/png;base64,NMP[...]'} - you sent ".concat(String(strImageData)));
-        return null;
-    }
-    else if (strImageData && typeof strImageData === 'string' && !strImageData.toLowerCase().includes('base64,')) {
-        console.error('ERROR: Image `data` value lacks a base64 header! Ex: \'image/png;base64,NMP[...]\')');
-        return null;
-    }
-    // STEP 1: Set extension
-    // NOTE: Split to address URLs with params (eg: `path/brent.jpg?someParam=true`)
-    var strImgExtn = (strImagePath
-        .substring(strImagePath.lastIndexOf('/') + 1)
-        .split('?')[0]
-        .split('.')
-        .pop()
-        .split('#')[0] || 'png').toLowerCase();
-    // However, pre-encoded images can be whatever mime-type they want (and good for them!)
-    if (strImageData && /image\/(\w+);/.exec(strImageData) && /image\/(\w+);/.exec(strImageData).length > 0) {
-        strImgExtn = /image\/(\w+);/.exec(strImageData)[1];
-    }
-    else if (strImageData === null || strImageData === void 0 ? void 0 : strImageData.toLowerCase().includes('image/svg+xml')) {
-        strImgExtn = 'svg';
-    }
-    // STEP 2: Set type/path
+    var imageHash = utils.image.hashImageData(strImageData || strImagePath);
     newObject._type = SLIDE_OBJECT_TYPES.image;
-    newObject.image = strImagePath || 'preencoded.png';
+    newObject.image = strImagePath || "".concat(imageHash, ".png");
     // STEP 3: Set image properties & options
     // FIXME: Measure actual image when no intWidth/intHeight params passed
     // ....: This is an async process: we need to make getSizeFromImage use callback, then set H/W...
@@ -2055,45 +2177,8 @@ function addImageDefinition(target, opt) {
         shadow: correctShadowOptions$1(opt.shadow),
     };
     // STEP 4: Add this image to this Slide Rels (rId/rels count spans all slides! Count all images to get next rId)
-    if (strImgExtn === 'svg') {
-        // SVG files consume *TWO* rId's: (a png version and the svg image)
-        // <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image1.png"/>
-        // <Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image2.svg"/>
-        target._relsMedia.push({
-            path: strImagePath || strImageData + 'png',
-            type: 'image/png',
-            extn: 'png',
-            data: strImageData || '',
-            rId: imageRelId,
-            Target: "../media/image-".concat(target._slideNum, "-").concat(target._relsMedia.length + 1, ".png"),
-            isSvgPng: true,
-            svgSize: { w: getSmartParseNumber(newObject.options.w, 'X', target._presLayout), h: getSmartParseNumber(newObject.options.h, 'Y', target._presLayout) },
-        });
-        newObject.imageRid = imageRelId;
-        target._relsMedia.push({
-            path: strImagePath || strImageData,
-            type: 'image/svg+xml',
-            extn: strImgExtn,
-            data: strImageData || '',
-            rId: imageRelId + 1,
-            Target: "../media/image-".concat(target._slideNum, "-").concat(target._relsMedia.length + 1, ".").concat(strImgExtn),
-        });
-        newObject.imageRid = imageRelId + 1;
-    }
-    else {
-        // PERF: Duplicate media should reuse existing `Target` value and not create an additional copy
-        var dupeItem = target._relsMedia.filter(function (item) { return item.path && item.path === strImagePath && item.type === 'image/' + strImgExtn && !item.isDuplicate; })[0];
-        target._relsMedia.push({
-            path: strImagePath || 'preencoded.' + strImgExtn,
-            type: 'image/' + strImgExtn,
-            extn: strImgExtn,
-            data: strImageData || '',
-            rId: imageRelId,
-            isDuplicate: !!(dupeItem === null || dupeItem === void 0 ? void 0 : dupeItem.Target),
-            Target: (dupeItem === null || dupeItem === void 0 ? void 0 : dupeItem.Target) ? dupeItem.Target : "../media/image-".concat(target._slideNum, "-").concat(target._relsMedia.length + 1, ".").concat(strImgExtn),
-        });
-        newObject.imageRid = imageRelId;
-    }
+    var imageRelId = utils.image.addImageRels(target, opt);
+    newObject.imageRid = imageRelId;
     // STEP 5: Hyperlink support
     if (typeof objHyperlink === 'object') {
         if (!objHyperlink.url && !objHyperlink.slide)
@@ -5205,7 +5290,7 @@ function textObjectToXml(slideItemObj, idx, slide, placeholderObj, x, y, cx, cy,
     // B: Close shape Properties
     strXml += '</p:spPr>';
     // C: Add formatted text (text body "bodyPr")
-    strXml += genXmlTextBody(slideItemObj);
+    strXml += genXmlTextBody(slideItemObj, slide);
     // LAST: Close SHAPE =======================================================
     strXml += '</p:sp>';
     return strXml;
@@ -5471,7 +5556,7 @@ function slideObjectToXml(slide) {
                         }
                         // FUTURE: Cell NOWRAP property (textwrap: add to a:tcPr (horzOverflow="overflow" or whatever options exist)
                         // 4: Set CELL content and properties ==================================
-                        strXml += "<a:tc".concat(cellSpanAttrStr, ">").concat(genXmlTextBody(cell), "<a:tcPr").concat(cellMarginXml).concat(cellValign).concat(cellTextDir, ">");
+                        strXml += "<a:tc".concat(cellSpanAttrStr, ">").concat(genXmlTextBody(cell, slide), "<a:tcPr").concat(cellMarginXml).concat(cellValign).concat(cellTextDir, ">");
                         // strXml += `<a:tc${cellColspan}${cellRowspan}>${genXmlTextBody(cell)}<a:tcPr${cellMarginXml}${cellValign}${cellTextDir}>`
                         // FIXME: 20200525: ^^^
                         // <a:tcPr marL="38100" marR="38100" marT="38100" marB="38100" vert="vert270">
@@ -5785,7 +5870,7 @@ function slideObjectRelationsToXml(slide, defaultRels) {
     strXml += '</Relationships>';
     return strXml;
 }
-function genXmlBulletProperties(textPropsOptions) {
+function genXmlBulletProperties(textPropsOptions, slide) {
     var paragraphPropXml = '';
     var strXmlBullet = '';
     var defaultMarL = valToPts(DEF_BULLET_MARGIN);
@@ -5817,6 +5902,7 @@ function genXmlBulletProperties(textPropsOptions) {
             var marL = ((typeof textPropsOptions.indentLevel === "number") && (textPropsOptions.indentLevel > 0))
                 ? (marginLeft + (indentIncrement * textPropsOptions.indentLevel))
                 : marginLeft;
+            var rId = void 0;
             switch (bulletType) {
                 case 'bullet':
                     indent = -indentIncrement;
@@ -5828,6 +5914,12 @@ function genXmlBulletProperties(textPropsOptions) {
                     indent = -indentIncrement;
                     paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
                     strXmlBullet = "".concat(color, "<a:buSzPct val=\"100000\"/><a:buChar char=\"").concat(char, "\"/>");
+                    break;
+                case 'checkbox':
+                    indent = -indentIncrement;
+                    paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
+                    rId = utils.image.addImageRels(slide, { data: bullet.icon });
+                    strXmlBullet = "<a:buSzPct val=\"120000\"/><a:buBlip><a:blip r:embed=\"rId".concat(rId, "\"/></a:buBlip>");
                     break;
                 case 'number':
                     // indent = 0;
@@ -5843,7 +5935,7 @@ function genXmlBulletProperties(textPropsOptions) {
                     break;
                 case 'none':
                     indent = -indentIncrement;
-                    paragraphPropXml += " marL=\"".concat(marL + indent, "\" indent=\"").concat(0, "\"");
+                    paragraphPropXml += " marL=\"".concat(marL, "\" indent=\"").concat(indent, "\"");
                     strXmlBullet = '<a:buNone/>';
                     break;
             }
@@ -5883,9 +5975,10 @@ function genXmlBulletProperties(textPropsOptions) {
  * Generate XML Paragraph Properties
  * @param {ISlideObject|TextProps} textObj - text object
  * @param {boolean} isDefault - array of default relations
+ * @param slide
  * @return {string} XML
  */
-function genXmlParagraphProperties(textObj, isDefault) {
+function genXmlParagraphProperties(textObj, isDefault, slide) {
     var strXmlBullet = '';
     var strXmlLnSpc = '';
     var strXmlParaSpc = '';
@@ -5933,7 +6026,7 @@ function genXmlParagraphProperties(textObj, isDefault) {
         }
         // OPTION: bullet
         if (textObj.options.bullet) {
-            var bulletProps = genXmlBulletProperties(textObj.options);
+            var bulletProps = genXmlBulletProperties(textObj.options, slide);
             paragraphPropXml += bulletProps.paragraphPropXml;
             strXmlBullet = bulletProps.strXmlBullet;
         }
@@ -6126,6 +6219,7 @@ function genXmlBodyProperties(slideObject) {
 /**
  * Generate the XML for text and its options (bold, bullet, etc) including text runs (word-level formatting)
  * @param {ISlideObject|TableCell} slideObj - slideObj or tableCell
+ * @param {PresSlide | SlideLayout} slide
  * @note PPT text lines [lines followed by line-breaks] separated by <br> tags
  * @note Bullets are a paragraph-level formatting device
  * @template
@@ -6145,7 +6239,7 @@ function genXmlBodyProperties(slideObject) {
  *    </p:txBody>
  * @returns XML containing the param object's text and formatting
  */
-function genXmlTextBody(slideObj) {
+function genXmlTextBody(slideObj, slide) {
     var opts = slideObj.options || {};
     var tmpTextObjects = [];
     var arrTextObjects = [];
@@ -6164,7 +6258,7 @@ function genXmlTextBody(slideObj) {
         if (opts.h === 0 && opts.line && opts.align)
             strSlideXml += '<a:lstStyle><a:lvl1pPr algn="l"/></a:lstStyle>';
         else if (slideObj._type === 'placeholder')
-            strSlideXml += "<a:lstStyle>".concat(genXmlParagraphProperties(slideObj, true), "</a:lstStyle>");
+            strSlideXml += "<a:lstStyle>".concat(genXmlParagraphProperties(slideObj, true, slide), "</a:lstStyle>");
         else
             strSlideXml += '<a:lstStyle/>';
     }
@@ -6260,7 +6354,7 @@ function genXmlTextBody(slideObj) {
             textObj.options.indentLevel = textObj.options.indentLevel || opts.indentLevel;
             textObj.options.paraSpaceBefore = textObj.options.paraSpaceBefore || opts.paraSpaceBefore;
             textObj.options.paraSpaceAfter = textObj.options.paraSpaceAfter || opts.paraSpaceAfter;
-            paragraphPropXml = genXmlParagraphProperties(textObj, false);
+            paragraphPropXml = genXmlParagraphProperties(textObj, false, slide);
             strSlideXml += paragraphPropXml.replace('<a:pPr></a:pPr>', ''); // IMPORTANT: Empty "pPr" blocks will generate needs-repair/corrupt msg
             // C: Inherit any main options (color, fontSize, etc.)
             // NOTE: We only pass the text.options to genXmlTextRun (not the Slide.options),

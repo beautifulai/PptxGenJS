@@ -890,7 +890,7 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions, slid
 					indent = -indentIncrement
 					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
 					rId = utils.image.addImageRels((slide as PresSlide), { data: bullet.icon})
-					strXmlBullet = `<a:buBlip><a:blip r:embed="rId${rId}"/></a:buBlip>`;
+					strXmlBullet = `<a:buSzPct val="120000"/><a:buBlip><a:blip r:embed="rId${rId}"/></a:buBlip>`
 					break;
 				case 'number':
 					// indent = 0;
@@ -906,7 +906,7 @@ export function genXmlBulletProperties (textPropsOptions: TextPropsOptions, slid
 					break;
 				case 'none':
 					indent = -indentIncrement;
-					paragraphPropXml += ` marL="${marL + indent}" indent="${0}"`
+					paragraphPropXml += ` marL="${marL}" indent="${indent}"`
 					strXmlBullet = '<a:buNone/>'
 					break;
 			}

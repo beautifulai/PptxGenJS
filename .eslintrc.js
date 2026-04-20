@@ -31,5 +31,11 @@ module.exports = {
 		"no-lone-blocks": 0,
 		"no-tabs": ["error", { allowIndentationTabs: true }],
 		indent: ["error", "tab", { "SwitchCase": 1, "ImportDeclaration": 1 }],
+		"semi": "off",
+		"@typescript-eslint/semi": ["error", "always"],
+		"@typescript-eslint/member-delimiter-style": ["error", {
+			multiline: { delimiter: "semi", requireLast: true },
+			singleline: { delimiter: "semi", requireLast: false },
+		}],
 	},
 };

@@ -2,7 +2,7 @@
  * PptxGenJS: Slide Class
  */
 
-import { CHART_NAME, SHAPE_NAME } from './core-enums'
+import { CHART_NAME, SHAPE_NAME } from './core-enums';
 import {
 	AddSlideProps,
 	BackgroundProps,
@@ -26,55 +26,55 @@ import {
 	TableRow,
 	TextProps,
 	TextPropsOptions,
-} from './core-interfaces'
-import * as genObj from './gen-objects'
+} from './core-interfaces';
+import * as genObj from './gen-objects';
 
 export default class Slide {
-	private readonly _setSlideNum: (value: SlideNumberProps) => void
+	private readonly _setSlideNum: (value: SlideNumberProps) => void;
 
-	public addSlide: (options?: AddSlideProps) => PresSlide
-	public getSlide: (slideNum: number) => PresSlide
-	public _name: string
-	public _presLayout: PresLayout
-	public _rels: ISlideRel[]
-	public _relsChart: ISlideRelChart[]
-	public _relsMedia: ISlideRelMedia[]
-	public _rId: number
-	public _slideId: number
-	public _slideLayout: SlideLayout
-	public _slideNum: number
-	public _slideNumberProps: SlideNumberProps
-	public _slideObjects: ISlideObject[]
-	public _newAutoPagedSlides: PresSlide[]
+	public addSlide: (options?: AddSlideProps) => PresSlide;
+	public getSlide: (slideNum: number) => PresSlide;
+	public _name: string;
+	public _presLayout: PresLayout;
+	public _rels: ISlideRel[];
+	public _relsChart: ISlideRelChart[];
+	public _relsMedia: ISlideRelMedia[];
+	public _rId: number;
+	public _slideId: number;
+	public _slideLayout: SlideLayout;
+	public _slideNum: number;
+	public _slideNumberProps: SlideNumberProps;
+	public _slideObjects: ISlideObject[];
+	public _newAutoPagedSlides: PresSlide[];
 
 	constructor (params: {
-		addSlide: (options?: AddSlideProps) => PresSlide
-		getSlide: (slideNum: number) => PresSlide
-		presLayout: PresLayout
-		setSlideNum: (value: SlideNumberProps) => void
-		slideId: number
-		slideRId: number
-		slideNumber: number
-		slideLayout?: SlideLayout
+		addSlide: (options?: AddSlideProps) => PresSlide;
+		getSlide: (slideNum: number) => PresSlide;
+		presLayout: PresLayout;
+		setSlideNum: (value: SlideNumberProps) => void;
+		slideId: number;
+		slideRId: number;
+		slideNumber: number;
+		slideLayout?: SlideLayout;
 	}) {
-		this.addSlide = params.addSlide
-		this.getSlide = params.getSlide
-		this._name = `Slide ${params.slideNumber}`
-		this._presLayout = params.presLayout
-		this._rId = params.slideRId
-		this._rels = []
-		this._relsChart = []
-		this._relsMedia = []
-		this._setSlideNum = params.setSlideNum
-		this._slideId = params.slideId
-		this._slideLayout = params.slideLayout || null
-		this._slideNum = params.slideNumber
-		this._slideObjects = []
+		this.addSlide = params.addSlide;
+		this.getSlide = params.getSlide;
+		this._name = `Slide ${params.slideNumber}`;
+		this._presLayout = params.presLayout;
+		this._rId = params.slideRId;
+		this._rels = [];
+		this._relsChart = [];
+		this._relsMedia = [];
+		this._setSlideNum = params.setSlideNum;
+		this._slideId = params.slideId;
+		this._slideLayout = params.slideLayout || null;
+		this._slideNum = params.slideNumber;
+		this._slideObjects = [];
 		/** NOTE: Slide Numbers: In order for Slide Numbers to function they need to be in all 3 files: master/layout/slide
 		 * `defineSlideMaster` and `addNewSlide.slideNumber` will add {slideNumber} to `this.masterSlide` and `this.slideLayouts`
 		 * so, lastly, add to the Slide now.
 		 */
-		this._slideNumberProps = this._slideLayout?._slideNumberProps ? this._slideLayout._slideNumberProps : null
+		this._slideNumberProps = this._slideLayout?._slideNumberProps ? this._slideLayout._slideNumberProps : null;
 	}
 
 	/**
@@ -82,17 +82,17 @@ export default class Slide {
 	 * @type {string|BackgroundProps}
 	 * @deprecated in v3.3.0 - use `background` instead
 	 */
-	private _bkgd: string | BackgroundProps
+	private _bkgd: string | BackgroundProps;
 	public set bkgd (value: string | BackgroundProps) {
-		this._bkgd = value
+		this._bkgd = value;
 		if (!this._background || !this._background.color) {
-			if (!this._background) this._background = {}
-			if (typeof value === 'string') this._background.color = value
+			if (!this._background) this._background = {};
+			if (typeof value === 'string') this._background.color = value;
 		}
 	}
 
 	public get bkgd (): string | BackgroundProps {
-		return this._bkgd
+		return this._bkgd;
 	}
 
 	/**
@@ -104,40 +104,40 @@ export default class Slide {
 	 * @example url `background: { path:'https://some.url/image.jpg'}`
 	 * @since v3.3.0
 	 */
-	private _background: BackgroundProps
+	private _background: BackgroundProps;
 	public set background (props: BackgroundProps) {
-		this._background = props
+		this._background = props;
 		// Add background (image data/path must be captured before `exportPresentation()` is called)
-		if (props) genObj.addBackgroundDefinition(props, this)
+		if (props) genObj.addBackgroundDefinition(props, this);
 	}
 
 	public get background (): BackgroundProps {
-		return this._background
+		return this._background;
 	}
 
 	/**
 	 * Default font color
 	 * @type {HexColor}
 	 */
-	private _color: HexColor
+	private _color: HexColor;
 	public set color (value: HexColor) {
-		this._color = value
+		this._color = value;
 	}
 
 	public get color (): HexColor {
-		return this._color
+		return this._color;
 	}
 
 	/**
 	 * @type {boolean}
 	 */
-	private _hidden: boolean
+	private _hidden: boolean;
 	public set hidden (value: boolean) {
-		this._hidden = value
+		this._hidden = value;
 	}
 
 	public get hidden (): boolean {
-		return this._hidden
+		return this._hidden;
 	}
 
 	/**
@@ -145,16 +145,16 @@ export default class Slide {
 	 */
 	public set slideNumber (value: SlideNumberProps) {
 		// NOTE: Slide Numbers: In order for Slide Numbers to function they need to be in all 3 files: master/layout/slide
-		this._slideNumberProps = value
-		this._setSlideNum(value)
+		this._slideNumberProps = value;
+		this._setSlideNum(value);
 	}
 
 	public get slideNumber (): SlideNumberProps {
-		return this._slideNumberProps
+		return this._slideNumberProps;
 	}
 
-	public get newAutoPagedSlides(): PresSlide[] {
-		return this._newAutoPagedSlides
+	public get newAutoPagedSlides (): PresSlide[] {
+		return this._newAutoPagedSlides;
 	}
 
 	/**
@@ -167,10 +167,10 @@ export default class Slide {
 	addChart (type: CHART_NAME | IChartMulti[], data: IOptsChartData[], options?: IChartOpts): Slide {
 		// FUTURE: TODO-VERSION-4: Remove first arg - only take data and opts, with "type" required on opts
 		// Set `_type` on IChartOptsLib as its what is used as object is passed around
-		const optionsWithType: IChartOptsLib = options || {}
-		optionsWithType._type = type
-		genObj.addChartDefinition(this, type, data, options)
-		return this
+		const optionsWithType: IChartOptsLib = options || {};
+		optionsWithType._type = type;
+		genObj.addChartDefinition(this, type, data, options);
+		return this;
 	}
 
 	/**
@@ -179,8 +179,8 @@ export default class Slide {
 	 * @return {Slide} this Slide
 	 */
 	addImage (options: ImageProps): Slide {
-		genObj.addImageDefinition(this, options)
-		return this
+		genObj.addImageDefinition(this, options);
+		return this;
 	}
 
 	/**
@@ -189,8 +189,8 @@ export default class Slide {
 	 * @return {Slide} this Slide
 	 */
 	addMedia (options: MediaProps): Slide {
-		genObj.addMediaDefinition(this, options)
-		return this
+		genObj.addMediaDefinition(this, options);
+		return this;
 	}
 
 	/**
@@ -200,8 +200,8 @@ export default class Slide {
 	 * @return {Slide} this Slide
 	 */
 	addNotes (notes: string): Slide {
-		genObj.addNotesDefinition(this, notes)
-		return this
+		genObj.addNotesDefinition(this, notes);
+		return this;
 	}
 
 	/**
@@ -216,8 +216,8 @@ export default class Slide {
 		// <script./> => `pptx.shapes.RECTANGLE` [string] "rect" ... shapeName['name'] = 'rect'
 		// TypeScript => `pptxgen.shapes.RECTANGLE` [string] "rect" ... shapeName = 'rect'
 		// let shapeNameDecode = typeof shapeName === 'object' && shapeName['name'] ? shapeName['name'] : shapeName
-		genObj.addShapeDefinition(this, shapeName, options)
-		return this
+		genObj.addShapeDefinition(this, shapeName, options);
+		return this;
 	}
 
 	/**
@@ -228,8 +228,8 @@ export default class Slide {
 	 */
 	addTable (tableRows: TableRow[], options?: TableProps): Slide {
 		// FUTURE: we pass `this` - we dont need to pass layouts - they can be read from this!
-		this._newAutoPagedSlides = genObj.addTableDefinition(this, tableRows, options, this._slideLayout, this._presLayout, this.addSlide, this.getSlide)
-		return this
+		this._newAutoPagedSlides = genObj.addTableDefinition(this, tableRows, options, this._slideLayout, this._presLayout, this.addSlide, this.getSlide);
+		return this;
 	}
 
 	/**
@@ -239,8 +239,8 @@ export default class Slide {
 	 * @return {Slide} this Slide
 	 */
 	addText (text: string | TextProps[], options?: TextPropsOptions): Slide {
-		const textParam = typeof text === 'string' || typeof text === 'number' ? [{ text, options }] : text
-		genObj.addTextDefinition(this, textParam, options, false)
-		return this
+		const textParam = typeof text === 'string' || typeof text === 'number' ? [{ text, options }] : text;
+		genObj.addTextDefinition(this, textParam, options, false);
+		return this;
 	}
 }

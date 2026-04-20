@@ -2,7 +2,7 @@
  * PptxGenJS Interfaces
  */
 
-import { CHART_NAME, PLACEHOLDER_TYPE, SHAPE_NAME, SLIDE_OBJECT_TYPES, TEXT_HALIGN, TEXT_VALIGN, WRITE_OUTPUT_TYPE } from './core-enums'
+import { CHART_NAME, PLACEHOLDER_TYPE, SHAPE_NAME, SLIDE_OBJECT_TYPES, TEXT_HALIGN, TEXT_VALIGN, WRITE_OUTPUT_TYPE } from './core-enums';
 
 // Core Types
 // ==========
@@ -15,7 +15,7 @@ import { CHART_NAME, PLACEHOLDER_TYPE, SHAPE_NAME, SLIDE_OBJECT_TYPES, TEXT_HALI
  * @example 10.25 // coordinate in inches
  * @example '75%' // coordinate as percentage of slide size
  */
-export type Coord = number | `${number}%`
+export type Coord = number | `${number}%`;
 export interface PositionProps {
 	/**
 	 * Horizontal position
@@ -23,28 +23,28 @@ export interface PositionProps {
 	 * @example 10.25 // position in inches
 	 * @example '75%' // position as percentage of slide size
 	 */
-	x?: Coord
+	x?: Coord;
 	/**
 	 * Vertical position
 	 * - inches or percentage
 	 * @example 10.25 // position in inches
 	 * @example '75%' // position as percentage of slide size
 	 */
-	y?: Coord
+	y?: Coord;
 	/**
 	 * Height
 	 * - inches or percentage
 	 * @example 10.25 // height in inches
 	 * @example '75%' // height as percentage of slide size
 	 */
-	h?: Coord
+	h?: Coord;
 	/**
 	 * Width
 	 * - inches or percentage
 	 * @example 10.25 // width in inches
 	 * @example '75%' // width as percentage of slide size
 	 */
-	w?: Coord
+	w?: Coord;
 }
 /**
  * Either `data` or `path` is required
@@ -56,38 +56,38 @@ export interface DataOrPathProps {
 	 * @example 'https://onedrives.com/myimg.png` // retrieve image via URL
 	 * @example '/home/gitbrent/images/myimg.png` // retrieve image via local path
 	 */
-	path?: string
+	path?: string;
 	/**
 	 * base64-encoded string
 	 * - Useful for avoiding potential path/server issues
 	 *
 	 * @example 'image/png;base64,iVtDafDrBF[...]=' // pre-encoded image in base-64
 	 */
-	data?: string
+	data?: string;
 }
 export interface BackgroundProps extends DataOrPathProps, ShapeFillProps {
 	/**
 	 * Color (hex format)
 	 * @deprecated v3.6.0 - use `ShapeFillProps` instead
 	 */
-	fill?: HexColor
+	fill?: HexColor;
 
 	/**
 	 * source URL
 	 * @deprecated v3.6.0 - use `DataOrPathProps` instead - remove in v4.0.0
 	 */
-	src?: string
+	src?: string;
 }
 /**
  * Color in Hex format
  * @example 'FF3399'
  */
-export type HexColor = string
-export type ThemeColor = 'tx1' | 'tx2' | 'bg1' | 'bg2' | 'accent1' | 'accent2' | 'accent3' | 'accent4' | 'accent5' | 'accent6'
-export type Color = HexColor | ThemeColor
-export type Margin = number | [number, number, number, number]
-export type HAlign = 'left' | 'center' | 'right' | 'justify'
-export type VAlign = 'top' | 'middle' | 'bottom'
+export type HexColor = string;
+export type ThemeColor = 'tx1' | 'tx2' | 'bg1' | 'bg2' | 'accent1' | 'accent2' | 'accent3' | 'accent4' | 'accent5' | 'accent6';
+export type Color = HexColor | ThemeColor;
+export type Margin = number | [number, number, number, number];
+export type HAlign = 'left' | 'center' | 'right' | 'justify';
+export type VAlign = 'top' | 'middle' | 'bottom';
 
 // used by charts, shape, text
 export interface BorderProps {
@@ -95,13 +95,13 @@ export interface BorderProps {
 	 * Border type
 	 * @default solid
 	 */
-	type?: 'none' | 'dash' | 'solid'
+	type?: 'none' | 'dash' | 'solid';
 	/**
 	 * Border color (hex)
 	 * @example 'FF3399'
 	 * @default '666666'
 	 */
-	color?: HexColor
+	color?: HexColor;
 
 	// TODO: add `transparency` prop to Borders (0-100%)
 
@@ -110,23 +110,23 @@ export interface BorderProps {
 	 * Border size (points)
 	 * @default 1
 	 */
-	pt?: number
+	pt?: number;
 }
 // used by: image, object, text,
 export interface HyperlinkProps {
-	_rId: number
+	_rId: number;
 	/**
 	 * Slide number to link to
 	 */
-	slide?: number
+	slide?: number;
 	/**
 	 * Url to link to
 	 */
-	url?: string
+	url?: string;
 	/**
 	 * Hyperlink Tooltip
 	 */
-	tooltip?: string
+	tooltip?: string;
 }
 // used by: chart, text, image
 export interface ShadowProps {
@@ -134,41 +134,41 @@ export interface ShadowProps {
 	 * shadow type
 	 * @default 'none'
 	 */
-	type: 'outer' | 'inner' | 'none'
+	type: 'outer' | 'inner' | 'none';
 	/**
 	 * opacity (percent)
 	 * - range: 0.0-1.0
 	 * @example 0.5 // 50% opaque
 	 */
-	opacity?: number // TODO: "Transparency (0-100%)" in PPT // TODO: deprecate and add `transparency`
+	opacity?: number; // TODO: "Transparency (0-100%)" in PPT // TODO: deprecate and add `transparency`
 	/**
 	 * blur (points)
 	 * - range: 0-100
 	 * @default 0
 	 */
-	blur?: number
+	blur?: number;
 	/**
 	 * angle (degrees)
 	 * - range: 0-359
 	 * @default 0
 	 */
-	angle?: number
+	angle?: number;
 	/**
 	 * shadow offset (points)
 	 * - range: 0-200
 	 * @default 0
 	 */
-	offset?: number // TODO: "Distance" in PPT
+	offset?: number; // TODO: "Distance" in PPT
 	/**
 	 * shadow color (hex format)
 	 * @example 'FF3399'
 	 */
-	color?: HexColor
+	color?: HexColor;
 	/**
 	 * whether to rotate shadow with shape
 	 * @default false
 	 */
-	rotateWithShape?: boolean
+	rotateWithShape?: boolean;
 }
 // used by: shape, table, text
 export interface ShapeFillProps {
@@ -178,47 +178,47 @@ export interface ShapeFillProps {
 	 * @example 'FF0000' // hex color (red)
 	 * @example pptx.SchemeColor.text1 // Theme color (Text1)
 	 */
-	color?: Color
+	color?: Color;
 	/**
 	 * Transparency (percent)
 	 * - MS-PPT > Format Shape > Fill & Line > Fill > Transparency
 	 * - range: 0-100
 	 * @default 0
 	 */
-	transparency?: number
+	transparency?: number;
 	/**
 	 * Fill type
 	 * @default 'solid'
 	 */
-	type?: 'none' | 'solid'
+	type?: 'none' | 'solid';
 
 	/**
 	 * Transparency (percent)
 	 * @deprecated v3.3.0 - use `transparency`
 	 */
-	alpha?: number
+	alpha?: number;
 }
 export interface ShapeLineProps extends ShapeFillProps {
 	/**
 	 * Line width (pt)
 	 * @default 1
 	 */
-	width?: number
+	width?: number;
 	/**
 	 * Dash type
 	 * @default 'solid'
 	 */
-	dashType?: 'solid' | 'dash' | 'dashDot' | 'lgDash' | 'lgDashDot' | 'lgDashDotDot' | 'sysDash' | 'sysDot'
+	dashType?: 'solid' | 'dash' | 'dashDot' | 'lgDash' | 'lgDashDot' | 'lgDashDotDot' | 'sysDash' | 'sysDot';
 	/**
 	 * Begin arrow type
 	 * @since v3.3.0
 	 */
-	beginArrowType?: 'none' | 'arrow' | 'diamond' | 'oval' | 'stealth' | 'triangle'
+	beginArrowType?: 'none' | 'arrow' | 'diamond' | 'oval' | 'stealth' | 'triangle';
 	/**
 	 * End arrow type
 	 * @since v3.3.0
 	 */
-	endArrowType?: 'none' | 'arrow' | 'diamond' | 'oval' | 'stealth' | 'triangle'
+	endArrowType?: 'none' | 'arrow' | 'diamond' | 'oval' | 'stealth' | 'triangle';
 	// FUTURE: beginArrowSize (1-9)
 	// FUTURE: endArrowSize (1-9)
 
@@ -226,25 +226,25 @@ export interface ShapeLineProps extends ShapeFillProps {
 	 * Dash type
 	 * @deprecated v3.3.0 - use `dashType`
 	 */
-	lineDash?: 'solid' | 'dash' | 'dashDot' | 'lgDash' | 'lgDashDot' | 'lgDashDotDot' | 'sysDash' | 'sysDot'
+	lineDash?: 'solid' | 'dash' | 'dashDot' | 'lgDash' | 'lgDashDot' | 'lgDashDotDot' | 'sysDash' | 'sysDot';
 	/**
 	 * @deprecated v3.3.0 - use `beginArrowType`
 	 */
-	lineHead?: 'none' | 'arrow' | 'diamond' | 'oval' | 'stealth' | 'triangle'
+	lineHead?: 'none' | 'arrow' | 'diamond' | 'oval' | 'stealth' | 'triangle';
 	/**
 	 * @deprecated v3.3.0 - use `endArrowType`
 	 */
-	lineTail?: 'none' | 'arrow' | 'diamond' | 'oval' | 'stealth' | 'triangle'
+	lineTail?: 'none' | 'arrow' | 'diamond' | 'oval' | 'stealth' | 'triangle';
 	/**
 	 * Line width (pt)
 	 * @deprecated v3.3.0 - use `width`
 	 */
-	pt?: number
+	pt?: number;
 	/**
 	 * Line size (pt)
 	 * @deprecated v3.3.0 - use `width`
 	 */
-	size?: number
+	size?: number;
 }
 // used by: chart, slide, table, text
 export interface TextBaseProps {
@@ -252,24 +252,24 @@ export interface TextBaseProps {
 	 * Horizontal alignment
 	 * @default 'left'
 	 */
-	align?: HAlign
+	align?: HAlign;
 	/**
 	 * Bold style
 	 * @default false
 	 */
-	bold?: boolean
+	bold?: boolean;
 	/**
 	 * Add a line-break
 	 * @default false
 	 */
-	breakLine?: boolean
+	breakLine?: boolean;
 	/**
 	 * Add standard or custom bullet
 	 * - use `true` for standard bullet
 	 * - pass object options for custom bullet
 	 * @default false
 	 */
-	bullet?: boolean | TextBulletProps
+	bullet?: boolean | TextBulletProps;
 	/**
 	 * Text color
 	 * - `HexColor` or `ThemeColor`
@@ -277,46 +277,46 @@ export interface TextBaseProps {
 	 * @example 'FF0000' // hex color (red)
 	 * @example pptx.SchemeColor.text1 // Theme color (Text1)
 	 */
-	color?: Color
+	color?: Color;
 	/**
 	 * Font face name
 	 * @example 'Arial' // Arial font
 	 */
-	fontFace?: string
+	fontFace?: string;
 	/**
 	 * Font size
 	 * @example 12 // Font size 12
 	 */
-	fontSize?: number
+	fontSize?: number;
 	/**
 	 * Text highlight color (hex format)
 	 * @example 'FFFF00' // yellow
 	 */
-	highlight?: HexColor
+	highlight?: HexColor;
 	/**
 	 * italic style
 	 * @default false
 	 */
-	italic?: boolean
+	italic?: boolean;
 	/**
 	 * language
 	 * - ISO 639-1 standard language code
 	 * @default 'en-US' // english US
 	 * @example 'fr-CA' // french Canadian
 	 */
-	lang?: string
+	lang?: string;
 	/**
 	 * Add a soft line-break (shift+enter) before line text content
 	 * @default false
 	 * @since v3.5.0
 	 */
-	softBreakBefore?: boolean
+	softBreakBefore?: boolean;
 	/**
 	 * tab stops
 	 * - PowerPoint: Paragraph > Tabs > Tab stop position
 	 * @example [{ position:1 }, { position:3 }] // Set first tab stop to 1 inch, set second tab stop to 3 inches
 	 */
-	tabStops?: Array<{ position: number, alignment?: 'l' | 'r' | 'ctr' | 'dec' }>
+	tabStops?: Array<{ position: number; alignment?: 'l' | 'r' | 'ctr' | 'dec' }>;
 	/**
 	 * text direction
 	 * `horz` = horizontal
@@ -325,14 +325,14 @@ export interface TextBaseProps {
 	 * `wordArtVert` = stacked
 	 * @default 'horz'
 	 */
-	textDirection?: 'horz' | 'vert' | 'vert270' | 'wordArtVert'
+	textDirection?: 'horz' | 'vert' | 'vert270' | 'wordArtVert';
 	/**
 	 * Transparency (percent)
 	 * - MS-PPT > Format Shape > Text Options > Text Fill & Outline > Text Fill > Transparency
 	 * - range: 0-100
 	 * @default 0
 	 */
-	transparency?: number
+	transparency?: number;
 	/**
 	 * underline properties
 	 * - PowerPoint: Font > Color & Underline > Underline Style/Underline Color
@@ -356,22 +356,22 @@ export interface TextBaseProps {
 		| 'sng'
 		| 'wavy'
 		| 'wavyDbl'
-		| 'wavyHeavy'
-		color?: Color
-	}
+		| 'wavyHeavy';
+		color?: Color;
+	};
 	/**
 	 * vertical alignment
 	 * @default 'top'
 	 */
-	valign?: VAlign
+	valign?: VAlign;
 }
 export interface PlaceholderProps extends PositionProps, TextBaseProps {
-	name: string
-	type: PLACEHOLDER_TYPE
+	name: string;
+	type: PLACEHOLDER_TYPE;
 	/**
 	 * margin (points)
 	 */
-	margin?: Margin
+	margin?: Margin;
 }
 export interface ObjectNameProps {
 	/**
@@ -382,7 +382,7 @@ export interface ObjectNameProps {
 	 * @default 'Object 1'
 	 * @example 'Antenna Design 9'
 	 */
-	objectName?: string
+	objectName?: string;
 }
 export interface ThemeProps {
 	/**
@@ -390,66 +390,66 @@ export interface ThemeProps {
 	 * @example 'Arial Narrow'
 	 * @default 'Calibri Light'
 	 */
-	headFontFace?: string
+	headFontFace?: string;
 	/**
 	 * Body font face name
 	 * @example 'Arial'
 	 * @default 'Calibri'
 	 */
-	bodyFontFace?: string
+	bodyFontFace?: string;
 	/**
 	 * Hyperlink color
 	 * @example '0563C1'
 	 */
-	hyperlinkColor?: string
+	hyperlinkColor?: string;
 }
 
 // image / media ==================================================================================
-export type MediaType = 'audio' | 'online' | 'video'
+export type MediaType = 'audio' | 'online' | 'video';
 
 export interface ImageProps extends PositionProps, DataOrPathProps, ObjectNameProps {
 	/**
 	 * Alt Text value ("How would you describe this object and its contents to someone who is blind?")
 	 * - PowerPoint: [right-click on an image] > "Edit Alt Text..."
 	 */
-	altText?: string
+	altText?: string;
 	/**
 	 * Flip horizontally?
 	 * @default false
 	 */
-	flipH?: boolean
+	flipH?: boolean;
 	/**
 	 * Flip vertical?
 	 * @default false
 	 */
-	flipV?: boolean
-	hyperlink?: HyperlinkProps
+	flipV?: boolean;
+	hyperlink?: HyperlinkProps;
 	/**
 	 * Placeholder type
 	 * - values: 'body' | 'header' | 'footer' | 'title' | et. al.
 	 * @example 'body'
 	 * @see https://docs.microsoft.com/en-us/office/vba/api/powerpoint.ppplaceholdertype
 	 */
-	placeholder?: string
+	placeholder?: string;
 	/**
 	 * Image rotation (degrees)
 	 * - range: -360 to 360
 	 * @default 0
 	 * @example 180 // rotate image 180 degrees
 	 */
-	rotate?: number
+	rotate?: number;
 	/**
 	 * Enable image rounding
 	 * @default false
 	 */
-	rounding?: boolean
+	rounding?: boolean;
 	/**
 	 * Shadow Props
 	 * - MS-PPT > Format Picture > Shadow
 	 * @example
 	 * { type: 'outer', color: '000000', opacity: 0.5, blur: 20,  offset: 20, angle: 270 }
 	 */
-	shadow?: ShadowProps
+	shadow?: ShadowProps;
 	/**
 	 * Image sizing options
 	 */
@@ -457,21 +457,21 @@ export interface ImageProps extends PositionProps, DataOrPathProps, ObjectNamePr
 		/**
 		 * Sizing type
 		 */
-		type: 'contain' | 'cover' | 'crop'
+		type: 'contain' | 'cover' | 'crop';
 		/**
 		 * Image width
 		 * - inches or percentage
 		 * @example 10.25 // position in inches
 		 * @example '75%' // position as percentage of slide size
 		 */
-		w: Coord
+		w: Coord;
 		/**
 		 * Image height
 		 * - inches or percentage
 		 * @example 10.25 // position in inches
 		 * @example '75%' // position as percentage of slide size
 		 */
-		h: Coord
+		h: Coord;
 		/**
 		 * Offset from left to crop image
 		 * - `crop` only
@@ -479,7 +479,7 @@ export interface ImageProps extends PositionProps, DataOrPathProps, ObjectNamePr
 		 * @example 10.25 // position in inches
 		 * @example '75%' // position as percentage of slide size
 		 */
-		x?: Coord
+		x?: Coord;
 		/**
 		 * Offset from top to crop image
 		 * - `crop` only
@@ -487,8 +487,8 @@ export interface ImageProps extends PositionProps, DataOrPathProps, ObjectNamePr
 		 * @example 10.25 // position in inches
 		 * @example '75%' // position as percentage of slide size
 		 */
-		y?: Coord
-	}
+		y?: Coord;
+	};
 	/**
 	 * Transparency (percent)
 	 * - MS-PPT > Format Picture > Picture > Picture Transparency > Transparency
@@ -496,7 +496,7 @@ export interface ImageProps extends PositionProps, DataOrPathProps, ObjectNamePr
 	 * @default 0
 	 * @example 25 // 25% transparent
 	 */
-	transparency?: number
+	transparency?: number;
 }
 /**
  * Add media (audio/video) to slide
@@ -507,33 +507,33 @@ export interface MediaProps extends PositionProps, DataOrPathProps, ObjectNamePr
 	 * Media type
 	 * - Use 'online' to embed a YouTube video (only supported in recent versions of PowerPoint)
 	 */
-	type: MediaType
+	type: MediaType;
 	/**
 	 * Cover image
 	 * @since 3.9.0
 	 * @default "play button" image, gray background
 	 */
-	cover?: string
+	cover?: string;
 	/**
 	 * media file extension
 	 * - use when the media file path does not already have an extension, ex: "/folder/SomeSong"
 	 * @since 3.9.0
 	 * @default extension from file provided
 	 */
-	extn?: string
+	extn?: string;
 	/**
 	 * video embed link
 	 * - works with YouTube
 	 * - other sites may not show correctly in PowerPoint
 	 * @example 'https://www.youtube.com/embed/Dph6ynRVyUc' // embed a youtube video
 	 */
-	link?: string
+	link?: string;
 	/**
 	 * full or local path
 	 * @example 'https://freesounds/simpsons/bart.mp3' // embed mp3 audio clip from server
 	 * @example '/sounds/simpsons_haha.mp3' // embed mp3 audio clip from local directory
 	 */
-	path?: string
+	path?: string;
 }
 
 // shapes =========================================================================================
@@ -543,7 +543,7 @@ export interface ShapeProps extends PositionProps, ObjectNameProps {
 	 * Horizontal alignment
 	 * @default 'left'
 	 */
-	align?: HAlign
+	align?: HAlign;
 	/**
 	 * Radius (only for pptx.shapes.PIE, pptx.shapes.ARC, pptx.shapes.BLOCK_ARC)
 	 * - In the case of pptx.shapes.BLOCK_ARC you have to setup the arcThicknessRatio
@@ -551,7 +551,7 @@ export interface ShapeProps extends PositionProps, ObjectNameProps {
 	 * @since v3.4.0
 	 * @default [270, 0]
 	 */
-	angleRange?: [number, number]
+	angleRange?: [number, number];
 	/**
 	 * Radius (only for pptx.shapes.BLOCK_ARC)
 	 * - You have to setup the angleRange values too
@@ -559,33 +559,33 @@ export interface ShapeProps extends PositionProps, ObjectNameProps {
 	 * @since v3.4.0
 	 * @default 0.5
 	 */
-	arcThicknessRatio?: number
+	arcThicknessRatio?: number;
 	/**
 	 * Shape fill color properties
 	 * @example { color:'FF0000' } // hex color (red)
 	 * @example { color:'0088CC', transparency:50 } // hex color, 50% transparent
 	 * @example { color:pptx.SchemeColor.accent1 } // Theme color Accent1
 	 */
-	fill?: ShapeFillProps
+	fill?: ShapeFillProps;
 	/**
 	 * Flip shape horizontally?
 	 * @default false
 	 */
-	flipH?: boolean
+	flipH?: boolean;
 	/**
 	 * Flip shape vertical?
 	 * @default false
 	 */
-	flipV?: boolean
+	flipV?: boolean;
 	/**
 	 * Add hyperlink to shape
 	 * @example hyperlink: { url: "https://github.com/gitbrent/pptxgenjs", tooltip: "Visit Homepage" },
 	 */
-	hyperlink?: HyperlinkProps
+	hyperlink?: HyperlinkProps;
 	/**
 	 * Line options
 	 */
-	line?: ShapeLineProps
+	line?: ShapeLineProps;
 	/**
 	 * Points (only for pptx.shapes.CUSTOM_GEOMETRY)
 	 * - type: 'arc'
@@ -597,58 +597,58 @@ export interface ShapeProps extends PositionProps, ObjectNameProps {
 	 * @example [{ x: 0, y: 0 }, { x: 10, y: 10 }] // draw a line between those two points
 	 */
 	points?: Array<
-	| { x: Coord, y: Coord, moveTo?: boolean }
-	| { x: Coord, y: Coord, curve: { type: 'arc', hR: Coord, wR: Coord, stAng: number, swAng: number } }
-	| { x: Coord, y: Coord, curve: { type: 'cubic', x1: Coord, y1: Coord, x2: Coord, y2: Coord } }
-	| { x: Coord, y: Coord, curve: { type: 'quadratic', x1: Coord, y1: Coord } }
+	| { x: Coord; y: Coord; moveTo?: boolean }
+	| { x: Coord; y: Coord; curve: { type: 'arc'; hR: Coord; wR: Coord; stAng: number; swAng: number } }
+	| { x: Coord; y: Coord; curve: { type: 'cubic'; x1: Coord; y1: Coord; x2: Coord; y2: Coord } }
+	| { x: Coord; y: Coord; curve: { type: 'quadratic'; x1: Coord; y1: Coord } }
 	| { close: true }
-	>
+	>;
 	/**
 	 * Rounded rectangle radius (only for pptx.shapes.ROUNDED_RECTANGLE)
 	 * - values: 0.0 to 1.0
 	 * @default 0
 	 */
-	rectRadius?: number
+	rectRadius?: number;
 	/**
 	 * Rotation (degrees)
 	 * - range: -360 to 360
 	 * @default 0
 	 * @example 180 // rotate 180 degrees
 	 */
-	rotate?: number
+	rotate?: number;
 	/**
 	 * Shadow options
 	 * TODO: need new demo.js entry for shape shadow
 	 */
-	shadow?: ShadowProps
+	shadow?: ShadowProps;
 
 	/**
 	 * @deprecated v3.3.0
 	 */
-	lineSize?: number
+	lineSize?: number;
 	/**
 	 * @deprecated v3.3.0
 	 */
-	lineDash?: 'dash' | 'dashDot' | 'lgDash' | 'lgDashDot' | 'lgDashDotDot' | 'solid' | 'sysDash' | 'sysDot'
+	lineDash?: 'dash' | 'dashDot' | 'lgDash' | 'lgDashDot' | 'lgDashDotDot' | 'solid' | 'sysDash' | 'sysDot';
 	/**
 	 * @deprecated v3.3.0
 	 */
-	lineHead?: 'arrow' | 'diamond' | 'none' | 'oval' | 'stealth' | 'triangle'
+	lineHead?: 'arrow' | 'diamond' | 'none' | 'oval' | 'stealth' | 'triangle';
 	/**
 	 * @deprecated v3.3.0
 	 */
-	lineTail?: 'arrow' | 'diamond' | 'none' | 'oval' | 'stealth' | 'triangle'
+	lineTail?: 'arrow' | 'diamond' | 'none' | 'oval' | 'stealth' | 'triangle';
 	/**
 	 * Shape name (used instead of default "Shape N" name)
 	 * @deprecated v3.10.0 - use `objectName`
 	 */
-	shapeName?: string
+	shapeName?: string;
 }
 
 // tables =========================================================================================
 
 export interface TableToSlidesProps extends TableProps {
-	_arrObjTabHeadRows?: TableRow[]
+	_arrObjTabHeadRows?: TableRow[];
 	// _masterSlide?: SlideLayout
 
 	/**
@@ -657,25 +657,25 @@ export interface TableToSlidesProps extends TableProps {
 	 * - see `DataOrPathProps` for details on `image` props
 	 * - see `PositionProps` for details on `options` props
 	 */
-	addImage?: { image: DataOrPathProps, options: PositionProps }
+	addImage?: { image: DataOrPathProps; options: PositionProps };
 	/**
 	 * Add a shape to slide(s) created during autopaging
 	 */
-	addShape?: { shapeName: SHAPE_NAME, options: ShapeProps }
+	addShape?: { shapeName: SHAPE_NAME; options: ShapeProps };
 	/**
 	 * Add a table to slide(s) created during autopaging
 	 */
-	addTable?: { rows: TableRow[], options: TableProps }
+	addTable?: { rows: TableRow[]; options: TableProps };
 	/**
 	 * Add a text object to slide(s) created during autopaging
 	 */
-	addText?: { text: TextProps[], options: TextPropsOptions }
+	addText?: { text: TextProps[]; options: TextPropsOptions };
 	/**
 	 * Whether to enable auto-paging
 	 * - auto-paging creates new slides as content overflows a slide
 	 * @default true
 	 */
-	autoPage?: boolean
+	autoPage?: boolean;
 	/**
 	 * Auto-paging character weight
 	 * - adjusts how many characters are used before lines wrap
@@ -684,7 +684,7 @@ export interface TableToSlidesProps extends TableProps {
 	 * @default 0.0
 	 * @example 0.5 // lines are longer (increases the number of characters that can fit on a given line)
 	 */
-	autoPageCharWeight?: number
+	autoPageCharWeight?: number;
 	/**
 	 * Auto-paging line weight
 	 * - adjusts how many lines are used before slides wrap
@@ -693,42 +693,42 @@ export interface TableToSlidesProps extends TableProps {
 	 * @default 0.0
 	 * @example 0.5 // tables are taller (increases the number of lines that can fit on a given slide)
 	 */
-	autoPageLineWeight?: number
+	autoPageLineWeight?: number;
 	/**
 	 * Whether to repeat head row(s) on new tables created by autopaging
 	 * @since v3.3.0
 	 * @default false
 	 */
-	autoPageRepeatHeader?: boolean
+	autoPageRepeatHeader?: boolean;
 	/**
 	 * The `y` location to use on subsequent slides created by autopaging
 	 * @default (top margin of Slide)
 	 */
-	autoPageSlideStartY?: number
+	autoPageSlideStartY?: number;
 	/**
 	 * Column widths (inches)
 	 */
-	colW?: number | number[]
+	colW?: number | number[];
 	/**
 	 * Master slide name
 	 * - define a master slide to have your auto-paged slides have corporate design, etc.
 	 * @see https://gitbrent.github.io/PptxGenJS/docs/masters.html
 	 */
-	masterSlideName?: string
+	masterSlideName?: string;
 	/**
 	 * Slide margin
 	 * - this margin will be across all slides created by auto-paging
 	 */
-	slideMargin?: Margin
+	slideMargin?: Margin;
 
 	/**
 	 * @deprecated v3.3.0 - use `autoPageRepeatHeader`
 	 */
-	addHeaderToEach?: boolean
+	addHeaderToEach?: boolean;
 	/**
 	 * @deprecated v3.3.0 - use `autoPageSlideStartY`
 	 */
-	newSlideStartY?: number
+	newSlideStartY?: number;
 }
 export interface TableCellProps extends TextBaseProps {
 	/**
@@ -739,7 +739,7 @@ export interface TableCellProps extends TextBaseProps {
 	 * @default 0.0
 	 * @example 0.5 // lines are longer (increases the number of characters that can fit on a given line)
 	 */
-	autoPageCharWeight?: number
+	autoPageCharWeight?: number;
 	/**
 	 * Auto-paging line weight
 	 * - adjusts how many lines are used before slides wrap
@@ -748,42 +748,42 @@ export interface TableCellProps extends TextBaseProps {
 	 * @default 0.0
 	 * @example 0.5 // tables are taller (increases the number of lines that can fit on a given slide)
 	 */
-	autoPageLineWeight?: number
+	autoPageLineWeight?: number;
 	/**
 	 * Cell border
 	 */
-	border?: BorderProps | [BorderProps, BorderProps, BorderProps, BorderProps]
+	border?: BorderProps | [BorderProps, BorderProps, BorderProps, BorderProps];
 	/**
 	 * Cell colspan
 	 */
-	colspan?: number
+	colspan?: number;
 	/**
 	 * Fill color
 	 * @example { color:'FF0000' } // hex color (red)
 	 * @example { color:'0088CC', transparency:50 } // hex color, 50% transparent
 	 * @example { color:pptx.SchemeColor.accent1 } // theme color Accent1
 	 */
-	fill?: ShapeFillProps
-	hyperlink?: HyperlinkProps
+	fill?: ShapeFillProps;
+	hyperlink?: HyperlinkProps;
 	/**
 	 * Cell margin (inches)
 	 * @default 0
 	 */
-	margin?: Margin
+	margin?: Margin;
 	/**
 	 * Cell rowspan
 	 */
-	rowspan?: number
+	rowspan?: number;
 }
 export interface TableProps extends PositionProps, TextBaseProps, ObjectNameProps {
-	_arrObjTabHeadRows?: TableRow[]
+	_arrObjTabHeadRows?: TableRow[];
 
 	/**
 	 * Whether to enable auto-paging
 	 * - auto-paging creates new slides as content overflows a slide
 	 * @default false
 	 */
-	autoPage?: boolean
+	autoPage?: boolean;
 	/**
 	 * Auto-paging character weight
 	 * - adjusts how many characters are used before lines wrap
@@ -792,7 +792,7 @@ export interface TableProps extends PositionProps, TextBaseProps, ObjectNameProp
 	 * @default 0.0
 	 * @example 0.5 // lines are longer (increases the number of characters that can fit on a given line)
 	 */
-	autoPageCharWeight?: number
+	autoPageCharWeight?: number;
 	/**
 	 * Auto-paging line weight
 	 * - adjusts how many lines are used before slides wrap
@@ -801,14 +801,14 @@ export interface TableProps extends PositionProps, TextBaseProps, ObjectNameProp
 	 * @default 0.0
 	 * @example 0.5 // tables are taller (increases the number of lines that can fit on a given slide)
 	 */
-	autoPageLineWeight?: number
+	autoPageLineWeight?: number;
 	/**
 	 * Whether table header row(s) should be repeated on each new slide creating by autoPage.
 	 * Use `autoPageHeaderRows` to designate how many rows comprise the table header (1+).
 	 * @default false
 	 * @since v3.3.0
 	 */
-	autoPageRepeatHeader?: boolean
+	autoPageRepeatHeader?: boolean;
 	/**
 	 * Number of rows that comprise table headers
 	 * - required when `autoPageRepeatHeader` is set to true.
@@ -816,76 +816,76 @@ export interface TableProps extends PositionProps, TextBaseProps, ObjectNameProp
 	 * @default 1
 	 * @since v3.3.0
 	 */
-	autoPageHeaderRows?: number
+	autoPageHeaderRows?: number;
 	/**
 	 * The `y` location to use on subsequent slides created by autopaging
 	 * @default (top margin of Slide)
 	 */
-	autoPageSlideStartY?: number
+	autoPageSlideStartY?: number;
 	/**
 	 * Table border
 	 * - single value is applied to all 4 sides
 	 * - array of values in TRBL order for individual sides
 	 */
-	border?: BorderProps | [BorderProps, BorderProps, BorderProps, BorderProps]
+	border?: BorderProps | [BorderProps, BorderProps, BorderProps, BorderProps];
 	/**
 	 * Width of table columns (inches)
 	 * - single value is applied to every column equally based upon `w`
 	 * - array of values in applied to each column in order
 	 * @default columns of equal width based upon `w`
 	 */
-	colW?: number | number[]
+	colW?: number | number[];
 	/**
 	 * Cell background color
 	 * @example { color:'FF0000' } // hex color (red)
 	 * @example { color:'0088CC', transparency:50 } // hex color, 50% transparent
 	 * @example { color:pptx.SchemeColor.accent1 } // theme color Accent1
 	 */
-	fill?: ShapeFillProps
+	fill?: ShapeFillProps;
 	/**
 	 * Cell margin (inches)
 	 * - affects all table cells, is superceded by cell options
 	 */
-	margin?: Margin
+	margin?: Margin;
 	/**
 	 * Height of table rows (inches)
 	 * - single value is applied to every row equally based upon `h`
 	 * - array of values in applied to each row in order
 	 * @default rows of equal height based upon `h`
 	 */
-	rowH?: number | number[]
+	rowH?: number | number[];
 	/**
 	 * DEV TOOL: Verbose Mode (to console)
 	 * - tell the library to provide an almost ridiculous amount of detail during auto-paging calculations
 	 * @default false // obviously
 	 */
-	verbose?: boolean // Undocumented; shows verbose output
+	verbose?: boolean; // Undocumented; shows verbose output
 
 	/**
 	 * @deprecated v3.3.0 - use `autoPageSlideStartY`
 	 */
-	newSlideStartY?: number
+	newSlideStartY?: number;
 }
 export interface TableCell {
-	_type: SLIDE_OBJECT_TYPES.tablecell
+	_type: SLIDE_OBJECT_TYPES.tablecell;
 	/** lines in this cell (autoPage) */
-	_lines?: TableCell[][]
+	_lines?: TableCell[][];
 	/** `text` prop but guaranteed to hold "TableCell[]" */
-	_tableCells?: TableCell[]
+	_tableCells?: TableCell[];
 	/** height in EMU */
-	_lineHeight?: number
-	_hmerge?: boolean
-	_vmerge?: boolean
-	_rowContinue?: number
-	_optImp?: any
+	_lineHeight?: number;
+	_hmerge?: boolean;
+	_vmerge?: boolean;
+	_rowContinue?: number;
+	_optImp?: any;
 
-	text?: string | TableCell[] // TODO: FUTURE: 20210815: ONly allow `TableCell[]` dealing with string|TableCell[] *SUCKS*
-	options?: TableCellProps
+	text?: string | TableCell[]; // TODO: FUTURE: 20210815: ONly allow `TableCell[]` dealing with string|TableCell[] *SUCKS*
+	options?: TableCellProps;
 }
 export interface TableRowSlide {
-	rows: TableRow[]
+	rows: TableRow[];
 }
-export type TableRow = TableCell[]
+export type TableRow = TableCell[];
 
 // text ===========================================================================================
 export interface TextGlowProps {
@@ -893,17 +893,17 @@ export interface TextGlowProps {
 	 * Border color (hex format)
 	 * @example 'FF3399'
 	 */
-	color?: HexColor
+	color?: HexColor;
 	/**
 	 * opacity (0.0 - 1.0)
 	 * @example 0.5
 	 * 50% opaque
 	 */
-	opacity?: number
+	opacity?: number;
 	/**
 	 * size (points)
 	 */
-	size: number
+	size: number;
 }
 
 export interface TextBulletProps {
@@ -911,34 +911,34 @@ export interface TextBulletProps {
 	 * Bullet type
 	 * @default bullet
 	 */
-	type?: 'bullet' | 'char' | 'checkbox' | 'number' | 'none'
+	type?: 'bullet' | 'char' | 'checkbox' | 'number' | 'none';
 	/**
 	 * Bullet character code (unicode)
 	 * @since v3.3.0
 	 * @example '25BA' // 'BLACK RIGHT-POINTING POINTER' (U+25BA)
 	 */
-	characterCode?: string
+	characterCode?: string;
 	/**
 	 * Border color (hex format)
 	 * @example 'FF3399'
 	 */
-	color?: HexColor
+	color?: HexColor;
 	/**
 	 * Bullet icon image as base64-encoded string
 	 * (also used for checkbox bullets)
 	 */
-	icon?: string
+	icon?: string;
 	/**
 	 * Indentation (space between bullet and text) (points)
 	 * @since v3.3.0
 	 * @default 27 // DEF_BULLET_MARGIN
 	 * @example 10 // Indents text 10 points from bullet
 	 */
-	indent?: number
+	indent?: number;
 	/**
 	 * MarginLeft - Sets the left margin (points)
 	 */
-	marginLeft?: number
+	marginLeft?: number;
 	/**
 	 * Number type
 	 * @since v3.3.0
@@ -960,14 +960,14 @@ export interface TextBulletProps {
 	| 'romanLcPeriod'
 	| 'romanUcParenBoth'
 	| 'romanUcParenR'
-	| 'romanUcPeriod'
+	| 'romanUcPeriod';
 	/**
 	 * Number bullets start at
 	 * @since v3.3.0
 	 * @default 1
 	 * @example 10 // numbered bullets start with 10
 	 */
-	numberStartAt?: number
+	numberStartAt?: number;
 
 	// DEPRECATED
 
@@ -975,45 +975,45 @@ export interface TextBulletProps {
 	 * Bullet code (unicode)
 	 * @deprecated v3.3.0 - use `characterCode`
 	 */
-	code?: string
+	code?: string;
 	/**
 	 * Margin between bullet and text
 	 * @since v3.2.1
 	 * @deplrecated v3.3.0 - use `indent`
 	 */
-	marginPt?: number
+	marginPt?: number;
 	/**
 	 * Number to start with (only applies to type:number)
 	 * @deprecated v3.3.0 - use `numberStartAt`
 	 */
-	startAt?: number
+	startAt?: number;
 	/**
 	 * Number type
 	 * @deprecated v3.3.0 - use `numberType`
 	 */
-	style?: string
+	style?: string;
 }
 
 export interface TextPropsOptions extends PositionProps, DataOrPathProps, TextBaseProps, ObjectNameProps {
 	_bodyProp?: {
 		// Note: Many of these duplicated as user options are transformed to _bodyProp options for XML processing
-		autoFit?: boolean
-		align?: TEXT_HALIGN
-		anchor?: TEXT_VALIGN
-		lIns?: number
-		rIns?: number
-		tIns?: number
-		bIns?: number
-		vert?: 'eaVert' | 'horz' | 'mongolianVert' | 'vert' | 'vert270' | 'wordArtVert' | 'wordArtVertRtl'
-		wrap?: boolean
-	}
-	_lineIdx?: number
+		autoFit?: boolean;
+		align?: TEXT_HALIGN;
+		anchor?: TEXT_VALIGN;
+		lIns?: number;
+		rIns?: number;
+		tIns?: number;
+		bIns?: number;
+		vert?: 'eaVert' | 'horz' | 'mongolianVert' | 'vert' | 'vert270' | 'wordArtVert' | 'wordArtVertRtl';
+		wrap?: boolean;
+	};
+	_lineIdx?: number;
 
-	baseline?: number
+	baseline?: number;
 	/**
 	 * Character spacing
 	 */
-	charSpacing?: number
+	charSpacing?: number;
 	/**
 	 * Text fit options
 	 *
@@ -1029,35 +1029,35 @@ export interface TextPropsOptions extends PositionProps, DataOrPathProps, TextBa
 	 * @since v3.3.0
 	 * @default "none"
 	 */
-	fit?: 'none' | 'shrink' | 'resize'
+	fit?: 'none' | 'shrink' | 'resize';
 	/**
 	 * Shape fill
 	 * @example { color:'FF0000' } // hex color (red)
 	 * @example { color:'0088CC', transparency:50 } // hex color, 50% transparent
 	 * @example { color:pptx.SchemeColor.accent1 } // theme color Accent1
 	 */
-	fill?: ShapeFillProps
+	fill?: ShapeFillProps;
 	/**
 	 * Flip shape horizontally?
 	 * @default false
 	 */
-	flipH?: boolean
+	flipH?: boolean;
 	/**
 	 * Flip shape vertical?
 	 * @default false
 	 */
-	flipV?: boolean
-	glow?: TextGlowProps
-	hyperlink?: HyperlinkProps
-	indentLevel?: number
-	isTextBox?: boolean
-	line?: ShapeLineProps
+	flipV?: boolean;
+	glow?: TextGlowProps;
+	hyperlink?: HyperlinkProps;
+	indentLevel?: number;
+	isTextBox?: boolean;
+	line?: ShapeLineProps;
 	/**
 	 * Line spacing (pt)
 	 * - PowerPoint: Paragraph > Indents and Spacing > Line Spacing: > "Exactly"
 	 * @example 28 // 28pt
 	 */
-	lineSpacing?: number
+	lineSpacing?: number;
 	/**
 	 * line spacing multiple (percent)
 	 * - range: 0.0-9.99
@@ -1065,7 +1065,7 @@ export interface TextPropsOptions extends PositionProps, DataOrPathProps, TextBa
 	 * @example 1.5 // 1.5X line spacing
 	 * @since v3.5.0
 	 */
-	lineSpacingMultiple?: number
+	lineSpacingMultiple?: number;
 	// TODO: [20220219] powerpoint uses inches but library has always been pt... @future @deprecated - update in v4.0? [range: 0.0-22.0]
 	/**
 	 * Margin (points)
@@ -1075,83 +1075,83 @@ export interface TextPropsOptions extends PositionProps, DataOrPathProps, TextBa
 	 * @example 10 // Top/Right/Bottom/Left margin 10 [0.14" in powerpoint]
 	 * @example [10,5,10,5] // Top margin 10, Right margin 5, Bottom margin 10, Left margin 5
 	 */
-	margin?: Margin
-	outline?: { color: Color, size: number }
-	paraSpaceAfter?: number
-	paraSpaceBefore?: number
-	placeholder?: string
+	margin?: Margin;
+	outline?: { color: Color; size: number };
+	paraSpaceAfter?: number;
+	paraSpaceBefore?: number;
+	placeholder?: string;
 	/**
 	 * Rounded rectangle radius (only for pptx.shapes.ROUNDED_RECTANGLE)
 	 * - values: 0.0 to 1.0
 	 * @default 0
 	 */
-	rectRadius?: number
+	rectRadius?: number;
 	/**
 	 * Rotation (degrees)
 	 * - range: -360 to 360
 	 * @default 0
 	 * @example 180 // rotate 180 degrees
 	 */
-	rotate?: number
+	rotate?: number;
 	/**
 	 * Whether to enable right-to-left mode
 	 * @default false
 	 */
-	rtlMode?: boolean
-	shadow?: ShadowProps
-	shape?: SHAPE_NAME
-	strike?: boolean | 'dblStrike' | 'sngStrike'
-	subscript?: boolean
-	superscript?: boolean
+	rtlMode?: boolean;
+	shadow?: ShadowProps;
+	shape?: SHAPE_NAME;
+	strike?: boolean | 'dblStrike' | 'sngStrike';
+	subscript?: boolean;
+	superscript?: boolean;
 	/**
 	 * Vertical alignment
 	 * @default middle
 	 */
-	valign?: VAlign
-	vert?: 'eaVert' | 'horz' | 'mongolianVert' | 'vert' | 'vert270' | 'wordArtVert' | 'wordArtVertRtl'
+	valign?: VAlign;
+	vert?: 'eaVert' | 'horz' | 'mongolianVert' | 'vert' | 'vert270' | 'wordArtVert' | 'wordArtVertRtl';
 	/**
 	 * Text wrap
 	 * @since v3.3.0
 	 * @default true
 	 */
-	wrap?: boolean
+	wrap?: boolean;
 
 	/**
 	 * Whether "Fit to Shape?" is enabled
 	 * @deprecated v3.3.0 - use `fit`
 	 */
-	autoFit?: boolean
+	autoFit?: boolean;
 	/**
 	 * Whather "Shrink Text on Overflow?" is enabled
 	 * @deprecated v3.3.0 - use `fit`
 	 */
-	shrinkText?: boolean
+	shrinkText?: boolean;
 	/**
 	 * Inset
 	 * @deprecated v3.10.0 - use `margin`
 	 */
-	inset?: number
+	inset?: number;
 	/**
 	 * Dash type
 	 * @deprecated v3.3.0 - use `line.dashType`
 	 */
-	lineDash?: 'solid' | 'dash' | 'dashDot' | 'lgDash' | 'lgDashDot' | 'lgDashDotDot' | 'sysDash' | 'sysDot'
+	lineDash?: 'solid' | 'dash' | 'dashDot' | 'lgDash' | 'lgDashDot' | 'lgDashDotDot' | 'sysDash' | 'sysDot';
 	/**
 	 * @deprecated v3.3.0 - use `line.beginArrowType`
 	 */
-	lineHead?: 'none' | 'arrow' | 'diamond' | 'oval' | 'stealth' | 'triangle'
+	lineHead?: 'none' | 'arrow' | 'diamond' | 'oval' | 'stealth' | 'triangle';
 	/**
 	 * @deprecated v3.3.0 - use `line.width`
 	 */
-	lineSize?: number
+	lineSize?: number;
 	/**
 	 * @deprecated v3.3.0 - use `line.endArrowType`
 	 */
-	lineTail?: 'none' | 'arrow' | 'diamond' | 'oval' | 'stealth' | 'triangle'
+	lineTail?: 'none' | 'arrow' | 'diamond' | 'oval' | 'stealth' | 'triangle';
 }
 export interface TextProps {
-	text?: string
-	options?: TextPropsOptions
+	text?: string;
+	options?: TextPropsOptions;
 }
 
 // charts =========================================================================================
@@ -1164,11 +1164,11 @@ export interface OptsDataLabelPosition {
 }
 */
 
-export type ChartAxisTickMark = 'none' | 'inside' | 'outside' | 'cross'
-export type ChartLineCap = 'flat' | 'round' | 'square'
+export type ChartAxisTickMark = 'none' | 'inside' | 'outside' | 'cross';
+export type ChartLineCap = 'flat' | 'round' | 'square';
 
 export interface OptsChartData {
-	_dataIndex?: number
+	_dataIndex?: number;
 
 	/**
 	 * category labels
@@ -1176,22 +1176,22 @@ export interface OptsChartData {
 	 * @example [['Year 2000', 'Year 2010', 'Year 2020'], ['Decades', '', '']] // multi-level category axes labels
 	 * @since `labels` string[][] type added v3.11.0
 	 */
-	labels?: string[] | string[][]
+	labels?: string[] | string[][];
 	/**
 	 * series name
 	 * @example 'Locations'
 	 */
-	name?: string
+	name?: string;
 	/**
 	 * bubble sizes
 	 * @example [5, 1, 5, 1]
 	 */
-	sizes?: number[]
+	sizes?: number[];
 	/**
 	 * category values
 	 * @example [2000, 2010, 2020]
 	 */
-	values?: number[]
+	values?: number[];
 	/**
 	 * Override `chartColors`
 	 */
@@ -1199,7 +1199,7 @@ export interface OptsChartData {
 }
 // Used internally, probably shouldn't be used by end users
 export interface IOptsChartData extends OptsChartData {
-	labels?: string[][]
+	labels?: string[][];
 }
 export interface OptsChartGridLine {
 	/**
@@ -1207,40 +1207,40 @@ export interface OptsChartGridLine {
 	 * - line cap type
 	 * @default flat
 	 */
-	cap?: ChartLineCap
+	cap?: ChartLineCap;
 	/**
 	 * Gridline color (hex)
 	 * @example 'FF3399'
 	 */
-	color?: HexColor
+	color?: HexColor;
 	/**
 	 * Gridline size (points)
 	 */
-	size?: number
+	size?: number;
 	/**
 	 * Gridline style
 	 */
-	style?: 'solid' | 'dash' | 'dot' | 'none'
+	style?: 'solid' | 'dash' | 'dot' | 'none';
 }
 // TODO: 202008: chart types remain with predicated with "I" in v3.3.0 (ran out of time!)
 export interface IChartMulti {
-	type: CHART_NAME
-	data: IOptsChartData[]
-	options: IChartOptsLib
+	type: CHART_NAME;
+	data: IOptsChartData[];
+	options: IChartOptsLib;
 }
 export interface IChartPropsFillLine {
 	/**
 	 * PowerPoint: Format Chart Area/Plot > Border ["Line"]
 	 * @example border: {color: 'FF0000', pt: 1} // hex RGB color, 1 pt line
 	 */
-	border?: BorderProps
+	border?: BorderProps;
 	/**
 	 * PowerPoint: Format Chart Area/Plot Area > Fill
 	 * @example fill: {color: '696969'} // hex RGB color value
 	 * @example fill: {color: pptx.SchemeColor.background2} // Theme color value
 	 * @example fill: {transparency: 50} // 50% transparency
 	 */
-	fill?: ShapeFillProps
+	fill?: ShapeFillProps;
 }
 export interface IChartAreaProps extends IChartPropsFillLine {
 	/**
@@ -1249,56 +1249,56 @@ export interface IChartAreaProps extends IChartPropsFillLine {
 	 * @default true
 	 * @since v3.11
 	 */
-	roundedCorners?: boolean
+	roundedCorners?: boolean;
 }
 export interface IChartPropsBase {
 	/**
 	 * Axis position
 	 */
-	axisPos?: 'b' | 'l' | 'r' | 't'
-	chartColors?: HexColor[]
+	axisPos?: 'b' | 'l' | 'r' | 't';
+	chartColors?: HexColor[];
 	/**
 	 * opacity (0 - 100)
 	 * @example 50 // 50% opaque
 	 */
-	chartColorsOpacity?: number
-	dataBorder?: BorderProps
-	displayBlanksAs?: string
-	invertedColors?: HexColor[]
-	lang?: string
-	layout?: PositionProps
-	shadow?: ShadowProps
+	chartColorsOpacity?: number;
+	dataBorder?: BorderProps;
+	displayBlanksAs?: string;
+	invertedColors?: HexColor[];
+	lang?: string;
+	layout?: PositionProps;
+	shadow?: ShadowProps;
 	/**
 	 * @default false
 	 */
-	showLabel?: boolean
-	showLeaderLines?: boolean
+	showLabel?: boolean;
+	showLeaderLines?: boolean;
 	/**
 	 * @default false
 	 */
-	showLegend?: boolean
+	showLegend?: boolean;
 	/**
 	 * @default false
 	 */
-	showPercent?: boolean
+	showPercent?: boolean;
 	/**
 	 * @default false
 	 */
-	showSerName?: boolean
+	showSerName?: boolean;
 	/**
 	 * @default false
 	 */
-	showTitle?: boolean
+	showTitle?: boolean;
 	/**
 	 * @default false
 	 */
-	showValue?: boolean
+	showValue?: boolean;
 	/**
 	 * 3D Perspecitve
 	 * - range: 0-120
 	 * @default 30
 	 */
-	v3DPerspective?: number
+	v3DPerspective?: number;
 	/**
 	 * Right Angle Axes
 	 * - Shows chart from first-person perspective
@@ -1306,157 +1306,157 @@ export interface IChartPropsBase {
 	 * - PowerPoint: Chart Options > 3-D Rotation
 	 * @default false
 	 */
-	v3DRAngAx?: boolean
+	v3DRAngAx?: boolean;
 	/**
 	 * X Rotation
 	 * - PowerPoint: Chart Options > 3-D Rotation
 	 * - range: 0-359.9
 	 * @default 30
 	 */
-	v3DRotX?: number
+	v3DRotX?: number;
 	/**
 	 * Y Rotation
 	 * - range: 0-359.9
 	 * @default 30
 	 */
-	v3DRotY?: number
+	v3DRotY?: number;
 
 	/**
 	 * PowerPoint: Format Chart Area (Fill & Border/Line)
 	 * @since v3.11
 	 */
-	chartArea?: IChartAreaProps
+	chartArea?: IChartAreaProps;
 	/**
 	 * PowerPoint: Format Plot Area (Fill & Border/Line)
 	 * @since v3.11
 	 */
-	plotArea?: IChartPropsFillLine
+	plotArea?: IChartPropsFillLine;
 
 	/**
 	 * @deprecated v3.11.0 - use `plotArea.border`
 	 */
-	border?: BorderProps
+	border?: BorderProps;
 	/**
 	 * @deprecated v3.11.0 - use `plotArea.fill`
 	 */
-	fill?: HexColor
+	fill?: HexColor;
 }
 export interface IChartPropsAxisCat {
 	/**
 	 * Multi-Chart prop: array of cat axes
 	 */
-	catAxes?: IChartPropsAxisCat[]
-	catAxisBaseTimeUnit?: string
-	catAxisCrossesAt?: number | 'autoZero'
-	catAxisHidden?: boolean
-	catAxisLabelColor?: string
-	catAxisLabelFontBold?: boolean
-	catAxisLabelFontFace?: string
-	catAxisLabelFontItalic?: boolean
-	catAxisLabelFontSize?: number
-	catAxisLabelFrequency?: string
-	catAxisLabelPos?: 'none' | 'low' | 'high' | 'nextTo'
-	catAxisLabelRotate?: number
-	catAxisLineColor?: string
-	catAxisLineShow?: boolean
-	catAxisLineSize?: number
-	catAxisLineStyle?: 'solid' | 'dash' | 'dot'
-	catAxisMajorTickMark?: ChartAxisTickMark
-	catAxisMajorTimeUnit?: string
-	catAxisMajorUnit?: number
-	catAxisMaxVal?: number
-	catAxisMinorTickMark?: ChartAxisTickMark
-	catAxisMinorTimeUnit?: string
-	catAxisMinorUnit?: number
-	catAxisMinVal?: number
+	catAxes?: IChartPropsAxisCat[];
+	catAxisBaseTimeUnit?: string;
+	catAxisCrossesAt?: number | 'autoZero';
+	catAxisHidden?: boolean;
+	catAxisLabelColor?: string;
+	catAxisLabelFontBold?: boolean;
+	catAxisLabelFontFace?: string;
+	catAxisLabelFontItalic?: boolean;
+	catAxisLabelFontSize?: number;
+	catAxisLabelFrequency?: string;
+	catAxisLabelPos?: 'none' | 'low' | 'high' | 'nextTo';
+	catAxisLabelRotate?: number;
+	catAxisLineColor?: string;
+	catAxisLineShow?: boolean;
+	catAxisLineSize?: number;
+	catAxisLineStyle?: 'solid' | 'dash' | 'dot';
+	catAxisMajorTickMark?: ChartAxisTickMark;
+	catAxisMajorTimeUnit?: string;
+	catAxisMajorUnit?: number;
+	catAxisMaxVal?: number;
+	catAxisMinorTickMark?: ChartAxisTickMark;
+	catAxisMinorTimeUnit?: string;
+	catAxisMinorUnit?: number;
+	catAxisMinVal?: number;
 	/** @since v3.11.0 */
-	catAxisMultiLevelLabels?: boolean
-	catAxisOrientation?: 'minMax'
-	catAxisTitle?: string
-	catAxisTitleColor?: string
-	catAxisTitleFontFace?: string
-	catAxisTitleFontSize?: number
-	catAxisTitleRotate?: number
-	catGridLine?: OptsChartGridLine
-	catLabelFormatCode?: string
+	catAxisMultiLevelLabels?: boolean;
+	catAxisOrientation?: 'minMax';
+	catAxisTitle?: string;
+	catAxisTitleColor?: string;
+	catAxisTitleFontFace?: string;
+	catAxisTitleFontSize?: number;
+	catAxisTitleRotate?: number;
+	catGridLine?: OptsChartGridLine;
+	catLabelFormatCode?: string;
 	/**
 	 * Whether data should use secondary category axis (instead of primary)
 	 * @default false
 	 */
-	secondaryCatAxis?: boolean
-	showCatAxisTitle?: boolean
+	secondaryCatAxis?: boolean;
+	showCatAxisTitle?: boolean;
 }
 export interface IChartPropsAxisSer {
-	serAxisBaseTimeUnit?: string
-	serAxisHidden?: boolean
-	serAxisLabelColor?: string
-	serAxisLabelFontBold?: boolean
-	serAxisLabelFontFace?: string
-	serAxisLabelFontItalic?: boolean
-	serAxisLabelFontSize?: number
-	serAxisLabelFrequency?: string
-	serAxisLabelPos?: 'none' | 'low' | 'high' | 'nextTo'
-	serAxisLineColor?: string
-	serAxisLineShow?: boolean
-	serAxisMajorTimeUnit?: string
-	serAxisMajorUnit?: number
-	serAxisMinorTimeUnit?: string
-	serAxisMinorUnit?: number
-	serAxisOrientation?: string
-	serAxisTitle?: string
-	serAxisTitleColor?: string
-	serAxisTitleFontFace?: string
-	serAxisTitleFontSize?: number
-	serAxisTitleRotate?: number
-	serGridLine?: OptsChartGridLine
-	serLabelFormatCode?: string
-	showSerAxisTitle?: boolean
+	serAxisBaseTimeUnit?: string;
+	serAxisHidden?: boolean;
+	serAxisLabelColor?: string;
+	serAxisLabelFontBold?: boolean;
+	serAxisLabelFontFace?: string;
+	serAxisLabelFontItalic?: boolean;
+	serAxisLabelFontSize?: number;
+	serAxisLabelFrequency?: string;
+	serAxisLabelPos?: 'none' | 'low' | 'high' | 'nextTo';
+	serAxisLineColor?: string;
+	serAxisLineShow?: boolean;
+	serAxisMajorTimeUnit?: string;
+	serAxisMajorUnit?: number;
+	serAxisMinorTimeUnit?: string;
+	serAxisMinorUnit?: number;
+	serAxisOrientation?: string;
+	serAxisTitle?: string;
+	serAxisTitleColor?: string;
+	serAxisTitleFontFace?: string;
+	serAxisTitleFontSize?: number;
+	serAxisTitleRotate?: number;
+	serGridLine?: OptsChartGridLine;
+	serLabelFormatCode?: string;
+	showSerAxisTitle?: boolean;
 }
 export interface IChartPropsAxisVal {
 	/**
 	 * Whether data should use secondary value axis (instead of primary)
 	 * @default false
 	 */
-	secondaryValAxis?: boolean
-	showValAxisTitle?: boolean
+	secondaryValAxis?: boolean;
+	showValAxisTitle?: boolean;
 	/**
 	 * Multi-Chart prop: array of val axes
 	 */
-	valAxes?: IChartPropsAxisVal[]
-	valAxisCrossesAt?: number | 'autoZero'
-	valAxisDisplayUnit?: 'billions' | 'hundredMillions' | 'hundreds' | 'hundredThousands' | 'millions' | 'tenMillions' | 'tenThousands' | 'thousands' | 'trillions'
-	valAxisDisplayUnitLabel?: boolean
-	valAxisHidden?: boolean
-	valAxisLabelColor?: string
-	valAxisLabelFontBold?: boolean
-	valAxisLabelFontFace?: string
-	valAxisLabelFontItalic?: boolean
-	valAxisLabelFontSize?: number
-	valAxisLabelFormatCode?: string
-	valAxisLabelPos?: 'none' | 'low' | 'high' | 'nextTo'
-	valAxisLabelRotate?: number
-	valAxisLineColor?: string
-	valAxisLineShow?: boolean
-	valAxisLineSize?: number
-	valAxisLineStyle?: 'solid' | 'dash' | 'dot'
+	valAxes?: IChartPropsAxisVal[];
+	valAxisCrossesAt?: number | 'autoZero';
+	valAxisDisplayUnit?: 'billions' | 'hundredMillions' | 'hundreds' | 'hundredThousands' | 'millions' | 'tenMillions' | 'tenThousands' | 'thousands' | 'trillions';
+	valAxisDisplayUnitLabel?: boolean;
+	valAxisHidden?: boolean;
+	valAxisLabelColor?: string;
+	valAxisLabelFontBold?: boolean;
+	valAxisLabelFontFace?: string;
+	valAxisLabelFontItalic?: boolean;
+	valAxisLabelFontSize?: number;
+	valAxisLabelFormatCode?: string;
+	valAxisLabelPos?: 'none' | 'low' | 'high' | 'nextTo';
+	valAxisLabelRotate?: number;
+	valAxisLineColor?: string;
+	valAxisLineShow?: boolean;
+	valAxisLineSize?: number;
+	valAxisLineStyle?: 'solid' | 'dash' | 'dot';
 	/**
 	 * PowerPoint: Format Axis > Axis Options > Logarithmic scale - Base
 	 * - range: 2-99
 	 * @since v3.5.0
 	 */
-	valAxisLogScaleBase?: number
-	valAxisMajorTickMark?: ChartAxisTickMark
-	valAxisMajorUnit?: number
-	valAxisMaxVal?: number
-	valAxisMinorTickMark?: ChartAxisTickMark
-	valAxisMinVal?: number
-	valAxisOrientation?: 'minMax'
-	valAxisTitle?: string
-	valAxisTitleColor?: string
-	valAxisTitleFontFace?: string
-	valAxisTitleFontSize?: number
-	valAxisTitleRotate?: number
-	valGridLine?: OptsChartGridLine
+	valAxisLogScaleBase?: number;
+	valAxisMajorTickMark?: ChartAxisTickMark;
+	valAxisMajorUnit?: number;
+	valAxisMaxVal?: number;
+	valAxisMinorTickMark?: ChartAxisTickMark;
+	valAxisMinVal?: number;
+	valAxisOrientation?: 'minMax';
+	valAxisTitle?: string;
+	valAxisTitleColor?: string;
+	valAxisTitleFontFace?: string;
+	valAxisTitleFontSize?: number;
+	valAxisTitleRotate?: number;
+	valGridLine?: OptsChartGridLine;
 	/**
 	 * Value label format code
 	 * - this also directs Data Table formatting
@@ -1465,20 +1465,20 @@ export interface IChartPropsAxisVal {
 	 * @example '0.00%' // shows values as '0.00%'
 	 * @example '$0.00' // shows values as '$0.00'
 	 */
-	valLabelFormatCode?: string
+	valLabelFormatCode?: string;
 }
 export interface IChartPropsChartBar {
-	bar3DShape?: string
-	barDir?: string
-	barGapDepthPct?: number
+	bar3DShape?: string;
+	barDir?: string;
+	barGapDepthPct?: number;
 	/**
 	 * MS-PPT > Format chart > Format Data Point > Series Options >  "Gap Width"
 	 * - width (percent)
 	 * - range: `0`-`500`
 	 * @default 150
 	 */
-	barGapWidthPct?: number
-	barGrouping?: string
+	barGapWidthPct?: number;
+	barGrouping?: string;
 	/**
 	 * MS-PPT > Format chart > Format Data Point > Series Options >  "Series Overlap"
 	 * - overlap (percent)
@@ -1486,11 +1486,11 @@ export interface IChartPropsChartBar {
 	 * @since v3.9.0
 	 * @default 0
 	 */
-	barOverlapPct?: number
+	barOverlapPct?: number;
 }
 export interface IChartPropsChartDoughnut {
-	dataNoEffects?: boolean
-	holeSize?: number
+	dataNoEffects?: boolean;
+	holeSize?: number;
 }
 export interface IChartPropsChartLine {
 	/**
@@ -1498,54 +1498,54 @@ export interface IChartPropsChartLine {
 	 * - line cap type
 	 * @default flat
 	 */
-	lineCap?: ChartLineCap
+	lineCap?: ChartLineCap;
 	/**
 	 * MS-PPT > Chart format > Format Data Series > Marker Options > Built-in > Type
 	 * - line dash type
 	 * @default solid
 	 */
-	lineDash?: 'dash' | 'dashDot' | 'lgDash' | 'lgDashDot' | 'lgDashDotDot' | 'solid' | 'sysDash' | 'sysDot'
+	lineDash?: 'dash' | 'dashDot' | 'lgDash' | 'lgDashDot' | 'lgDashDotDot' | 'solid' | 'sysDash' | 'sysDot';
 	/**
 	 * MS-PPT > Chart format > Format Data Series > Marker Options > Built-in > Type
 	 * - marker type
 	 * @default circle
 	 */
-	lineDataSymbol?: 'circle' | 'dash' | 'diamond' | 'dot' | 'none' | 'square' | 'triangle'
+	lineDataSymbol?: 'circle' | 'dash' | 'diamond' | 'dot' | 'none' | 'square' | 'triangle';
 	/**
 	 * MS-PPT > Chart format > Format Data Series > [Marker Options] > Border > Color
 	 * - border color
 	 * @default circle
 	 */
-	lineDataSymbolLineColor?: string
+	lineDataSymbolLineColor?: string;
 	/**
 	 * MS-PPT > Chart format > Format Data Series > [Marker Options] > Border > Width
 	 * - border width (points)
 	 * @default 0.75
 	 */
-	lineDataSymbolLineSize?: number
+	lineDataSymbolLineSize?: number;
 	/**
 	 * MS-PPT > Chart format > Format Data Series > Marker Options > Built-in > Size
 	 * - marker size
 	 * - range: 2-72
 	 * @default 6
 	 */
-	lineDataSymbolSize?: number
+	lineDataSymbolSize?: number;
 	/**
 	 * MS-PPT > Chart format > Format Data Series > Line > Width
 	 * - line width (points)
 	 * - range: 0-1584
 	 * @default 2
 	 */
-	lineSize?: number
+	lineSize?: number;
 	/**
 	 * MS-PPT > Chart format > Format Data Series > Line > Smoothed line
 	 * - "Smoothed line"
 	 * @default false
 	 */
-	lineSmooth?: boolean
+	lineSmooth?: boolean;
 }
 export interface IChartPropsChartPie {
-	dataNoEffects?: boolean
+	dataNoEffects?: boolean;
 	/**
 	 * MS-PPT > Format chart > Format Data Series > Series Options >  "Angle of first slice"
 	 * - angle (degrees)
@@ -1553,7 +1553,7 @@ export interface IChartPropsChartPie {
 	 * @since v3.4.0
 	 * @default 0
 	 */
-	firstSliceAng?: number
+	firstSliceAng?: number;
 }
 export interface IChartPropsChartRadar {
 	/**
@@ -1561,27 +1561,27 @@ export interface IChartPropsChartRadar {
 	 * - radar chart type
 	 * @default standard
 	 */
-	radarStyle?: 'standard' | 'marker' | 'filled' // TODO: convert to 'radar'|'markers'|'filled' in 4.0 (verbatim with PPT app UI)
+	radarStyle?: 'standard' | 'marker' | 'filled'; // TODO: convert to 'radar'|'markers'|'filled' in 4.0 (verbatim with PPT app UI)
 }
 export interface IChartPropsDataLabel {
-	dataLabelBkgrdColors?: boolean
-	dataLabelColor?: string
-	dataLabelFontBold?: boolean
-	dataLabelFontFace?: string
-	dataLabelFontItalic?: boolean
-	dataLabelFontSize?: number
+	dataLabelBkgrdColors?: boolean;
+	dataLabelColor?: string;
+	dataLabelFontBold?: boolean;
+	dataLabelFontFace?: string;
+	dataLabelFontItalic?: boolean;
+	dataLabelFontSize?: number;
 	/**
 	 * Data label format code
 	 * @example '#%' // round percent
 	 * @example '0.00%' // shows values as '0.00%'
 	 * @example '$0.00' // shows values as '$0.00'
 	 */
-	dataLabelFormatCode?: string
-	dataLabelFormatScatter?: 'custom' | 'customXY' | 'XY'
-	dataLabelPosition?: 'b' | 'bestFit' | 'ctr' | 'l' | 'r' | 't' | 'inEnd' | 'outEnd'
+	dataLabelFormatCode?: string;
+	dataLabelFormatScatter?: 'custom' | 'customXY' | 'XY';
+	dataLabelPosition?: 'b' | 'bestFit' | 'ctr' | 'l' | 'r' | 't' | 'inEnd' | 'outEnd';
 }
 export interface IChartPropsDataTable {
-	dataTableFontSize?: number
+	dataTableFontSize?: number;
 	/**
 	 * Data table format code
 	 * @since v3.3.0
@@ -1589,32 +1589,32 @@ export interface IChartPropsDataTable {
 	 * @example '0.00%' // shows values as '0.00%'
 	 * @example '$0.00' // shows values as '$0.00'
 	 */
-	dataTableFormatCode?: string
+	dataTableFormatCode?: string;
 	/**
 	 * Whether to show a data table adjacent to the chart
 	 * @default false
 	 */
-	showDataTable?: boolean
-	showDataTableHorzBorder?: boolean
-	showDataTableKeys?: boolean
-	showDataTableOutline?: boolean
-	showDataTableVertBorder?: boolean
+	showDataTable?: boolean;
+	showDataTableHorzBorder?: boolean;
+	showDataTableKeys?: boolean;
+	showDataTableOutline?: boolean;
+	showDataTableVertBorder?: boolean;
 }
 export interface IChartPropsLegend {
-	legendColor?: string
-	legendFontFace?: string
-	legendFontSize?: number
-	legendPos?: 'b' | 'l' | 'r' | 't' | 'tr'
+	legendColor?: string;
+	legendFontFace?: string;
+	legendFontSize?: number;
+	legendPos?: 'b' | 'l' | 'r' | 't' | 'tr';
 }
 export interface IChartPropsTitle extends TextBaseProps {
-	title?: string
-	titleAlign?: string
-	titleBold?: boolean
-	titleColor?: string
-	titleFontFace?: string
-	titleFontSize?: number
-	titlePos?: { x: number, y: number }
-	titleRotate?: number
+	title?: string;
+	titleAlign?: string;
+	titleBold?: boolean;
+	titleColor?: string;
+	titleFontFace?: string;
+	titleFontSize?: number;
+	titlePos?: { x: number; y: number };
+	titleRotate?: number;
 }
 export interface IChartOpts
 	extends IChartPropsAxisCat,
@@ -1637,67 +1637,67 @@ export interface IChartOpts
 	 * Alt Text value ("How would you describe this object and its contents to someone who is blind?")
 	 * - PowerPoint: [right-click on a chart] > "Edit Alt Text..."
 	 */
-	altText?: string
+	altText?: string;
 }
 export interface IChartOptsLib extends IChartOpts {
-	_type?: CHART_NAME | IChartMulti[] // TODO: v3.4.0 - move to `IChartOpts`, remove `IChartOptsLib`
+	_type?: CHART_NAME | IChartMulti[]; // TODO: v3.4.0 - move to `IChartOpts`, remove `IChartOptsLib`
 }
 export interface ISlideRelChart extends OptsChartData {
-	type: CHART_NAME | IChartMulti[]
-	opts: IChartOptsLib
-	data: IOptsChartData[]
+	type: CHART_NAME | IChartMulti[];
+	opts: IChartOptsLib;
+	data: IOptsChartData[];
 	// internal below
-	rId: number
-	Target: string
-	globalId: number
-	fileName: string
+	rId: number;
+	Target: string;
+	globalId: number;
+	fileName: string;
 }
 
 // Core
 // ====
 // PRIVATE vvv
 export interface ISlideRel {
-	type: SLIDE_OBJECT_TYPES
-	Target: string
-	fileName?: string
-	data: any[] | string
-	opts?: IChartOpts
-	path?: string
-	extn?: string
-	globalId?: number
-	rId: number
+	type: SLIDE_OBJECT_TYPES;
+	Target: string;
+	fileName?: string;
+	data: any[] | string;
+	opts?: IChartOpts;
+	path?: string;
+	extn?: string;
+	globalId?: number;
+	rId: number;
 }
 export interface ISlideRelMedia {
-	type: string
-	opts?: MediaProps
-	path?: string
-	extn?: string
-	data?: string | ArrayBuffer
+	type: string;
+	opts?: MediaProps;
+	path?: string;
+	extn?: string;
+	data?: string | ArrayBuffer;
 	/** used to indicate that a media file has already been read/enocded (PERF) */
-	isDuplicate?: boolean
-	isSvgPng?: boolean
-	svgSize?: { w: number, h: number }
-	rId: number
-	Target: string
+	isDuplicate?: boolean;
+	isSvgPng?: boolean;
+	svgSize?: { w: number; h: number };
+	rId: number;
+	Target: string;
 }
 export interface ISlideObject {
-	_type: SLIDE_OBJECT_TYPES
-	options?: ObjectOptions
+	_type: SLIDE_OBJECT_TYPES;
+	options?: ObjectOptions;
 	// text
-	text?: TextProps[]
+	text?: TextProps[];
 	// table
-	arrTabRows?: TableCell[][]
+	arrTabRows?: TableCell[][];
 	// chart
-	chartRid?: number
+	chartRid?: number;
 	// image:
-	image?: string
-	imageRid?: number
-	hyperlink?: HyperlinkProps
+	image?: string;
+	imageRid?: number;
+	hyperlink?: HyperlinkProps;
 	// media
-	media?: string
-	mtype?: MediaType
-	mediaRid?: number
-	shape?: SHAPE_NAME
+	media?: string;
+	mtype?: MediaType;
+	mediaRid?: number;
+	shape?: SHAPE_NAME;
 }
 // PRIVATE ^^^
 
@@ -1707,7 +1707,7 @@ export interface WriteBaseProps {
 	 * @default false
 	 * @since v3.5.0
 	 */
-	compression?: boolean
+	compression?: boolean;
 }
 export interface WriteProps extends WriteBaseProps {
 	/**
@@ -1715,55 +1715,55 @@ export interface WriteProps extends WriteBaseProps {
 	 * - values: 'arraybuffer' | 'base64' | 'binarystring' | 'blob' | 'nodebuffer' | 'uint8array' | 'STREAM'
 	 * @default 'blob'
 	 */
-	outputType?: WRITE_OUTPUT_TYPE
+	outputType?: WRITE_OUTPUT_TYPE;
 }
 export interface WriteFileProps extends WriteBaseProps {
 	/**
 	 * Export file name
 	 * @default 'Presentation.pptx'
 	 */
-	fileName?: string
+	fileName?: string;
 }
 export interface SectionProps {
-	_type: 'user' | 'default'
-	_slides: PresSlide[]
+	_type: 'user' | 'default';
+	_slides: PresSlide[];
 
 	/**
 	 * Section title
 	 */
-	title: string
+	title: string;
 	/**
 	 * Section order - uses to add section at any index
 	 * - values: 1-n
 	 */
-	order?: number
+	order?: number;
 }
 export interface PresLayout {
-	_sizeW?: number
-	_sizeH?: number
+	_sizeW?: number;
+	_sizeH?: number;
 
 	/**
 	 * Layout Name
 	 * @example 'LAYOUT_WIDE'
 	 */
-	name: string
-	width: number
-	height: number
+	name: string;
+	width: number;
+	height: number;
 }
 export interface SlideNumberProps extends PositionProps, TextBaseProps {
 	/**
 	 * margin (points)
 	 */
-	margin?: Margin // TODO: convert to inches in 4.0 (valid values are 0-22)
+	margin?: Margin; // TODO: convert to inches in 4.0 (valid values are 0-22)
 }
 export interface SlideMasterProps {
 	/**
 	 * Unique name for this master
 	 */
-	title: string
-	background?: BackgroundProps
-	margin?: Margin
-	slideNumber?: SlideNumberProps
+	title: string;
+	background?: BackgroundProps;
+	margin?: Margin;
+	slideNumber?: SlideNumberProps;
 	objects?: Array< | { chart: IChartOpts }
 	| { image: ImageProps }
 	| { line: ShapeProps }
@@ -1771,68 +1771,68 @@ export interface SlideMasterProps {
 	| { text: TextProps }
 	| {
 		placeholder: {
-			options: PlaceholderProps
+			options: PlaceholderProps;
 			/**
 			 * Text to be shown in placeholder (shown until user focuses textbox or adds text)
 			 * - Leave blank to have powerpoint show default phrase (ex: "Click to add title")
 			 */
-			text?: string
-		}
-	}>
+			text?: string;
+		};
+	}>;
 
 	/**
 	 * @deprecated v3.3.0 - use `background`
 	 */
-	bkgd?: string | BackgroundProps
+	bkgd?: string | BackgroundProps;
 }
 export interface ObjectOptions extends ImageProps, PositionProps, ShapeProps, TableCellProps, TextPropsOptions {
-	_placeholderIdx?: number
-	_placeholderType?: PLACEHOLDER_TYPE
+	_placeholderIdx?: number;
+	_placeholderType?: PLACEHOLDER_TYPE;
 
-	cx?: Coord
-	cy?: Coord
-	margin?: Margin
-	colW?: number | number[] // table
-	rowH?: number | number[] // table
+	cx?: Coord;
+	cy?: Coord;
+	margin?: Margin;
+	colW?: number | number[]; // table
+	rowH?: number | number[]; // table
 }
 export interface SlideBaseProps {
-	_bkgdImgRid?: number
-	_margin?: Margin
-	_name?: string
-	_presLayout: PresLayout
-	_rels: ISlideRel[]
-	_relsChart: ISlideRelChart[] // needed as we use args:"PresSlide|SlideLayout" often
-	_relsMedia: ISlideRelMedia[] // needed as we use args:"PresSlide|SlideLayout" often
-	_slideNum: number
-	_slideNumberProps?: SlideNumberProps
-	_slideObjects?: ISlideObject[]
+	_bkgdImgRid?: number;
+	_margin?: Margin;
+	_name?: string;
+	_presLayout: PresLayout;
+	_rels: ISlideRel[];
+	_relsChart: ISlideRelChart[]; // needed as we use args:"PresSlide|SlideLayout" often
+	_relsMedia: ISlideRelMedia[]; // needed as we use args:"PresSlide|SlideLayout" often
+	_slideNum: number;
+	_slideNumberProps?: SlideNumberProps;
+	_slideObjects?: ISlideObject[];
 
-	background?: BackgroundProps
+	background?: BackgroundProps;
 	/**
 	 * @deprecated v3.3.0 - use `background`
 	 */
-	bkgd?: string | BackgroundProps
+	bkgd?: string | BackgroundProps;
 }
 export interface SlideLayout extends SlideBaseProps {
 	_slide?: {
-		_bkgdImgRid?: number
-		back: string
-		color: string
-		hidden?: boolean
-	}
+		_bkgdImgRid?: number;
+		back: string;
+		color: string;
+		hidden?: boolean;
+	};
 }
 export interface PresSlide extends SlideBaseProps {
-	_rId: number
-	_slideLayout: SlideLayout
-	_slideId: number
+	_rId: number;
+	_slideLayout: SlideLayout;
+	_slideId: number;
 
-	addChart: (type: CHART_NAME | IChartMulti[], data: IOptsChartData[], options?: IChartOpts) => PresSlide
-	addImage: (options: ImageProps) => PresSlide
-	addMedia: (options: MediaProps) => PresSlide
-	addNotes: (notes: string) => PresSlide
-	addShape: (shapeName: SHAPE_NAME, options?: ShapeProps) => PresSlide
-	addTable: (tableRows: TableRow[], options?: TableProps) => PresSlide
-	addText: (text: string | TextProps[], options?: TextPropsOptions) => PresSlide
+	addChart: (type: CHART_NAME | IChartMulti[], data: IOptsChartData[], options?: IChartOpts) => PresSlide;
+	addImage: (options: ImageProps) => PresSlide;
+	addMedia: (options: MediaProps) => PresSlide;
+	addNotes: (notes: string) => PresSlide;
+	addShape: (shapeName: SHAPE_NAME, options?: ShapeProps) => PresSlide;
+	addTable: (tableRows: TableRow[], options?: TableProps) => PresSlide;
+	addText: (text: string | TextProps[], options?: TextPropsOptions) => PresSlide;
 
 	/**
 	 * Background color or image (`color` | `path` | `data`)
@@ -1843,50 +1843,50 @@ export interface PresSlide extends SlideBaseProps {
 	 * @example { data: 'image/png;base64,iVtDaDrF[...]=' } - base64 string
 	 * @since v3.3.0
 	 */
-	background?: BackgroundProps
+	background?: BackgroundProps;
 	/**
 	 * Default text color (hex format)
 	 * @example 'FF3399'
 	 * @default '000000' (DEF_FONT_COLOR)
 	 */
-	color?: HexColor
+	color?: HexColor;
 	/**
 	 * Whether slide is hidden
 	 * @default false
 	 */
-	hidden?: boolean
+	hidden?: boolean;
 	/**
 	 * Slide number options
 	 */
-	slideNumber?: SlideNumberProps
+	slideNumber?: SlideNumberProps;
 }
 export interface AddSlideProps {
-	masterName?: string // TODO: 20200528: rename to "masterTitle" (createMaster uses `title` so lets be consistent)
-	sectionTitle?: string
+	masterName?: string; // TODO: 20200528: rename to "masterTitle" (createMaster uses `title` so lets be consistent)
+	sectionTitle?: string;
 }
 export interface PresentationProps {
-	author: string
-	company: string
-	layout: string
-	masterSlide: PresSlide
+	author: string;
+	company: string;
+	layout: string;
+	masterSlide: PresSlide;
 	/**
 	 * Presentation's layout
 	 * read-only
 	 */
-	presLayout: PresLayout
-	revision: string
+	presLayout: PresLayout;
+	revision: string;
 	/**
 	 * Whether to enable right-to-left mode
 	 * @default false
 	 */
-	rtlMode: boolean
-	subject: string
-	theme: ThemeProps
-	title: string
+	rtlMode: boolean;
+	subject: string;
+	theme: ThemeProps;
+	title: string;
 }
 // PRIVATE interface
 export interface IPresentationProps extends PresentationProps {
-	sections: SectionProps[]
-	slideLayouts: SlideLayout[]
-	slides: PresSlide[]
+	sections: SectionProps[];
+	slideLayouts: SlideLayout[];
+	slides: PresSlide[];
 }

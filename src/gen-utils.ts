@@ -2,8 +2,8 @@
  * PptxGenJS: Utility Methods
  */
 
-import { EMU, REGEX_HEX_COLOR, DEF_FONT_COLOR, ONEPT, SchemeColor, SCHEME_COLORS } from './core-enums'
-import { PresLayout, TextGlowProps, PresSlide, ShapeFillProps, Color, ShapeLineProps, Coord, ShadowProps } from './core-interfaces'
+import { EMU, REGEX_HEX_COLOR, DEF_FONT_COLOR, ONEPT, SchemeColor, SCHEME_COLORS } from './core-enums';
+import { PresLayout, TextGlowProps, PresSlide, ShapeFillProps, Color, ShapeLineProps, Coord, ShadowProps } from './core-interfaces';
 
 /**
  * Translates any type of `x`/`y`/`w`/`h` prop to EMU
@@ -18,27 +18,27 @@ import { PresLayout, TextGlowProps, PresSlide, ShapeFillProps, Color, ShapeLineP
  */
 export function getSmartParseNumber (size: Coord, xyDir: 'X' | 'Y', layout: PresLayout): number {
 	// FIRST: Convert string numeric value if reqd
-	if (typeof size === 'string' && !isNaN(Number(size))) size = Number(size)
+	if (typeof size === 'string' && !isNaN(Number(size))) size = Number(size);
 
 	// CASE 1: Number in inches
 	// Assume any number less than 100 is inches
-	if (typeof size === 'number' && Math.abs(size) < 100) return inch2Emu(size)
+	if (typeof size === 'number' && Math.abs(size) < 100) return inch2Emu(size);
 
 	// CASE 2: Number is already converted to something other than inches
 	// Assume any number greater than 100 sure isnt inches! Just return it (assume value is EMU already).
-	if (typeof size === 'number' && Math.abs(size) >= 100) return size
+	if (typeof size === 'number' && Math.abs(size) >= 100) return size;
 
 	// CASE 3: Percentage (ex: '50%')
 	if (typeof size === 'string' && size.includes('%')) {
-		if (xyDir && xyDir === 'X') return Math.round((parseFloat(size) / 100) * layout.width)
-		if (xyDir && xyDir === 'Y') return Math.round((parseFloat(size) / 100) * layout.height)
+		if (xyDir && xyDir === 'X') return Math.round((parseFloat(size) / 100) * layout.width);
+		if (xyDir && xyDir === 'Y') return Math.round((parseFloat(size) / 100) * layout.height);
 
 		// Default: Assume width (x/cx)
-		return Math.round((parseFloat(size) / 100) * layout.width)
+		return Math.round((parseFloat(size) / 100) * layout.width);
 	}
 
 	// LAST: Default value
-	return 0
+	return 0;
 }
 
 /**
@@ -49,10 +49,10 @@ export function getSmartParseNumber (size: Coord, xyDir: 'X' | 'Y', layout: Pres
  */
 export function getUuid (uuidFormat: string): string {
 	return uuidFormat.replace(/[xy]/g, function (c) {
-		const r = (Math.random() * 16) | 0
-		const v = c === 'x' ? r : (r & 0x3) | 0x8
-		return v.toString(16)
-	})
+		const r = (Math.random() * 16) | 0;
+		const v = c === 'x' ? r : (r & 0x3) | 0x8;
+		return v.toString(16);
+	});
 }
 
 /**
@@ -62,8 +62,8 @@ export function getUuid (uuidFormat: string): string {
  */
 export function encodeXmlEntities (xml: string): string {
 	// NOTE: Dont use short-circuit eval here as value c/b "0" (zero) etc.!
-	if (typeof xml === 'undefined' || xml == null) return ''
-	return xml.toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;')
+	if (typeof xml === 'undefined' || xml == null) return '';
+	return xml.toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 }
 
 /**
@@ -74,9 +74,9 @@ export function encodeXmlEntities (xml: string): string {
 export function inch2Emu (inches: number | string): number {
 	// NOTE: Provide Caller Safety: Numbers may get conv<->conv during flight, so be kind and do some simple checks to ensure inches were passed
 	// Any value over 100 damn sure isnt inches, so lets assume its in EMU already, therefore, just return the same value
-	if (typeof inches === 'number' && inches > 100) return inches
-	if (typeof inches === 'string') inches = Number(inches.replace(/in*/gi, ''))
-	return Math.round(EMU * inches)
+	if (typeof inches === 'number' && inches > 100) return inches;
+	if (typeof inches === 'string') inches = Number(inches.replace(/in*/gi, ''));
+	return Math.round(EMU * inches);
 }
 
 /**
@@ -85,8 +85,8 @@ export function inch2Emu (inches: number | string): number {
  * @returns {number} value in points (`ONEPT`)
  */
 export function valToPts (pt: number | string): number {
-	const points = Number(pt) || 0
-	return isNaN(points) ? 0 : Math.round(points * ONEPT)
+	const points = Number(pt) || 0;
+	return isNaN(points) ? 0 : Math.round(points * ONEPT);
 }
 
 /**
@@ -95,8 +95,8 @@ export function valToPts (pt: number | string): number {
  * @returns {number} calculated `rot` value
  */
 export function convertRotationDegrees (d: number): number {
-	d = d || 0
-	return Math.round((d > 360 ? d - 360 : d) * 60000)
+	d = d || 0;
+	return Math.round((d > 360 ? d - 360 : d) * 60000);
 }
 
 /**
@@ -105,8 +105,8 @@ export function convertRotationDegrees (d: number): number {
  * @returns {string} hex string
  */
 export function componentToHex (c: number): string {
-	const hex = c.toString(16)
-	return hex.length === 1 ? '0' + hex : hex
+	const hex = c.toString(16);
+	return hex.length === 1 ? '0' + hex : hex;
 }
 
 /**
@@ -117,7 +117,7 @@ export function componentToHex (c: number): string {
  * @returns {string} XML string
  */
 export function rgbToHex (r: number, g: number, b: number): string {
-	return (componentToHex(r) + componentToHex(g) + componentToHex(b)).toUpperCase()
+	return (componentToHex(r) + componentToHex(g) + componentToHex(b)).toUpperCase();
 }
 
 /**  TODO: FUTURE: TODO-4.0:
@@ -134,7 +134,7 @@ export function rgbToHex (r: number, g: number, b: number): string {
  * @returns {string} XML string
  */
 export function createColorElement (colorStr: string | SCHEME_COLORS, innerElements?: string): string {
-	let colorVal = (colorStr || '').replace('#', '')
+	let colorVal = (colorStr || '').replace('#', '');
 
 	if (
 		!REGEX_HEX_COLOR.test(colorVal) &&
@@ -149,14 +149,14 @@ export function createColorElement (colorStr: string | SCHEME_COLORS, innerEleme
 		colorVal !== SchemeColor.accent5 &&
 		colorVal !== SchemeColor.accent6
 	) {
-		console.warn(`"${colorVal}" is not a valid scheme color or hex RGB! "${DEF_FONT_COLOR}" used instead. Only provide 6-digit RGB or 'pptx.SchemeColor' values!`)
-		colorVal = DEF_FONT_COLOR
+		console.warn(`"${colorVal}" is not a valid scheme color or hex RGB! "${DEF_FONT_COLOR}" used instead. Only provide 6-digit RGB or 'pptx.SchemeColor' values!`);
+		colorVal = DEF_FONT_COLOR;
 	}
 
-	const tagName = REGEX_HEX_COLOR.test(colorVal) ? 'srgbClr' : 'schemeClr'
-	const colorAttr = 'val="' + (REGEX_HEX_COLOR.test(colorVal) ? colorVal.toUpperCase() : colorVal) + '"'
+	const tagName = REGEX_HEX_COLOR.test(colorVal) ? 'srgbClr' : 'schemeClr';
+	const colorAttr = 'val="' + (REGEX_HEX_COLOR.test(colorVal) ? colorVal.toUpperCase() : colorVal) + '"';
 
-	return innerElements ? `<a:${tagName} ${colorAttr}>${innerElements}</a:${tagName}>` : `<a:${tagName} ${colorAttr}/>`
+	return innerElements ? `<a:${tagName} ${colorAttr}>${innerElements}</a:${tagName}>` : `<a:${tagName} ${colorAttr}/>`;
 }
 
 /**
@@ -167,17 +167,17 @@ export function createColorElement (colorStr: string | SCHEME_COLORS, innerEleme
  * { size: 8, color: 'FFFFFF', opacity: 0.75 };
  */
 export function createGlowElement (options: TextGlowProps, defaults: TextGlowProps): string {
-	let strXml = ''
-	const opts = { ...defaults, ...options }
-	const size = Math.round(opts.size * ONEPT)
-	const color = opts.color
-	const opacity = Math.round(opts.opacity * 100000)
+	let strXml = '';
+	const opts = { ...defaults, ...options };
+	const size = Math.round(opts.size * ONEPT);
+	const color = opts.color;
+	const opacity = Math.round(opts.opacity * 100000);
 
-	strXml += `<a:glow rad="${size}">`
-	strXml += createColorElement(color, `<a:alpha val="${opacity}"/>`)
-	strXml += '</a:glow>'
+	strXml += `<a:glow rad="${size}">`;
+	strXml += createColorElement(color, `<a:alpha val="${opacity}"/>`);
+	strXml += '</a:glow>';
 
-	return strXml
+	return strXml;
 }
 
 /**
@@ -186,31 +186,31 @@ export function createGlowElement (options: TextGlowProps, defaults: TextGlowPro
  * @returns XML string
  */
 export function genXmlColorSelection (props: Color | ShapeFillProps | ShapeLineProps): string {
-	let fillType = 'solid'
-	let colorVal = ''
-	let internalElements = ''
-	let outText = ''
+	let fillType = 'solid';
+	let colorVal = '';
+	let internalElements = '';
+	let outText = '';
 
 	if (props) {
-		if (typeof props === 'string') colorVal = props
+		if (typeof props === 'string') colorVal = props;
 		else {
-			if (props.type) fillType = props.type
-			if (props.color) colorVal = props.color
-			if (props.alpha) internalElements += `<a:alpha val="${Math.round((100 - props.alpha) * 1000)}"/>` // DEPRECATED: @deprecated v3.3.0
-			if (props.transparency) internalElements += `<a:alpha val="${Math.round((100 - props.transparency) * 1000)}"/>`
+			if (props.type) fillType = props.type;
+			if (props.color) colorVal = props.color;
+			if (props.alpha) internalElements += `<a:alpha val="${Math.round((100 - props.alpha) * 1000)}"/>`; // DEPRECATED: @deprecated v3.3.0
+			if (props.transparency) internalElements += `<a:alpha val="${Math.round((100 - props.transparency) * 1000)}"/>`;
 		}
 
 		switch (fillType) {
 			case 'solid':
-				outText += `<a:solidFill>${createColorElement(colorVal, internalElements)}</a:solidFill>`
-				break
+				outText += `<a:solidFill>${createColorElement(colorVal, internalElements)}</a:solidFill>`;
+				break;
 			default: // @note need a statement as having only "break" is removed by rollup, then tiggers "no-default" js-linter
-				outText += ''
-				break
+				outText += '';
+				break;
 		}
 	}
 
-	return outText
+	return outText;
 }
 
 /**
@@ -219,7 +219,7 @@ export function genXmlColorSelection (props: Color | ShapeFillProps | ShapeLineP
  * @returns {number} count of all current rels plus 1 for the caller to use as its "rId"
  */
 export function getNewRelId (target: PresSlide): number {
-	return target._rels.length + target._relsChart.length + target._relsMedia.length + 1
+	return target._rels.length + target._relsChart.length + target._relsMedia.length + 1;
 }
 
 /**
@@ -229,18 +229,18 @@ export function getNewRelId (target: PresSlide): number {
  * @returns {string} 8-character hex hash
  */
 export function hashImageData (str: string): string {
-	let hash1 = 5381
-	let hash2 = 52711
+	let hash1 = 5381;
+	let hash2 = 52711;
 
 	for (let i = 0; i < str.length; i++) {
-		const char = str.charCodeAt(i)
-		hash1 = ((hash1 << 5) + hash1) ^ char
-		hash2 = ((hash2 << 5) + hash2) ^ char
+		const char = str.charCodeAt(i);
+		hash1 = ((hash1 << 5) + hash1) ^ char;
+		hash2 = ((hash2 << 5) + hash2) ^ char;
 	}
 
 	// Combine both hashes and convert to unsigned 32-bit, then to hex
-	const combined = (hash1 >>> 0) ^ (hash2 >>> 0)
-	return combined.toString(16).padStart(8, '0')
+	const combined = (hash1 >>> 0) ^ (hash2 >>> 0);
+	return combined.toString(16).padStart(8, '0');
 }
 
 /**
@@ -250,47 +250,47 @@ export function hashImageData (str: string): string {
 export function correctShadowOptions (ShadowProps: ShadowProps): ShadowProps | undefined {
 	if (!ShadowProps || typeof ShadowProps !== 'object') {
 		// console.warn("`shadow` options must be an object. Ex: `{shadow: {type:'none'}}`")
-		return
+		return;
 	}
 
 	// OPT: `type`
 	if (ShadowProps.type !== 'outer' && ShadowProps.type !== 'inner' && ShadowProps.type !== 'none') {
-		console.warn('Warning: shadow.type options are `outer`, `inner` or `none`.')
-		ShadowProps.type = 'outer'
+		console.warn('Warning: shadow.type options are `outer`, `inner` or `none`.');
+		ShadowProps.type = 'outer';
 	}
 
 	// OPT: `angle`
 	if (ShadowProps.angle) {
 		// A: REALITY-CHECK
 		if (isNaN(Number(ShadowProps.angle)) || ShadowProps.angle < 0 || ShadowProps.angle > 359) {
-			console.warn('Warning: shadow.angle can only be 0-359')
-			ShadowProps.angle = 270
+			console.warn('Warning: shadow.angle can only be 0-359');
+			ShadowProps.angle = 270;
 		}
 
 		// B: ROBUST: Cast any type of valid arg to int: '12', 12.3, etc. -> 12
-		ShadowProps.angle = Math.round(Number(ShadowProps.angle))
+		ShadowProps.angle = Math.round(Number(ShadowProps.angle));
 	}
 
 	// OPT: `opacity`
 	if (ShadowProps.opacity) {
 		// A: REALITY-CHECK
 		if (isNaN(Number(ShadowProps.opacity)) || ShadowProps.opacity < 0 || ShadowProps.opacity > 1) {
-			console.warn('Warning: shadow.opacity can only be 0-1')
-			ShadowProps.opacity = 0.75
+			console.warn('Warning: shadow.opacity can only be 0-1');
+			ShadowProps.opacity = 0.75;
 		}
 
 		// B: ROBUST: Cast any type of valid arg to int: '12', 12.3, etc. -> 12
-		ShadowProps.opacity = Number(ShadowProps.opacity)
+		ShadowProps.opacity = Number(ShadowProps.opacity);
 	}
 
 	// OPT: `color`
 	if (ShadowProps.color) {
 		// INCORRECT FORMAT
 		if (ShadowProps.color.startsWith('#')) {
-			console.warn('Warning: shadow.color should not include hash (#) character, , e.g. "FF0000"')
-			ShadowProps.color = ShadowProps.color.replace('#', '')
+			console.warn('Warning: shadow.color should not include hash (#) character, , e.g. "FF0000"');
+			ShadowProps.color = ShadowProps.color.replace('#', '');
 		}
 	}
 
-	return ShadowProps
+	return ShadowProps;
 }

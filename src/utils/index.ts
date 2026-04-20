@@ -1,4 +1,4 @@
-import { image } from "./imageUtils";
+import { image } from './imageUtils';
 
 const utils = { image };
 

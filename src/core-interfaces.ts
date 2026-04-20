@@ -969,6 +969,13 @@ export interface TextBulletProps {
 	 */
 	numberStartAt?: number;
 
+	/** sizePercent
+	 * @since
+	 * @default 100
+	 * @example 125 // bullet point is 125% of the default
+	 */
+	sizePercent?: number;
+
 	// DEPRECATED
 
 	/**

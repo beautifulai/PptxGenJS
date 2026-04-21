@@ -3,9 +3,7 @@
  */
 
 import {
-	BULLET_TYPES,
 	CRLF,
-	DEF_BULLET_MARGIN,
 	DEF_CELL_MARGIN_IN,
 	DEF_PRES_LAYOUT_NAME,
 	DEF_TEXT_GLOW,
@@ -43,8 +41,6 @@ import {
 	valToPts,
 } from './gen-utils';
 import * as bullets from './generators/bullets';
-
-import utils from './utils';
 
 const ImageSizingXml = {
 	cover: function (imgSize: { w: number; h: number }, boxDim: { w: number; h: number; x: number; y: number }) {
@@ -901,9 +897,12 @@ export function genXmlParagraphProperties (textObj: ISlideObject | TextProps, is
 
 		// OPTION: bullet
 		if (textObj.options.bullet) {
-			const bulletProps = bullets.generateXml(textObj.options, slide);
-			paragraphPropXml += bulletProps.paragraphPropXml;
-			strXmlBullet = bulletProps.strXmlBullet;
+			// The slide will be mutated and a new image rel added when the bullet includes a new icon
+			//
+			const imageRid = bullets.maybeAddImageRel(textObj.options, (slide as PresSlide));
+			const bulletXml = bullets.generateXml(textObj.options, slide, imageRid);
+			paragraphPropXml += bullets.paragraphPropXml(textObj.options);
+			strXmlBullet = bulletXml;
 		}
 
 		// OPTION: tabStops

@@ -1,6 +1,6 @@
+import { BULLET_TYPES, DEF_BULLET_MARGIN } from '../core-enums';
 import { PresSlide, SlideLayout, TextBulletProps, TextPropsOptions } from '../core-interfaces';
 import { valToPts } from '../gen-utils';
-import { BULLET_TYPES, DEF_BULLET_MARGIN } from '../core-enums';
 import utils from '../utils';
 
 function _bulletColorXml (bullet: TextBulletProps): string {
@@ -38,10 +38,11 @@ function noBulletXml (bullet: TextBulletProps): string {
 	return '<a:buNone/>';
 }
 
-function checkboxBulletXml (bullet: TextBulletProps, rId: number): string {
+function checkboxBulletXml (bullet: TextBulletProps, rId: number | null): string {
 	const sizeXml = _bulletSizeXml(bullet);
+	const blipXml = rId ? `<a:buBlip><a:blip r:embed="rId${rId}"/></a:buBlip>` : '';
 
-	return `${sizeXml}<a:buBlip><a:blip r:embed="rId${rId}"/></a:buBlip>`;
+	return `${sizeXml}${blipXml}`;
 }
 
 function numberBulletXml (bullet: TextBulletProps): string {
@@ -80,85 +81,75 @@ export function calcBulletMargin (textPropsOptions: TextPropsOptions, bullet: bo
 }
 
 export function calcBulletIndent (textPropsOptions: TextPropsOptions, bullet: boolean | TextBulletProps): number {
-	if (typeof bullet !== 'boolean' && (typeof bullet !== 'object' || bullet === null)) return 0;
-	if (bullet === false) return 0;
+	if (typeof bullet !== 'boolean' && (typeof bullet !== 'object' || bullet === null)) {
+		return 0;
+	}
 
-	if (bullet === true) return -calcBulletMargin(textPropsOptions, bullet);
+	if (bullet === false) {
+		return 0;
+	}
+
+	if (bullet === true) {
+		return (-calcBulletMargin(textPropsOptions, bullet));
+	}
 
 	const baseMargin = valToPts(typeof bullet.marginLeft === 'number' ? bullet.marginLeft : DEF_BULLET_MARGIN);
 	const indentIncrement = (typeof bullet.indent === 'number') ? valToPts(bullet.indent) : baseMargin;
 	return -indentIncrement;
 }
 
-/**
- * Generate XML for Bullet Properties
- */
-export function generateXml (textPropsOptions: TextPropsOptions, slide: PresSlide | SlideLayout): { paragraphPropXml: string; strXmlBullet: string } {
-	let paragraphPropXml = '';
-	let strXmlBullet = '';
+export function paragraphPropXml (textPropsOptions: TextPropsOptions): string {
 	const bullet = textPropsOptions.bullet;
 	const bulletMargin = calcBulletMargin(textPropsOptions, bullet);
-	let indent: number;
+	const bulletIndent = calcBulletIndent(textPropsOptions, bullet);
+	return ` marL="${bulletMargin}" indent="${bulletIndent}"`;
+}
+
+export function maybeAddImageRel (textPropsOptions: TextPropsOptions, slide: PresSlide): number | null {
+	const bullet = (textPropsOptions.bullet as TextBulletProps);
+
+	if (bullet && typeof bullet === 'object' && bullet.icon) {
+		return utils.image.addImageRels((slide), { data: bullet.icon });
+	}
+
+	return null;
+}
+
+/**
+ * Generate XML for Bullet Properties
+ * May also mutate the slide
+ */
+export function generateXml (textPropsOptions: TextPropsOptions, slide: PresSlide | SlideLayout, imageRid: number | null): string {
+	const bullet = textPropsOptions.bullet;
 
 	if (typeof bullet === 'boolean') {
 		if (bullet) {
-			paragraphPropXml += ` marL="${bulletMargin}" indent="${-bulletMargin}"`;
-			strXmlBullet = bulletBulletXml({ });
+			return bulletBulletXml({});
 		} else if (!bullet) {
-			// We only add this when the user explicitly asks for no bullet, otherwise, it can override the master defaults!
-			paragraphPropXml += ' indent="0" marL="0"'; // FIX: ISSUE#589 - specify zero indent and marL or default will be hanging paragraph
-			strXmlBullet = noBulletXml({});
+			return noBulletXml({});
 		}
 	} else if (bullet && typeof bullet === 'object') {
-		const indentIncrement = (typeof bullet.indent === 'number') ? valToPts(bullet.indent) : bulletMargin;
-
 		if (bullet.type) {
 			const bulletType = bullet.type.toString().toLowerCase();
 
-			let rId: number;
 			switch (bulletType) {
 				case 'bullet':
-					indent = -indentIncrement;
-					paragraphPropXml += ` marL="${bulletMargin}" indent="${indent}"`;
-					strXmlBullet = bulletBulletXml(bullet);
-					break;
+					return bulletBulletXml(bullet);
 				case 'char':
-					indent = -indentIncrement;
-					paragraphPropXml += ` marL="${bulletMargin}" indent="${indent}"`;
-					strXmlBullet = charBulletXml(bullet);
-					break;
+					return charBulletXml(bullet);
 				case 'checkbox':
-					indent = -indentIncrement;
-					paragraphPropXml += ` marL="${bulletMargin}" indent="${indent}"`;
-					rId = utils.image.addImageRels((slide as PresSlide), { data: bullet.icon });
-					strXmlBullet = checkboxBulletXml(bullet, rId);
-					break;
+					return checkboxBulletXml(bullet, imageRid);
 				case 'number':
-					// indent = 0;
-					indent = -indentIncrement;
-					paragraphPropXml += ` marL="${bulletMargin}" indent="${indent}"`;
-					strXmlBullet = numberBulletXml(bullet);
-					break;
+					return numberBulletXml(bullet);
 				case 'none':
-					indent = -indentIncrement;
-					paragraphPropXml += ` marL="${bulletMargin}" indent="${indent}"`;
-					strXmlBullet = noBulletXml(bullet);
-					break;
+					return noBulletXml(bullet);
 			}
 		} else if (bullet.characterCode) {
-			paragraphPropXml += ` marL="${bulletMargin}" indent="-${valToPts(DEF_BULLET_MARGIN)}"`;
-			strXmlBullet = charBulletXml(bullet);
+			return charBulletXml(bullet);
 		} else if (bullet.code) {
 			// @deprecated `bullet.code` v3.3.0
-			paragraphPropXml += ` marL="${bulletMargin}" indent="-${valToPts(DEF_BULLET_MARGIN)}"`;
-			strXmlBullet = charBulletXml(bullet);
-		} else {
-			paragraphPropXml += ` marL="${bulletMargin}" indent="-${valToPts(DEF_BULLET_MARGIN)}"`;
-			strXmlBullet = bulletBulletXml(bullet);
+			return charBulletXml(bullet);
 		}
+		return bulletBulletXml(bullet);
 	}
-	return {
-		paragraphPropXml,
-		strXmlBullet,
-	};
 }

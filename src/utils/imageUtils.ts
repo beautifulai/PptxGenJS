@@ -1,5 +1,6 @@
 import {
 	ImageProps,
+	ISlideRelMedia,
 	PresSlide,
 } from '../core-interfaces';
 import { getNewRelId, getSmartParseNumber } from '../gen-utils';
@@ -9,7 +10,7 @@ import { getNewRelId, getSmartParseNumber } from '../gen-utils';
  * @param props
  * @returns {boolean}
  */
-function checkImageProps (props: ImageProps) {
+function checkImageProps (props: ImageProps): boolean {
 	const strImageData = props.data || '';
 	const strImagePath = props.path || '';
 
@@ -54,7 +55,7 @@ function hashImageData (str: string): string {
 /**
  * @returns {string}
  */
-function imageExtension (props: ImageProps) {
+function imageExtension (props: ImageProps): string {
 	const strImageData = props.data || '';
 	const strImagePath = props.path || '';
 	// NOTE: Split to address URLs with params (eg: `path/brent.jpg?someParam=true`)
@@ -77,7 +78,7 @@ function imageExtension (props: ImageProps) {
 	return strImgExtn;
 }
 
-function imageRelTarget (props: ImageProps) {
+function imageRelTarget (props: ImageProps): string {
 	const imageHash = (props.data && typeof props.data === 'string' && props.data.length > 0)
 		? hashImageData(props.data)
 		: hashImageData(props.path || '');
@@ -91,7 +92,7 @@ function imageRelTarget (props: ImageProps) {
  * @returns { ISlideRelMedia }
  */
 
-function existingImageRel (target: PresSlide, props: ImageProps) {
+function existingImageRel (target: PresSlide, props: ImageProps): ISlideRelMedia {
 	const strImgExtn = imageExtension(props);
 	const imageTarget = `${imageRelTarget(props)}.${strImgExtn}`;
 
@@ -102,7 +103,7 @@ function existingImageRel (target: PresSlide, props: ImageProps) {
  * Adds the image relationships to the slide media rels folder
  * @returns {number} rId that is used to link the image on the slide to the image in the media folder
  */
-function addImageRels (target: PresSlide, props: ImageProps) {
+function addImageRels (target: PresSlide, props: ImageProps): number {
 	const strImageData = props.data || '';
 	const strImagePath = props.path || '';
 	const strImgExtn = imageExtension(props);

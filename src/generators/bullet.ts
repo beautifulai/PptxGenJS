@@ -45,6 +45,13 @@ function checkboxBulletXml (bullet: TextBulletProps, rId: number | null): string
 	return `${sizeXml}${blipXml}`;
 }
 
+function iconBulletXml (bullet: TextBulletProps, rId: number | null): string {
+	const sizeXml = _bulletSizeXml(bullet);
+	const blipXml = rId ? `<a:buBlip><a:blip r:embed="rId${rId}"/></a:buBlip>` : '';
+
+	return `${sizeXml}${blipXml}`;
+}
+
 function numberBulletXml (bullet: TextBulletProps): string {
 	const colorXml = _bulletColorXml(bullet);
 	const sizeXml = _bulletSizeXml(bullet);
@@ -139,6 +146,8 @@ export function generateXml (textPropsOptions: TextPropsOptions, slide: PresSlid
 					return charBulletXml(bullet);
 				case 'checkbox':
 					return checkboxBulletXml(bullet, imageRid);
+				case 'icon':
+					return iconBulletXml(bullet, imageRid);
 				case 'number':
 					return numberBulletXml(bullet);
 				case 'none':

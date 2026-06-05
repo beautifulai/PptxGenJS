@@ -911,7 +911,7 @@ export interface TextBulletProps {
 	 * Bullet type
 	 * @default bullet
 	 */
-	type?: 'bullet' | 'char' | 'checkbox' | 'number' | 'none';
+	type?: 'bullet' | 'char' | 'checkbox' | 'icon' | 'number' | 'none';
 	/**
 	 * Bullet character code (unicode)
 	 * @since v3.3.0

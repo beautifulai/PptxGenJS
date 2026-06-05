@@ -1,9 +1,9 @@
-import pkg from "./package.json";
-import resolve from "@rollup/plugin-node-resolve";
-import commonjs from "@rollup/plugin-commonjs";
-import typescript from "rollup-plugin-typescript2";
+const pkg = require("./package.json");
+const resolve = require("@rollup/plugin-node-resolve");
+const commonjs = require("@rollup/plugin-commonjs");
+const typescript = require("rollup-plugin-typescript2");
 
-export default {
+module.exports = {
   input: "src/pptxgen.ts",
   output: [
     {
@@ -36,10 +36,12 @@ export default {
   ],
   external: [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})],
   plugins: [
-    resolve(),
-    commonjs(),
     typescript({
+      include: ["**/*.ts", "**/*.tsx"],
+      exclude: ["**/*.d.ts"],
       typescript: require("typescript"),
     }),
+    resolve.nodeResolve(),
+    commonjs(),
   ],
 };

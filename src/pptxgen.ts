@@ -106,11 +106,11 @@ export default class PptxGenJS implements IPresentationProps {
 	// Can be accessed using `PptxGenJS["Internals"]`
 	public static Internals: typeof Internals = Internals;
 
-	public static getInternals () {
+	public static getInternals (): typeof Internals {
 		return Internals;
 	}
 
-	public get Internals () {
+	public get Internals (): typeof Internals {
 		return Internals;
 	}
 

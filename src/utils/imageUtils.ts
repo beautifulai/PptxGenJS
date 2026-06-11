@@ -1,15 +1,16 @@
 import {
 	ImageProps,
+	ISlideRelMedia,
 	PresSlide,
-} from '../core-interfaces'
-import { getNewRelId, getSmartParseNumber } from '../gen-utils'
+} from '../core-interfaces';
+import { getNewRelId, getSmartParseNumber } from '../gen-utils';
 
 /**
  * Validates image props
  * @param props
  * @returns {boolean}
  */
-function checkImageProps(props: ImageProps) {
+function checkImageProps (props: ImageProps): boolean {
 	const strImageData = props.data || '';
 	const strImagePath = props.path || '';
 
@@ -37,24 +38,24 @@ function checkImageProps(props: ImageProps) {
  * @returns {string} 8-character hex hash
  */
 function hashImageData (str: string): string {
-	let hash1 = 5381
-	let hash2 = 52711
+	let hash1 = 5381;
+	let hash2 = 52711;
 
 	for (let i = 0; i < str.length; i++) {
-		const char = str.charCodeAt(i)
-		hash1 = ((hash1 << 5) + hash1) ^ char
-		hash2 = ((hash2 << 5) + hash2) ^ char
+		const char = str.charCodeAt(i);
+		hash1 = ((hash1 << 5) + hash1) ^ char;
+		hash2 = ((hash2 << 5) + hash2) ^ char;
 	}
 
 	// Combine both hashes and convert to unsigned 32-bit, then to hex
-	const combined = (hash1 >>> 0) ^ (hash2 >>> 0)
-	return combined.toString(16).padStart(8, '0')
+	const combined = (hash1 >>> 0) ^ (hash2 >>> 0);
+	return combined.toString(16).padStart(8, '0');
 }
 
 /**
  * @returns {string}
  */
-function imageExtension(props: ImageProps){
+function imageExtension (props: ImageProps): string {
 	const strImageData = props.data || '';
 	const strImagePath = props.path || '';
 	// NOTE: Split to address URLs with params (eg: `path/brent.jpg?someParam=true`)
@@ -65,23 +66,23 @@ function imageExtension(props: ImageProps){
 			.split('.')
 			.pop()
 			.split('#')[0] || 'png'
-	).toLowerCase()
+	).toLowerCase();
 
 	// However, pre-encoded images can be whatever mime-type they want (and good for them!)
 	if (strImageData && /image\/(\w+);/.exec(strImageData) && /image\/(\w+);/.exec(strImageData).length > 0) {
-		strImgExtn = /image\/(\w+);/.exec(strImageData)[1]
+		strImgExtn = /image\/(\w+);/.exec(strImageData)[1];
 	} else if (strImageData?.toLowerCase().includes('image/svg+xml')) {
-		strImgExtn = 'svg'
+		strImgExtn = 'svg';
 	}
 
 	return strImgExtn;
 }
 
-function imageRelTarget(props: ImageProps){
+function imageRelTarget (props: ImageProps): string {
 	const imageHash = (props.data && typeof props.data === 'string' && props.data.length > 0)
-			? hashImageData(props.data)
-			: hashImageData(props.path || '');
-	return `../media/image-${imageHash}`
+		? hashImageData(props.data)
+		: hashImageData(props.path || '');
+	return `../media/image-${imageHash}`;
 }
 
 /**
@@ -91,9 +92,9 @@ function imageRelTarget(props: ImageProps){
  * @returns { ISlideRelMedia }
  */
 
-function existingImageRel(target: PresSlide, props: ImageProps) {
+function existingImageRel (target: PresSlide, props: ImageProps): ISlideRelMedia {
 	const strImgExtn = imageExtension(props);
-	const imageTarget = `${imageRelTarget(props)}.${strImgExtn}`
+	const imageTarget = `${imageRelTarget(props)}.${strImgExtn}`;
 
 	return target._relsMedia.find(item => item.Target === imageTarget);
 }
@@ -102,7 +103,7 @@ function existingImageRel(target: PresSlide, props: ImageProps) {
  * Adds the image relationships to the slide media rels folder
  * @returns {number} rId that is used to link the image on the slide to the image in the media folder
  */
-function addImageRels(target: PresSlide, props: ImageProps) {
+function addImageRels (target: PresSlide, props: ImageProps): number {
 	const strImageData = props.data || '';
 	const strImagePath = props.path || '';
 	const strImgExtn = imageExtension(props);
@@ -131,7 +132,7 @@ function addImageRels(target: PresSlide, props: ImageProps) {
 					w: getSmartParseNumber(props.w || 1, 'X', target._presLayout),
 					h: getSmartParseNumber(props.h || 1, 'Y', target._presLayout)
 				},
-			})
+			});
 			imageRelId = imageRelId + 1;
 			target._relsMedia.push({
 				path: strImagePath || strImageData,
@@ -139,12 +140,12 @@ function addImageRels(target: PresSlide, props: ImageProps) {
 				extn: strImgExtn,
 				data: strImageData || '',
 				rId: imageRelId,
-				Target:`${imageRelTarget(props)}.${strImgExtn}`,
-			})
+				Target: `${imageRelTarget(props)}.${strImgExtn}`,
+			});
 		} else {
 			const dupeItem = target._relsMedia.filter(item =>
-				item.path && item.path === strImagePath && item.type === 'image/' + strImgExtn
-				&& !item.isDuplicate)[0]
+				item.path && item.path === strImagePath && item.type === 'image/' + strImgExtn &&
+				!item.isDuplicate)[0];
 
 			target._relsMedia.push({
 				path: strImagePath || 'preencoded.' + strImgExtn,
@@ -154,7 +155,7 @@ function addImageRels(target: PresSlide, props: ImageProps) {
 				rId: imageRelId,
 				isDuplicate: !!(dupeItem?.Target),
 				Target: `${imageRelTarget(props)}.${strImgExtn}`,
-			})
+			});
 		}
 		return imageRelId;
 	}
@@ -164,4 +165,4 @@ export const image = {
 	addImageRels,
 	checkImageProps,
 	hashImageData
-}
+};

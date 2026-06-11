@@ -1105,7 +1105,7 @@ declare namespace PptxGenJS {
 			 * Bullet type
 			 * @default bullet
 			 */
-			type?: 'bullet' | 'number'
+			type?: 'bullet' | 'char' | 'checkbox' | 'icon' | 'number' | 'none';
 			/**
 			 * Bullet character code (unicode)
 			 * @since v3.3.0

@@ -1,22 +1,72 @@
 const pkg = require('./package.json')
+const path = require('path')
 const rollup = require('rollup')
-const { resolve } = require('@rollup/plugin-node-resolve')
-const { commonjs } = require('@rollup/plugin-commonjs')
+const { nodeResolve } = require('@rollup/plugin-node-resolve')
+const commonjs = require('@rollup/plugin-commonjs')
 const typescript = require('rollup-plugin-typescript2')
+const through = require('through2')
+const Vinyl = require('vinyl')
 const { watch, series } = require('gulp')
 const gulp = require('gulp'),
-	concat = require('gulp-concat'),
 	ignore = require('gulp-ignore'),
 	insert = require('gulp-insert'),
 	source = require('gulp-sourcemaps'),
 	uglify = require('gulp-uglify')
+
+function concatFiles (filename) {
+	let latestFile = null
+	const buffers = []
+
+	return through.obj(
+		function (file, enc, cb) {
+			if (file.isNull()) {
+				cb()
+				return
+			}
+
+			if (file.isStream()) {
+				cb(new Error('Streaming input is not supported'))
+				return
+			}
+
+			latestFile = file
+			buffers.push(file.contents)
+			cb()
+		},
+		function (cb) {
+			if (!latestFile) {
+				cb()
+				return
+			}
+
+			this.push(
+				new Vinyl({
+					cwd: latestFile.cwd,
+					base: latestFile.base,
+					path: path.join(latestFile.base, filename),
+					stat: latestFile.stat,
+					contents: Buffer.concat(buffers)
+				})
+			)
+			cb()
+		}
+	)
+}
 
 gulp.task('build', () => {
 	return rollup
 		.rollup({
 			input: './src/pptxgen.ts',
 			external: [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})],
-			plugins: [typescript(), resolve, commonjs]
+			plugins: [
+				typescript({
+					include: ['**/*.ts', '**/*.tsx'],
+					exclude: ['**/*.d.ts'],
+					typescript: require('typescript')
+				}),
+				nodeResolve(),
+				commonjs()
+			]
 		})
 		.then(bundle => {
 			bundle.write({
@@ -49,7 +99,7 @@ gulp.task('build', () => {
 gulp.task('min', () => {
 	return gulp
 		.src(['./src/bld/pptxgen.gulp.js'])
-		.pipe(concat('pptxgen.min.js'))
+		.pipe(concatFiles('pptxgen.min.js'))
 		.pipe(uglify())
 		.pipe(insert.prepend('/* PptxGenJS ' + pkg.version + ' @ ' + new Date().toISOString() + ' */\n'))
 		.pipe(source.init())
@@ -61,7 +111,7 @@ gulp.task('min', () => {
 gulp.task('bundle', () => {
 	return gulp
 		.src(['./libs/*', './src/bld/pptxgen.gulp.js'])
-		.pipe(concat('pptxgen.bundle.js'))
+		.pipe(concatFiles('pptxgen.bundle.js'))
 		.pipe(uglify())
 		.pipe(insert.prepend('/* PptxGenJS ' + pkg.version + ' @ ' + new Date().toISOString() + ' */\n'))
 		.pipe(source.init())

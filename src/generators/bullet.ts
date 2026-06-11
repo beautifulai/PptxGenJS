@@ -34,7 +34,7 @@ function charBulletXml (bullet: TextBulletProps): string {
 	return `${colorXml}${sizeXml}<a:buChar char="${char}"/>`;
 }
 
-function noBulletXml (bullet: TextBulletProps): string {
+function noBulletXml (): string {
 	return '<a:buNone/>';
 }
 
@@ -56,7 +56,7 @@ function numberBulletXml (bullet: TextBulletProps): string {
 	const colorXml = _bulletColorXml(bullet);
 	const sizeXml = _bulletSizeXml(bullet);
 
-	const bulletType = bullet.numberType || bullet?.style || 'arabicPeriod';
+	const bulletType = bullet.numberType || bullet.style || 'arabicPeriod';
 	const bulletStartAt = bullet.numberStartAt || bullet.startAt;
 	let strXmlBullet = `${colorXml}${sizeXml}<a:buFont typeface="+mj-lt"/><a:buAutoNum type="${bulletType}"`;
 	if (bulletStartAt && typeof bulletStartAt === 'number') {
@@ -133,7 +133,7 @@ export function generateXml (textPropsOptions: TextPropsOptions, slide: PresSlid
 		if (bullet) {
 			return bulletBulletXml({});
 		} else if (!bullet) {
-			return noBulletXml({});
+			return noBulletXml();
 		}
 	} else if (bullet && typeof bullet === 'object') {
 		if (bullet.type) {
@@ -151,7 +151,7 @@ export function generateXml (textPropsOptions: TextPropsOptions, slide: PresSlid
 				case 'number':
 					return numberBulletXml(bullet);
 				case 'none':
-					return noBulletXml(bullet);
+					return noBulletXml();
 			}
 		} else if (bullet.characterCode) {
 			return charBulletXml(bullet);

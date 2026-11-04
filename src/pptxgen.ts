@@ -99,7 +99,7 @@ import * as genTable from './gen-tables';
 import * as genXml from './gen-xml';
 import { Internals } from './internals';
 
-const VERSION = '3.13.0-bai.4';
+const VERSION = '3.13.0-bai.5';
 
 export default class PptxGenJS implements IPresentationProps {
 	// Export Internals for testing and development purposes

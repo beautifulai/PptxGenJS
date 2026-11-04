@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-bai.4 @ 2026-06-11T18:38:15.818Z */
+/* PptxGenJS 3.13.0-bai.5 @ 2026-11-04T17:41:58.167Z */
 import JSZip from 'jszip';
 
 /******************************************************************************
@@ -5140,7 +5140,7 @@ function charBulletXml(bullet) {
     var char = isValidCode ? "&#x".concat(bullet.characterCode, ";") : BULLET_TYPES.DEFAULT;
     return "".concat(colorXml).concat(sizeXml, "<a:buChar char=\"").concat(char, "\"/>");
 }
-function noBulletXml(bullet) {
+function noBulletXml() {
     return '<a:buNone/>';
 }
 function checkboxBulletXml(bullet, rId) {
@@ -5156,7 +5156,7 @@ function iconBulletXml(bullet, rId) {
 function numberBulletXml(bullet) {
     var colorXml = _bulletColorXml(bullet);
     var sizeXml = _bulletSizeXml(bullet);
-    var bulletType = bullet.numberType || (bullet === null || bullet === void 0 ? void 0 : bullet.style) || 'arabicPeriod';
+    var bulletType = bullet.numberType || bullet.style || 'arabicPeriod';
     var bulletStartAt = bullet.numberStartAt || bullet.startAt;
     var strXmlBullet = "".concat(colorXml).concat(sizeXml, "<a:buFont typeface=\"+mj-lt\"/><a:buAutoNum type=\"").concat(bulletType, "\"");
     if (bulletStartAt && typeof bulletStartAt === 'number') {
@@ -6960,7 +6960,7 @@ var Internals = {
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-var VERSION = '3.13.0-bai.0';
+var VERSION = '3.13.0-bai.5';
 var PptxGenJS = /** @class */ (function () {
     function PptxGenJS() {
         var _this = this;

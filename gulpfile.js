@@ -8,9 +8,7 @@ const through = require('through2')
 const Vinyl = require('vinyl')
 const { watch, series } = require('gulp')
 const gulp = require('gulp'),
-	ignore = require('gulp-ignore'),
 	insert = require('gulp-insert'),
-	source = require('gulp-sourcemaps'),
 	uglify = require('gulp-uglify')
 
 function concatFiles (filename) {
@@ -102,9 +100,6 @@ gulp.task('min', () => {
 		.pipe(concatFiles('pptxgen.min.js'))
 		.pipe(uglify())
 		.pipe(insert.prepend('/* PptxGenJS ' + pkg.version + ' @ ' + new Date().toISOString() + ' */\n'))
-		.pipe(source.init())
-		.pipe(ignore.exclude(['**/*.map']))
-		.pipe(source.write('./'))
 		.pipe(gulp.dest('./dist/'))
 })
 
@@ -114,9 +109,6 @@ gulp.task('bundle', () => {
 		.pipe(concatFiles('pptxgen.bundle.js'))
 		.pipe(uglify())
 		.pipe(insert.prepend('/* PptxGenJS ' + pkg.version + ' @ ' + new Date().toISOString() + ' */\n'))
-		.pipe(source.init())
-		.pipe(ignore.exclude(['**/*.map']))
-		.pipe(source.write('./'))
 		.pipe(gulp.dest('./dist/'))
 		.pipe(gulp.dest('./demos/browser/js/'))
 })
@@ -135,18 +127,6 @@ gulp.task('es', () => {
 		.pipe(gulp.dest('./dist/'))
 })
 
-gulp.task('reactTestCode', () => {
-	return gulp
-		.src(['./dist/pptxgen.es.js'])
-		.pipe(gulp.dest('./demos/react-demo/node_modules/pptxgenjs/dist'))
-})
-
-gulp.task('reactTestDefs', () => {
-	return gulp
-		.src(['./types/index.d.ts'])
-		.pipe(gulp.dest('./demos/react-demo/node_modules/pptxgenjs/types'))
-})
-
 gulp.task('nodeTest', () => {
 	return gulp
 		.src(['./dist/pptxgen.cjs.js'])
@@ -154,11 +134,11 @@ gulp.task('nodeTest', () => {
 })
 
 // Build/Deploy (ad-hoc, no watch)
-gulp.task('ship', gulp.series('build', 'min', 'cjs', 'es', 'bundle', 'reactTestCode', 'reactTestDefs', 'nodeTest'), () => {
+gulp.task('ship', gulp.series('build', 'min', 'cjs', 'es', 'bundle', 'nodeTest'), () => {
 	console.log('... ./dist/*.js files created!')
 })
 // Build/Deploy
-gulp.task('default', gulp.series('build', 'min', 'cjs', 'es', 'bundle', 'reactTestCode', 'reactTestDefs', 'nodeTest'), () => {
+gulp.task('default', gulp.series('build', 'min', 'cjs', 'es', 'bundle', 'nodeTest'), () => {
 	console.log('... ./dist/*.js files created!')
 })
 

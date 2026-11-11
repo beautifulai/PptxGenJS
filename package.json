@@ -1,6 +1,6 @@
 {
   "name": "pptxgenjs",
-  "version": "3.13.0-bai.5",
+  "version": "3.13.0-bai.6",
   "author": {
     "name": "Brent Ely",
     "url": "https://github.com/gitbrent/"
@@ -19,7 +19,6 @@
     "build": "rollup -c",
     "start": "gulp",
     "ship": "gulp ship",
-    "defs": "gulp reactTestDefs",
     "watch": "rollup -cw",
     "doctoc": "./node_modules/doctoc/doctoc.js README.md"
   },
@@ -53,9 +52,7 @@
     "express": "^4.22.3",
     "gulp": "^4.0.2",
     "gulp-concat": "^2.6.1",
-    "gulp-ignore": "^3.0.0",
     "gulp-insert": "^0.5.0",
-    "gulp-sourcemaps": "^3.0.0",
     "gulp-uglify": "^3.0.2",
     "path-to-regexp": "^0.1.12",
     "rollup": "^2.79.2",

@@ -38,32 +38,6 @@ npm run demo-text
 npm run demo-stream
 ```
 
-### React/TypeScript
-
-Test
-
-1. Ensure newest `dist/pptxgen.es.js` and `types/index.d.ts` under local node_modules
-2. Update `demos/react-demo/package.json` version (note, may need to update package-lock.json)
-3. Open `demos/react-demo/src/tstest/Test.tsx`, check for typescript errors/warnings: use auto-complete, "pptxgen.ChartType." etc.
-
-```bash
-cd ~/GitHub/PptxGenJS/demos/react-demo
-npm run build
-npm run start
-```
-
-1. Go to [React Test](http://localhost:3000) on iMac, run demo tests
-2. Go to <http://192.168.254.x:3000> on iPhone, run demo tests
-3. Go to <http://192.168.254.x:3000> on Android, run demo tests
-4. Open exports on each device to ensure MIME type is correct, looks right, etc.
-5. Note: Any updates to `node_modules/dist/pptxgen.es.js` are not picked up by the server (ctrl-C and restart)
-
-Build
-
-1. Run `npm run build`
-2. Copy entire "build" folder to Downloads to use when updating "gh-pages" branch after release is complete
-3. Note: **DO NOT** use the deploy script offered onscreen!
-
 ## Release New Version
 
 ### Pre-Release Check

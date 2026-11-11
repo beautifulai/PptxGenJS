@@ -1,4 +1,4 @@
-/* PptxGenJS 3.13.0-bai.5 @ 2026-11-04T17:41:58.165Z */
+/* PptxGenJS 3.13.0-bai.6 @ 2026-11-11T00:29:59.754Z */
 'use strict';
 
 var JSZip = require('jszip');
@@ -6966,7 +6966,7 @@ var Internals = {
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-var VERSION = '3.13.0-bai.5';
+var VERSION = '3.13.0-bai.6';
 var PptxGenJS = /** @class */ (function () {
     function PptxGenJS() {
         var _this = this;
